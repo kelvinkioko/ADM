@@ -74,8 +74,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-    //Password View Library
-    implementation 'com.xwray:passwordview:0.1'
     // Circular Image View
     implementation "de.hdodenhof:circleimageview:$civ_version"
 
@@ -103,6 +101,5 @@ dependencies {
     //Add Kotlin-Coroutines-Android//
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:0.27.0-eap13"
 
-    // Volley
-    implementation "com.android.volley:volley:$volley_version"
+    implementation "com.liulishuo.filedownloader:library:$downloaderVersion"
 }

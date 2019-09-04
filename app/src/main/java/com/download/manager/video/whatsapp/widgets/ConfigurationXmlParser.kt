@@ -3,6 +3,7 @@ package com.download.manager.video.whatsapp.widgets
 import android.content.Context
 import android.content.res.XmlResourceParser
 import android.graphics.drawable.Drawable
+import android.support.graphics.drawable.VectorDrawableCompat
 import android.support.v4.content.ContextCompat
 import org.xmlpull.v1.XmlPullParserException
 
@@ -41,8 +42,11 @@ class ConfigurationXmlParser(private val context: Context, xmlRes: Int) {
         return BottomBarItemConfig(text = itemText!!, drawable = itemDrawable!!, index = itemConfigList.size)
     }
 
-    private fun getDrawable(parser: XmlResourceParser, i: Int): Drawable {
-        return ContextCompat.getDrawable(context, parser.getAttributeResourceValue(i, 0))!!
+//    private fun getDrawable(parser: XmlResourceParser, i: Int): Drawable {
+//        return ContextCompat.getDrawable(context, parser.getAttributeResourceValue(i, 0))!!
+//    }
+    private fun getDrawable(parser: XmlResourceParser, i: Int): VectorDrawableCompat {
+        return VectorDrawableCompat.create(context.resources, parser.getAttributeResourceValue(i, 0), null)!!
     }
 
     private fun getText(parser: XmlResourceParser, i: Int): String {

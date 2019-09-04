@@ -70,7 +70,7 @@
                             android:id="@+id/dau_link"
                             android:layout_width="match_parent" android:layout_height="40dp"
                             android:hint="e.g. https://link.com/video.mp4" android:background="@drawable/edit_background"
-                            android:textSize="16sp" android:textColor="@color/white"
+                            android:textSize="16sp" android:textColor="@color/black"
                             android:textColorHint="@color/hint_text" android:layout_margin="8dp"
                             android:paddingStart="8dp" android:paddingEnd="8dp"/>
 

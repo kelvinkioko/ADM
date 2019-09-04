@@ -75,16 +75,7 @@ class ReadableBottomBar @JvmOverloads constructor(context: Context, attrs: Attri
         setBackgroundColor(tabBackgroundColor)
         orientation = VERTICAL
 
-        bottomBarItemList = bottomBarItemConfigList.map { config ->
-            BottomBarItem(
-                    config.index,
-                    config.text,
-                    textSize,
-                    textColor,
-                    config.drawable,
-                    activeItemType
-            )
-        }
+        bottomBarItemList = bottomBarItemConfigList.map { config -> BottomBarItem( config.index, config.text, textSize, textColor, config.drawable, activeItemType) }
 
         typedArray.recycle()
     }

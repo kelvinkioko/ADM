@@ -77,12 +77,30 @@
                     android:layout_weight="1"
                     android:padding="12dp"/>
 
+            <ImageView
+                    android:id="@+id/id_error"
+                    android:layout_width="50dp"
+                    android:layout_height="match_parent"
+                    app:srcCompat="@drawable/icon_error"
+                    android:layout_weight="1"
+                    android:padding="12dp"
+                    android:visibility="gone"/>
+
+            <ImageView
+                    android:id="@+id/id_success"
+                    android:layout_width="50dp"
+                    android:layout_height="match_parent"
+                    app:srcCompat="@drawable/icon_success"
+                    android:layout_weight="1"
+                    android:padding="12dp"
+                    android:visibility="gone"/>
+
         </LinearLayout>
 
     </LinearLayout>
 
     <ProgressBar
-            android:id="@+id/iv_downloadprogress"
+            android:id="@+id/id_downloadprogress"
             android:layout_width="match_parent"
             android:layout_height="3dp"
             style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
@@ -92,7 +110,7 @@
             android:visibility="gone"/>
 
     <TextView
-            android:id="@+id/iv_id"
+            android:id="@+id/id_id"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"/>
