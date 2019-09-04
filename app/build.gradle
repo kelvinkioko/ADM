@@ -74,6 +74,8 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
+    implementation 'org.jsoup:jsoup:1.10.3'
+
     // Circular Image View
     implementation "de.hdodenhof:circleimageview:$civ_version"
 

@@ -29,7 +29,6 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
     private var originalModel: List<DownloadsEntity> = downloadsEntity
 
     private val handler: Handler = Handler()
-    private var chosenVehicle: String = ""
 
     lateinit var clickListener: OnItemClickListener
 
