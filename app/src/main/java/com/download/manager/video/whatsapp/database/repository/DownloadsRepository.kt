@@ -21,8 +21,8 @@ class DownloadsRepository(application: Application) {
         return downloadsDao.getDownloads()
     }
 
-    fun updateDownloads(downloaded: String, id: Int){
-        downloadsDao.updateDownloads(downloaded, id)
+    fun updateDownloads(downloaded: String, size: String, id: Int){
+        downloadsDao.updateDownloads(downloaded, size, id)
     }
 
     fun deleteDownloads(){

@@ -11,6 +11,7 @@ data class DownloadsEntity(
 
     @ColumnInfo(name = "name") var name: String,
     @ColumnInfo(name = "url") var url: String,
+    @ColumnInfo(name = "localurl") var localurl: String,
     @ColumnInfo(name = "downloaded") var downloaded: String,
     @ColumnInfo(name = "size") var size: String,
     @ColumnInfo(name = "datecreated") var datecreated: String

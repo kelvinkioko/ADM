@@ -13,8 +13,17 @@ interface DownloadsDao {
     @Query("SELECT * FROM downloadsEntity ORDER BY id DESC")
     fun getDownloads(): LiveData<List<DownloadsEntity>>
 
-    @Query("UPDATE downloadsEntity SET downloaded =:downloaded WHERE id =:id")
-    fun updateDownloads(downloaded: String, id: Int)
+    @Query("SELECT * FROM downloadsEntity ORDER BY id DESC")
+    fun getDownloadsList(): List<DownloadsEntity>
+
+    @Query("UPDATE downloadsEntity SET downloaded =:downloaded, size =:size WHERE id =:id")
+    fun updateDownloads(downloaded: String, size: String, id: Int)
+
+    @Query("UPDATE downloadsEntity SET localurl =:localurl WHERE id =:id")
+    fun updateLocalURL(localurl: String, id: Int)
+
+    @Query("UPDATE downloadsEntity SET name =:name WHERE id =:id")
+    fun updateName(name: String, id: Int)
 
     @Query("DELETE FROM downloadsEntity")
     fun deleteDownloads()

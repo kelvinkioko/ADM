@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="0.5dp">
+
+    <com.download.manager.video.whatsapp.widgets.progressbar.RoundCornerProgressBar
+            android:id="@+id/id_downloadprogress"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            app:rcBackgroundColor="@color/transparent"
+            app:rcMax="100"
+            app:rcProgress="0"
+            app:rcProgressColor="#2500b1b0"
+            app:rcRadius="0dp" android:visibility="gone"/>
 
     <LinearLayout
             android:layout_width="match_parent"
@@ -14,7 +24,7 @@
 
         <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="50dp"
+                android:layout_height="56dp"
                 android:orientation="vertical"
                 android:gravity="center_vertical"
                 android:paddingStart="8dp"
@@ -36,7 +46,7 @@
                     android:layout_height="wrap_content"
                     android:textSize="14sp"
                     android:text="28 Sept 2017, 20:05 572 KB"
-                    android:textColor="@color/hint_text"
+                    android:textColor="@color/secondary_text"
                     android:layout_marginTop="4dp"/>
 
         </LinearLayout>
@@ -65,6 +75,15 @@
                     android:layout_width="50dp"
                     android:layout_height="match_parent"
                     app:srcCompat="@drawable/icon_pause"
+                    android:layout_weight="1"
+                    android:padding="12dp"
+                    android:visibility="gone"/>
+
+            <ImageView
+                    android:id="@+id/id_play"
+                    android:layout_width="50dp"
+                    android:layout_height="match_parent"
+                    app:srcCompat="@drawable/icon_play"
                     android:layout_weight="1"
                     android:padding="12dp"
                     android:visibility="gone"/>
@@ -100,7 +119,6 @@
     </LinearLayout>
 
     <ProgressBar
-            android:id="@+id/id_downloadprogress"
             android:layout_width="match_parent"
             android:layout_height="3dp"
             style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
@@ -120,4 +138,4 @@
             android:layout_height="0.5dp"
             android:background="@color/strok"/>
 
-</LinearLayout>
+</RelativeLayout>

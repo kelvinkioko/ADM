@@ -32,6 +32,12 @@ class Legion {
         return mdformat.format(calendar.time)
     }
 
+    fun getDownloadName(): String {
+        val calendar = Calendar.getInstance()
+        @SuppressLint("SimpleDateFormat") val mdformat = SimpleDateFormat("ddHHmmss")
+        return "Temp file" + mdformat.format(calendar.time)
+    }
+
     fun getDate(): String {
         val calander = Calendar.getInstance()
         val cDay = calander.get(Calendar.DAY_OF_MONTH)

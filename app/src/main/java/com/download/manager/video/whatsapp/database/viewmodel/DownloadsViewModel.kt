@@ -18,8 +18,8 @@ class DownloadsViewModel(application: Application) : AndroidViewModel(applicatio
         return downloadsRepo.getDownloads()
     }
 
-    fun updateDownloads(downloaded: String, id: Int){
-        downloadsRepo.updateDownloads(downloaded, id)
+    fun updateDownloads(downloaded: String, size: String, id: Int){
+        downloadsRepo.updateDownloads(downloaded, size, id)
     }
 
     fun deleteDownloads(){

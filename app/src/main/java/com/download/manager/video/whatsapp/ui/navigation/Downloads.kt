@@ -77,7 +77,7 @@ class Downloads : Fragment(), DownloadsAdapter.OnItemClickListener {
             }
 
             done.setOnClickListener {
-                val downloadsEntity = DownloadsEntity(0, "Name of Download", link.text.toString().trim(), "0", "0", Legion().getCurrentDateTime())
+                val downloadsEntity = DownloadsEntity(0, Legion().getDownloadName(), link.text.toString().trim(), "", "0", "0", Legion().getCurrentDateTime())
                 downloadsViewModel.insertDownloads(downloadsEntity)
                 populateList()
                 dialog.dismiss()
@@ -100,7 +100,7 @@ class Downloads : Fragment(), DownloadsAdapter.OnItemClickListener {
                     downloadsEntity.clear()
                     for (d in 0 until downloadsEntities.size){
                         val download = DownloadsEntity(
-                            downloadsEntities[d].id, downloadsEntities[d].name, downloadsEntities[d].url, downloadsEntities[d].downloaded,
+                            downloadsEntities[d].id, downloadsEntities[d].name, downloadsEntities[d].url, downloadsEntities[d].localurl, downloadsEntities[d].downloaded,
                             downloadsEntities[d].size, downloadsEntities[d].datecreated
                         )
                         this.downloadsEntity.add(download)
