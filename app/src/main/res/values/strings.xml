@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Android Download Manager</string>
+
+    <string name="downloads">Downloads</string>
+    <string name="whatsapp">WA</string>
+    <string name="insta">Instagram</string>
+</resources>

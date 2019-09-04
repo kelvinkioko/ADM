@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#00b1b0</color>
+    <color name="colorPrimaryDark">#019f9e</color>
+    <color name="colorAccent">#D81B60</color>
+
+    <!--Text-->
+    <color name="primary_text">#212121</color>
+    <color name="secondary_text">#757575</color>
+    <color name="hint_text">#aeb0a5</color>
+    <color name="strok">#e4e5ea</color>
+
+    <color name="text_light">#F9F9F9</color>
+    <color name="text_medium">#CFCFCF</color>
+    <color name="text_dark">#AFAFAF</color>
+    <color name="transparent">@android:color/transparent</color>
+
+    <color name="transluscent_white">#30ffffff</color>
+    <color name="transluscent_black">#50000000</color>
+    <color name="white">#ffffff</color>
+    <color name="black">#000000</color>
+
+    <color name="cnb_default_unselected_color">#696969</color>
+    <color name="cnb_default_badge_color">#FF5722</color>
+
+    <color name="trips">#2196F3</color>
+    <color name="errands">#673AB7</color>
+    <color name="service">#4CAF50</color>
+
+    <color name="colorPositive">#1db14e</color>
+    <color name="colorNegative">#e25d6f</color>
+
+    <integer-array name="pocket_bar_colors">
+        <item>@color/pocket_color_1</item>
+        <item>@color/pocket_color_1</item>
+        <item>@color/pocket_color_1</item>
+        <item>@color/pocket_color_1</item>
+        <item>@color/pocket_color_2</item>
+        <item>@color/pocket_color_2</item>
+        <item>@color/pocket_color_2</item>
+        <item>@color/pocket_color_2</item>
+        <item>@color/pocket_color_3</item>
+        <item>@color/pocket_color_3</item>
+        <item>@color/pocket_color_3</item>
+        <item>@color/pocket_color_3</item>
+        <item>@color/pocket_color_4</item>
+        <item>@color/pocket_color_4</item>
+        <item>@color/pocket_color_4</item>
+        <item>@color/pocket_color_4</item>
+    </integer-array>
+
+    <color name="pocket_color_1">#85edb9</color>
+    <color name="pocket_color_2">#34bdb7</color>
+    <color name="pocket_color_3">#ee4458</color>
+    <color name="pocket_color_4">#fcb74d</color>
+</resources>
