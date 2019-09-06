@@ -159,8 +159,8 @@ class InstaService : IntentService("InstaService") {
         val stopIntent = Intent(this, InstaService::class.java)
         stopIntent.action = ACTION_STOP
         this.notification = Notification.Builder(this).setContentTitle("Android Download Manager").setTicker("Android Download Manager").setContentText("Just Copy Url From Instagram")
-            .setSmallIcon(R.drawable.icon_cancel).setPriority(Notification.PRIORITY_HIGH).setContentIntent(pendingIntent).setOngoing(true)
-            .addAction(R.drawable.icon_cancel, "Stop", PendingIntent.getService(this, 0, stopIntent, 0))
+//            .setSmallIcon(R.drawable.icon_cancel).setPriority(Notification.PRIORITY_HIGH).setContentIntent(pendingIntent).setOngoing(true)
+//            .addAction(R.drawable.icon_cancel, "Stop", PendingIntent.getService(this, 0, stopIntent, 0))
         (getSystemService("clipboard") as ClipboardManager).addPrimaryClipChangedListener(this.ClipboardListener)
     }
 

@@ -5,22 +5,29 @@ import android.content.Context
 import android.os.Environment
 import android.os.Handler
 import android.support.graphics.drawable.VectorDrawableCompat
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.download.manager.video.whatsapp.R
+import com.download.manager.video.whatsapp.database.DatabaseApp
 import com.download.manager.video.whatsapp.database.entity.InstaEntity
 import com.download.manager.video.whatsapp.utility.Downloader
+import com.download.manager.video.whatsapp.utility.download.core.OnDownloadListener
 import com.download.manager.video.whatsapp.widgets.SectioningAdapter
+import kotlinx.android.synthetic.main.item_download.view.*
 import kotlinx.android.synthetic.main.item_insta.view.*
 import kotlinx.android.synthetic.main.item_insta_header.view.*
 import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.nio.channels.FileChannel
 import java.text.DecimalFormat
 import java.util.*
 
-class InstaAdapter (private val context: Context, private var instaEntity: List<InstaEntity>) : SectioningAdapter() {
+class SectionableAdapter (private val context: Context, private var instaEntity: List<InstaEntity>) : SectioningAdapter() {
 
     private lateinit var downloader: Downloader
     private val sections = ArrayList<Section>()
@@ -111,7 +118,7 @@ class InstaAdapter (private val context: Context, private var instaEntity: List<
         header.instaHeader.text = insta.alpha
     }
 
-    fun setInsta(instaEntities: List<InstaEntity>) {
+    fun setDownloads(instaEntities: List<InstaEntity>) {
         this.originalModel = instaEntities
         this.instaEntity = instaEntities
         sections.clear()

@@ -1,31 +1,32 @@
 package com.download.manager.video.whatsapp.database.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Environment
 import android.os.Handler
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Filter
-import android.widget.Filterable
 import com.download.manager.video.whatsapp.R
 import com.download.manager.video.whatsapp.database.DatabaseApp
 import com.download.manager.video.whatsapp.database.entity.DownloadsEntity
 import com.download.manager.video.whatsapp.utility.Downloader
 import com.download.manager.video.whatsapp.utility.download.core.OnDownloadListener
+import com.download.manager.video.whatsapp.widgets.SectioningAdapter
 import kotlinx.android.synthetic.main.item_download.view.*
-import java.util.ArrayList
-import java.io.*
+import kotlinx.android.synthetic.main.item_insta_header.view.*
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.nio.channels.FileChannel
 import java.text.DecimalFormat
+import java.util.*
 
-
-class DownloadsAdapter (private val context: Context, private var downloadsEntity: List<DownloadsEntity>) :
-    RecyclerView.Adapter<DownloadsAdapter.ModuleHolder>(), Filterable {
+class DownloadsAdapter (private val context: Context, private var downloadsEntity: List<DownloadsEntity>) : SectioningAdapter() {
 
     private lateinit var downloader: Downloader
+    private val sections = ArrayList<Section>()
     private var originalModel: List<DownloadsEntity> = downloadsEntity
 
     private val handler: Handler = Handler()
@@ -40,34 +41,12 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
         fun parentClick(view: View, position: Int, userCode: String)
     }
 
-    override fun getFilter(): Filter {
-        return object : Filter() {
-            override fun performFiltering(constraint: CharSequence?): FilterResults {
-                val oReturn = FilterResults()
-                val results = ArrayList<DownloadsEntity>()
-                if (constraint != null) {
-                    if (originalModel.isNotEmpty()) {
-                        for (cd in originalModel) {
-                            when {
-                                cd.name.toLowerCase().contains(constraint.toString()) -> results.add(cd)
-                                cd.url.contains(constraint.toString()) -> results.add(cd)
-                            }
-                        }
-                    }
-                    oReturn.values = results
-                }
-
-                return oReturn
-            }
-
-            override fun publishResults(constraint: CharSequence, results: FilterResults) {
-                downloadsEntity = results.values as ArrayList<DownloadsEntity>
-                notifyDataSetChanged()
-            }
-        }
+    private inner class Section {
+        var alpha: String = ""
+        var downloadsEntity: ArrayList<DownloadsEntity> = ArrayList()
     }
 
-    inner class ModuleHolder (view: View) : RecyclerView.ViewHolder(view) {
+    inner class ItemViewHolder (view: View) : SectioningAdapter.ItemViewHolder(view) {
         val idName = view.id_name
         val idDetails = view.id_details
         val idID = view.id_id
@@ -81,14 +60,31 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
         val idSuccess = view.id_success
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ModuleHolder {
-        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_download, parent, false)
-
-        return ModuleHolder(itemView)
+    inner class HeaderViewHolder (headerView: View) : SectioningAdapter.HeaderViewHolder(headerView) {
+        val instaHeader = headerView.insta_header
     }
 
-    override fun onBindViewHolder(holder: ModuleHolder, position: Int) {
-        val item = downloadsEntity[position]
+    override fun getNumberOfSections(): Int { return sections.size }
+
+    override fun getNumberOfItemsInSection(sectionIndex: Int): Int { return sections[sectionIndex].downloadsEntity.size }
+
+    override fun doesSectionHaveHeader(sectionIndex: Int): Boolean { return true }
+
+    override fun doesSectionHaveFooter(sectionIndex: Int): Boolean { return false }
+
+    override fun onCreateItemViewHolder(parent: ViewGroup, itemType: Int): ItemViewHolder {
+        return ItemViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_download, parent, false))
+    }
+
+    override fun onCreateHeaderViewHolder(parent: ViewGroup, headerType: Int): HeaderViewHolder {
+        return HeaderViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_insta_header, parent, false))
+    }
+
+    @SuppressLint("SetTextI18n")
+    override fun onBindItemViewHolder(viewHolder: SectioningAdapter.ItemViewHolder, sectionIndex: Int, itemIndex: Int, itemType: Int) {
+        val insta = sections[sectionIndex]
+        val holder = viewHolder as ItemViewHolder
+        val item = insta.downloadsEntity[itemIndex]
 
         holder.idID.text = item.id.toString()
         holder.idName.text = item.name
@@ -382,14 +378,35 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
         }
     }
 
-    override fun getItemCount(): Int {
-        return downloadsEntity.size
+    @SuppressLint("SetTextI18n")
+    override fun onBindHeaderViewHolder(holder: SectioningAdapter.HeaderViewHolder, sectionIndex: Int, headerType: Int) {
+        val insta = sections[sectionIndex]
+        val header = holder as HeaderViewHolder
+
+        header.instaHeader.text = insta.alpha
     }
 
-    fun setDownloads(downloadsEntitys: List<DownloadsEntity>) {
-        originalModel = downloadsEntitys
-        downloadsEntity = downloadsEntitys
-        notifyDataSetChanged()
+    fun setDownloads(instaEntities: List<DownloadsEntity>) {
+        this.originalModel = instaEntities
+        this.downloadsEntity = instaEntities
+        sections.clear()
+
+        var alpha: String
+        var currentSection: Section? = null
+        for (insta in instaEntities) {
+            if (currentSection != null) {
+                sections.add(currentSection)
+            }
+            currentSection = Section()
+            alpha = insta.datecreated
+            currentSection.alpha = alpha
+
+            if (currentSection != null) {
+                currentSection.downloadsEntity.add(insta)
+            }
+        }
+
+        notifyAllSectionsDataSetChanged()
     }
 
     private fun getFileSize(size: Long): String {
@@ -401,4 +418,5 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
 
         return DecimalFormat("#,##0.#").format(size / Math.pow(1024.0, digitGroups.toDouble())) + " " + units[digitGroups]
     }
+
 }

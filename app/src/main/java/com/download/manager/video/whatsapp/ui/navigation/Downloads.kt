@@ -14,6 +14,7 @@ import android.view.*
 import android.widget.LinearLayout
 import com.download.manager.video.whatsapp.R
 import com.download.manager.video.whatsapp.database.adapter.DownloadsAdapter
+import com.download.manager.video.whatsapp.database.adapter.SectionableAdapter
 import com.download.manager.video.whatsapp.database.entity.DownloadsEntity
 import com.download.manager.video.whatsapp.database.viewmodel.DownloadsViewModel
 import com.download.manager.video.whatsapp.engine.Legion
@@ -24,9 +25,10 @@ import kotlinx.android.synthetic.main.main_downloads.*
 import java.util.*
 import kotlin.collections.ArrayList
 
-class Downloads : Fragment(), DownloadsAdapter.OnItemClickListener {
+class Downloads : Fragment(), DownloadsAdapter.OnItemClickListener{
+
     override fun parentClick(view: View, position: Int, userCode: String) {
-        //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     private lateinit var downloadsViewModel: DownloadsViewModel
