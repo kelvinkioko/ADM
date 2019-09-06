@@ -17,10 +17,14 @@ import android.annotation.TargetApi
 import android.app.*
 import android.util.Log
 import com.download.manager.video.whatsapp.R
+import com.download.manager.video.whatsapp.database.DatabaseApp
+import com.download.manager.video.whatsapp.engine.Legion
+import android.content.Context
 
 
 class InstaService : IntentService("InstaService") {
 
+    private var parentUrl: String = ""
     private var postedBy: String = ""
     private var image: String = ""
     private var name: String = ""
@@ -38,9 +42,8 @@ class InstaService : IntentService("InstaService") {
     private val ACTION_STOP = "com.download.manager.video.whatsapp.action.STOP"
 
     private var ClipboardListener: OnPrimaryClipChangedListener = OnPrimaryClipChangedListener {
-        val s = (getSystemService("clipboard") as ClipboardManager).primaryClip.getItemAt(0).text.toString()
-        Log.e("Final URL Video", s)
-        if (s.startsWith("https://www.instagram.com/")) { GetUrl().execute(s) }
+        parentUrl = (getSystemService("clipboard") as ClipboardManager).primaryClip.getItemAt(0).text.toString()
+        if (parentUrl.startsWith("https://www.instagram.com/")) { GetUrl().execute(parentUrl) }
     }
 
     override fun onHandleIntent(intent: Intent?) {
@@ -73,58 +76,54 @@ class InstaService : IntentService("InstaService") {
         /* access modifiers changed from: protected */
         public override fun onPostExecute(s: String) {
             super.onPostExecute(s)
-            if (Constants().isAutoDownload){
-                if (isVideo) {
-                    tempUrl = video
-                    /**
-                     * Save item in database
-                     */
-                } else {
-                    tempUrl = image
-                    /**
-                     * Save item in database
-                     */
+            if (isVideo) {
+                tempUrl = video
+                /**
+                 * Save item in database
+                 */
+                val instant = InstaEntity(0, name, postedBy, image, video, parentUrl, "", "Video", "1", Legion().getCurrentDateTime())
+                DatabaseApp().getInstaDao(applicationContext).insertInsta(instant)
+
+                if (Constants().isAutoDownload){
+                    downloadVideo(tempUrl, instant)
                 }
-            }else {
-                Log.e("Final URL Video", isVideo.toString())
-                if (isVideo) {
-                    tempUrl = video
-                    /**
-                     * Save item in database
-                     */
-                } else {
-                    tempUrl = image
-                    /**
-                     * Save item in database
-                     */
+            } else {
+                tempUrl = image
+                /**
+                 * Save item in database
+                 */
+                val instant = InstaEntity(0, name, postedBy, image, video, parentUrl, "", "Image", "1", Legion().getCurrentDateTime())
+                DatabaseApp().getInstaDao(applicationContext).insertInsta(instant)
+                if (Constants().isAutoDownload){
+                    downloadImage(tempUrl, instant)
                 }
             }
+
+            Log.e("Insta items", DatabaseApp().getInstaDao(applicationContext).countInstaList().toString())
         }
     }
 
-    @SuppressLint("WrongConstant")
     fun downloadImage(url: String, instant: InstaEntity) {
         val name = instant.name
-        val manager = getSystemService("download") as DownloadManager
+        val manager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         val request = Request(Uri.parse(url))
-        request.setAllowedNetworkTypes(3).setAllowedOverRoaming(false).setTitle("Download Manager")
+        request.setAllowedNetworkTypes(Request.NETWORK_WIFI or Request.NETWORK_MOBILE).setAllowedOverRoaming(true).setTitle("Download Manager")
             .setDescription("Downloading:$name.jpeg").setDestinationInExternalPublicDir("", "/Download Manager/insta/images/$name.jpeg")
         manager.enqueue(request)
         /**
-         * insert download to database
+         * update database details after download
          */
     }
 
-    @SuppressLint("WrongConstant")
     fun downloadVideo(uRl: String, instant: InstaEntity) {
         val name = instant.name
-        val manager = getSystemService("download") as DownloadManager
+        val manager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         val request = Request(Uri.parse(uRl))
-        request.setAllowedNetworkTypes(3).setAllowedOverRoaming(false).setTitle("Download Manager")
+        request.setAllowedNetworkTypes(Request.NETWORK_WIFI or Request.NETWORK_MOBILE).setAllowedOverRoaming(false).setTitle("Download Manager")
             .setDescription("Downloading:$name.mp4").setDestinationInExternalPublicDir("", "/Download Manager/insta/videos/$name.mp4")
         manager.enqueue(request)
         /**
-         * insert download to database
+         * update database details after download
          */
     }
 

@@ -7,12 +7,15 @@ import android.arch.persistence.room.RoomDatabase
 import android.arch.persistence.room.migration.Migration
 import android.content.Context
 import com.download.manager.video.whatsapp.database.dao.DownloadsDao
+import com.download.manager.video.whatsapp.database.dao.InstaDao
 import com.download.manager.video.whatsapp.database.entity.DownloadsEntity
+import com.download.manager.video.whatsapp.database.entity.InstaEntity
 
-@Database(entities = arrayOf(DownloadsEntity::class), version = 1)
+@Database(entities = arrayOf(DownloadsEntity::class, InstaEntity::class), version = 1)
 abstract class DownloadDatabase : RoomDatabase() {
 
     abstract fun downloadsDao(): DownloadsDao
+    abstract fun instaDao(): InstaDao
 
     companion object {
         @Volatile

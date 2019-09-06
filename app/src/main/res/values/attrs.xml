@@ -45,4 +45,8 @@
         <attr name="rcTextProgressMargin" format="dimension" />
         <attr name="rcTextProgress" format="string" />
     </declare-styleable>
+
+    <declare-styleable name="BlurImageView">
+        <attr name="radius" format="integer" />
+    </declare-styleable>
 </resources>

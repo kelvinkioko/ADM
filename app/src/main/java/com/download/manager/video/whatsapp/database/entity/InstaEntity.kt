@@ -9,11 +9,14 @@ data class InstaEntity(
 
     @PrimaryKey(autoGenerate = true) var id: Int,
 
-    @ColumnInfo(name = "postedBy") var postedBy: String,
-    @ColumnInfo(name = "image") var image: String,
     @ColumnInfo(name = "name") var name: String,
-    @ColumnInfo(name = "tempUrl") var tempUrl: String,
+    @ColumnInfo(name = "postedBy") var postedBy: String,
+    @ColumnInfo(name = "imageUrl") var imageUrl: String,
+    @ColumnInfo(name = "videoUrl") var videoUrl: String,
+    @ColumnInfo(name = "parentUrl") var parentUrl: String,
+    @ColumnInfo(name = "localUrl") var localUrl: String,
     @ColumnInfo(name = "type") var type: String,
-    @ColumnInfo(name = "video") var video: String
+    @ColumnInfo(name = "size") var size: String,
+    @ColumnInfo(name = "datecreated") var datecreated: String
 
 )

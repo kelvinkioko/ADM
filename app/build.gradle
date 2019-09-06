@@ -76,18 +76,11 @@ dependencies {
 
     implementation 'org.jsoup:jsoup:1.10.3'
 
-    // Circular Image View
-    implementation "de.hdodenhof:circleimageview:$civ_version"
-
-    //Resource Library
-    implementation "com.jakewharton:butterknife:$butter_version"
-    kapt "com.jakewharton:butterknife-compiler:$butter_version"
+    implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
 
     //Image Loader Library
     implementation "com.github.bumptech.glide:glide:$glide_version"
     kapt "com.github.bumptech.glide:compiler:$glide_version"
-
-    implementation 'org.greenrobot:eventbus:3.0.0'
 
     implementation "joda-time:joda-time:$joda_version"
 
@@ -103,5 +96,5 @@ dependencies {
     //Add Kotlin-Coroutines-Android//
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:0.27.0-eap13"
 
-    implementation "com.liulishuo.filedownloader:library:$downloaderVersion"
+//    implementation "com.liulishuo.filedownloader:library:$downloaderVersion"
 }
