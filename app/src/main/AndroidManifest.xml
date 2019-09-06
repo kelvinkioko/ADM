@@ -26,6 +26,11 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <service android:name=".utility.service.InstaService" android:exported="false">
+            <intent-filter>
+                <action android:name="com.download.manager.video.whatsapp.action.STOP"/>
+                <action android:name="com.download.manager.video.whatsapp.action.START"/>
+            </intent-filter>
+        </service>
     </application>
-
 </manifest>
