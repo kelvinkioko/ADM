@@ -15,7 +15,7 @@ import com.download.manager.video.whatsapp.utility.Downloader
 import com.download.manager.video.whatsapp.utility.download.core.OnDownloadListener
 import com.download.manager.video.whatsapp.widgets.SectioningAdapter
 import kotlinx.android.synthetic.main.item_download.view.*
-import kotlinx.android.synthetic.main.item_insta_header.view.*
+import kotlinx.android.synthetic.main.item_header.view.*
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -77,7 +77,7 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
     }
 
     override fun onCreateHeaderViewHolder(parent: ViewGroup, headerType: Int): HeaderViewHolder {
-        return HeaderViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_insta_header, parent, false))
+        return HeaderViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_header, parent, false))
     }
 
     @SuppressLint("SetTextI18n")

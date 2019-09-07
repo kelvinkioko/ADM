@@ -14,7 +14,7 @@ import com.download.manager.video.whatsapp.database.entity.InstaEntity
 import com.download.manager.video.whatsapp.utility.Downloader
 import com.download.manager.video.whatsapp.widgets.StickyHeaderGridAdapter
 import kotlinx.android.synthetic.main.item_insta.view.*
-import kotlinx.android.synthetic.main.item_insta_header.view.*
+import kotlinx.android.synthetic.main.item_header.view.*
 import com.bumptech.glide.Glide
 import com.download.manager.video.whatsapp.database.DatabaseApp
 import com.download.manager.video.whatsapp.utility.download.core.OnDownloadListener
@@ -74,7 +74,7 @@ class InstaAdapter (private val context: Context, private var instaEntity: List<
     }
 
     override fun onCreateHeaderViewHolder(parent: ViewGroup, headerType: Int): HeaderViewHolder {
-        return HeaderViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_insta_header, parent, false))
+        return HeaderViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_header, parent, false))
     }
 
     override fun onBindHeaderViewHolder(holder: StickyHeaderGridAdapter.HeaderViewHolder, section: Int) {
