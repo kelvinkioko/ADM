@@ -21,11 +21,10 @@ import com.download.manager.video.whatsapp.engine.PermissionListener
 import com.download.manager.video.whatsapp.utility.service.InstaService
 import kotlinx.android.synthetic.main.main_gram.*
 import android.support.v7.widget.StaggeredGridLayoutManager
+import com.download.manager.video.whatsapp.database.adapter.GridAdapter
+import com.download.manager.video.whatsapp.widgets.StickyHeaderGridLayoutManager
 
-
-
-
-class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
+class Instagram : Fragment(), GridAdapter.OnItemClickListener  {
 
     override fun parentClick(view: View, position: Int, userCode: String) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -33,7 +32,7 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
 
     private lateinit var downloadsViewModel: DownloadsViewModel
     private var instaEntity: MutableList<InstaEntity> = ArrayList()
-    private lateinit var instaAdapter: InstaAdapter
+    private lateinit var instaAdapter: GridAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,10 +51,12 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
         /**
          * Initializing adapter and layout manager for recyclerView
          */
-        instaAdapter = InstaAdapter(activity as MainActivity, instaEntity)
+        instaAdapter = GridAdapter(activity as MainActivity, instaEntity)
         instaAdapter.setOnItemClickListener(this)
-        val occupantManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
-        insta_history.layoutManager = occupantManager
+        val instaManager = StickyHeaderGridLayoutManager(3)
+        instaManager.setHeaderBottomOverlapMargin(resources.getDimensionPixelSize(R.dimen.header_shadow_size))
+
+        insta_history.layoutManager = instaManager
         insta_history.itemAnimator = DefaultItemAnimator()
         insta_history.adapter = instaAdapter
 

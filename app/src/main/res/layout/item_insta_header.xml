@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="8dp"
-    android:background="#f2f3f4">
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-    <TextView android:id="@+id/insta_header" android:text="12-12-2019" android:textSize="17sp" android:textStyle="bold"
-              android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+    <View android:visibility="visible" android:layout_width="match_parent" android:alpha="0.6" android:layout_height="4dp" android:background="@drawable/toolbar_reverse"/>
+
+    <TextView android:id="@+id/insta_header" android:padding="8dp"
+              android:text="12-12-2019" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/white"
+              android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@color/colorPrimary" />
+
+    <View android:layout_width="match_parent" android:alpha="0.6" android:layout_height="4dp" android:background="@drawable/toolbar_shadow"/>
 
 </LinearLayout>

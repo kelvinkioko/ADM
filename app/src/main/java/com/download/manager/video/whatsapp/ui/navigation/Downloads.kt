@@ -79,7 +79,7 @@ class Downloads : Fragment(), DownloadsAdapter.OnItemClickListener{
             }
 
             done.setOnClickListener {
-                val downloadsEntity = DownloadsEntity(0, Legion().getDownloadName(), link.text.toString().trim(), "", "0", "0", Legion().getCurrentDateTime())
+                val downloadsEntity = DownloadsEntity(0, Legion().getDownloadName(), link.text.toString().trim(), "", "0", "0", Legion().getCurrentDate())
                 downloadsViewModel.insertDownloads(downloadsEntity)
                 populateList()
                 dialog.dismiss()
