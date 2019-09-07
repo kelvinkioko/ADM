@@ -16,6 +16,7 @@ data class InstaEntity(
     @ColumnInfo(name = "parentUrl") var parentUrl: String,
     @ColumnInfo(name = "localUrl") var localUrl: String,
     @ColumnInfo(name = "type") var type: String,
+    @ColumnInfo(name = "downloaded") var downloaded: String,
     @ColumnInfo(name = "size") var size: String,
     @ColumnInfo(name = "datecreated") var datecreated: String
 

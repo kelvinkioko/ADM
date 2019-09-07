@@ -13,18 +13,15 @@ import com.download.manager.video.whatsapp.R
 import com.download.manager.video.whatsapp.ui.MainActivity
 import android.content.Intent
 import android.support.v7.widget.DefaultItemAnimator
-import android.support.v7.widget.LinearLayoutManager
 import com.download.manager.video.whatsapp.database.adapter.InstaAdapter
 import com.download.manager.video.whatsapp.database.entity.InstaEntity
 import com.download.manager.video.whatsapp.database.viewmodel.DownloadsViewModel
 import com.download.manager.video.whatsapp.engine.PermissionListener
 import com.download.manager.video.whatsapp.utility.service.InstaService
 import kotlinx.android.synthetic.main.main_gram.*
-import android.support.v7.widget.StaggeredGridLayoutManager
-import com.download.manager.video.whatsapp.database.adapter.GridAdapter
 import com.download.manager.video.whatsapp.widgets.StickyHeaderGridLayoutManager
 
-class Instagram : Fragment(), GridAdapter.OnItemClickListener  {
+class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
 
     override fun parentClick(view: View, position: Int, userCode: String) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -32,7 +29,7 @@ class Instagram : Fragment(), GridAdapter.OnItemClickListener  {
 
     private lateinit var downloadsViewModel: DownloadsViewModel
     private var instaEntity: MutableList<InstaEntity> = ArrayList()
-    private lateinit var instaAdapter: GridAdapter
+    private lateinit var instaAdapter: InstaAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,7 +48,7 @@ class Instagram : Fragment(), GridAdapter.OnItemClickListener  {
         /**
          * Initializing adapter and layout manager for recyclerView
          */
-        instaAdapter = GridAdapter(activity as MainActivity, instaEntity)
+        instaAdapter = InstaAdapter(activity as MainActivity, instaEntity)
         instaAdapter.setOnItemClickListener(this)
         val instaManager = StickyHeaderGridLayoutManager(3)
         instaManager.setHeaderBottomOverlapMargin(resources.getDimensionPixelSize(R.dimen.header_shadow_size))
@@ -84,7 +81,7 @@ class Instagram : Fragment(), GridAdapter.OnItemClickListener  {
                     for (d in 0 until instaEntities.size){
                         val insta = InstaEntity(
                             instaEntities[d].id, instaEntities[d].name, instaEntities[d].postedBy, instaEntities[d].imageUrl, instaEntities[d].videoUrl,
-                            instaEntities[d].parentUrl, instaEntities[d].localUrl, instaEntities[d].type, instaEntities[d].size, instaEntities[d].datecreated
+                            instaEntities[d].parentUrl, instaEntities[d].localUrl, instaEntities[d].type, instaEntities[d].downloaded, instaEntities[d].size, instaEntities[d].datecreated
                         )
                         this.instaEntity.add(insta)
                     }

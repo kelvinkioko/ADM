@@ -50,8 +50,8 @@ class DownloadsViewModel(application: Application) : AndroidViewModel(applicatio
         return instaRepo.countInstaList()
     }
 
-    fun updateInsta(size: String, id: Int){
-        return instaRepo.updateInsta(size, id)
+    fun updateInsta(downloaded: String, size: String, id: Int){
+        return instaRepo.updateInsta(downloaded, size, id)
     }
 
     fun updateLocalURL(localurl: String, id: Int){

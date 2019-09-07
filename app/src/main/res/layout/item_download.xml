@@ -92,7 +92,7 @@
                     android:id="@+id/id_cancel"
                     android:layout_width="50dp"
                     android:layout_height="match_parent"
-                    app:srcCompat="@drawable/icon_cancel"
+                    app:srcCompat="@drawable/icon_delete"
                     android:layout_weight="1"
                     android:padding="12dp"/>
 

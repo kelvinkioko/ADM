@@ -1,17 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
+<!-- drawable/file_download.xml -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="512dp"
-    android:height="512dp"
-    android:viewportWidth="512"
-    android:viewportHeight="512">
-
-    <path
-        android:fillColor="@color/colorPrimary"
-        android:pathData="M498.966,339.946c-7.197,0-13.034,5.837-13.034,13.034v49.804c0,28.747-23.388,52.135-52.135,52.135H78.203 c-28.747,0-52.135-23.388-52.135-52.135V352.98c0-7.197-5.835-13.034-13.034-13.034C5.835,339.946,0,345.782,0,352.98v49.804 c0,43.121,35.082,78.203,78.203,78.203h355.594c43.121,0,78.203-35.082,78.203-78.203V352.98 C512,345.782,506.165,339.946,498.966,339.946z" />
-    <path
-        android:fillColor="@color/colorPrimary"
-        android:pathData="M419.833,391.3H92.167c-7.197,0-13.034,5.837-13.034,13.034s5.835,13.034,13.034,13.034h327.665 c7.199,0,13.034-5.835,13.034-13.034C432.866,397.137,427.031,391.3,419.833,391.3z" />
-    <path
-        android:fillColor="@color/colorPrimary"
-        android:pathData="M387.919,207.93c-4.795-5.367-13.034-5.834-18.404-1.038l-100.482,89.765V44.048c0-7.197-5.835-13.034-13.034-13.034 c-7.197,0-13.034,5.835-13.034,13.034v252.609l-100.482-89.764c-5.367-4.796-13.607-4.328-18.404,1.038 c-4.794,5.369-4.331,13.609,1.037,18.404l109.174,97.527c6.187,5.529,13.946,8.292,21.708,8.292 c7.759,0,15.519-2.763,21.708-8.289l109.174-97.53C392.25,221.537,392.714,213.297,387.919,207.93z" />
+        android:height="24dp"
+        android:width="24dp"
+        android:viewportWidth="24"
+        android:viewportHeight="24">
+    <path android:fillColor="@color/colorPositive" android:pathData="M14,2H6C4.89,2 4,2.89 4,4V20C4,21.11 4.89,22 6,22H18C19.11,22 20,21.11 20,20V8L14,2M12,19L8,15H10.5V12H13.5V15H16L12,19M13,9V3.5L18.5,9H13Z" />
 </vector>

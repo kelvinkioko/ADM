@@ -29,8 +29,8 @@ class InstaRepository(application: Application) {
         return instaDao.countInstaList()
     }
 
-    fun updateInsta(size: String, id: Int){
-        return instaDao.updateInsta(size, id)
+    fun updateInsta(downloaded: String, size: String, id: Int){
+        return instaDao.updateInsta(downloaded, size, id)
     }
 
     fun updateLocalURL(localurl: String, id: Int){

@@ -396,23 +396,29 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
         var currentSection: Section? = null
         for (insta in instaEntities) {
             alpha = insta.datecreated
-            if (secAlpha.isEmpty()){
-                secAlpha = insta.datecreated
+            when {
+                secAlpha.isEmpty() -> {
+                    secAlpha = insta.datecreated
 
-                currentSection = Section()
-                currentSection.alpha = insta.datecreated
-                currentSection.downloadsEntity.add(insta)
-            }else if (secAlpha.equals(alpha, true)){
-                currentSection!!.downloadsEntity.add(insta)
-            }else{
-                if (currentSection != null) {
-                    sections.add(currentSection)
+                    currentSection = Section()
+                    currentSection.alpha = insta.datecreated
+                    currentSection.downloadsEntity.add(insta)
+
+                    if (currentSection != null) {
+                        sections.add(currentSection)
+                    }
                 }
-                secAlpha = insta.datecreated
+                secAlpha.equals(alpha, true) -> currentSection!!.downloadsEntity.add(insta)
+                else -> {
+                    if (currentSection != null) {
+                        sections.add(currentSection)
+                    }
+                    secAlpha = insta.datecreated
 
-                currentSection = Section()
-                currentSection.alpha = insta.datecreated
-                currentSection.downloadsEntity.add(insta)
+                    currentSection = Section()
+                    currentSection.alpha = insta.datecreated
+                    currentSection.downloadsEntity.add(insta)
+                }
             }
         }
 

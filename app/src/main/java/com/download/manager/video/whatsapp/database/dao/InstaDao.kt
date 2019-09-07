@@ -19,8 +19,8 @@ interface InstaDao {
     @Query("SELECT COUNT(id) FROM instaEntity")
     fun countInstaList(): Int
 
-    @Query("UPDATE instaEntity SET size =:size WHERE id =:id")
-    fun updateInsta(size: String, id: Int)
+    @Query("UPDATE instaEntity SET downloaded =:downloaded, size =:size WHERE id =:id")
+    fun updateInsta(downloaded: String, size: String, id: Int)
 
     @Query("UPDATE instaEntity SET localurl =:localurl WHERE id =:id")
     fun updateLocalURL(localurl: String, id: Int)

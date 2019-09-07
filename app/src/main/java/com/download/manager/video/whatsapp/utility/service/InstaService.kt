@@ -81,7 +81,7 @@ class InstaService : IntentService("InstaService") {
                 /**
                  * Save item in database
                  */
-                val instant = InstaEntity(0, name, postedBy, image, video, parentUrl, "", "Video", "1", Legion().getCurrentDate())
+                val instant = InstaEntity(0, name, postedBy, image, video, parentUrl, "", "Video", "0", "0", Legion().getCurrentDate())
                 DatabaseApp().getInstaDao(applicationContext).insertInsta(instant)
 
                 if (Constants().isAutoDownload){
@@ -92,7 +92,7 @@ class InstaService : IntentService("InstaService") {
                 /**
                  * Save item in database
                  */
-                val instant = InstaEntity(0, name, postedBy, image, video, parentUrl, "", "Image", "1", Legion().getCurrentDate())
+                val instant = InstaEntity(0, name, postedBy, image, video, parentUrl, "", "Image", "1", "0", Legion().getCurrentDate())
                 DatabaseApp().getInstaDao(applicationContext).insertInsta(instant)
                 if (Constants().isAutoDownload){
                     downloadImage(tempUrl, instant)

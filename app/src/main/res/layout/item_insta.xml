@@ -24,7 +24,7 @@
                 android:layout_height="150dp"
                 android:scaleType="centerInside"/>
 
-            <RelativeLayout
+            <RelativeLayout android:id="@+id/insta_pending"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/white"
@@ -73,7 +73,7 @@
                                 android:padding="6dp"/>
 
                         <ImageView
-                                android:id="@+id/id_pause"
+                                android:id="@+id/insta_pause"
                                 android:layout_width="50dp"
                                 android:layout_height="match_parent"
                                 app:srcCompat="@drawable/icon_pause"
@@ -82,7 +82,7 @@
                                 android:visibility="gone"/>
 
                         <ImageView
-                                android:id="@+id/id_play"
+                                android:id="@+id/insta_play"
                                 android:layout_width="50dp"
                                 android:layout_height="match_parent"
                                 app:srcCompat="@drawable/icon_play"
@@ -91,15 +91,15 @@
                                 android:visibility="gone"/>
 
                         <ImageView
-                                android:id="@+id/id_cancel"
+                                android:id="@+id/insta_cancel"
                                 android:layout_width="50dp"
                                 android:layout_height="match_parent"
-                                app:srcCompat="@drawable/icon_cancel"
+                                app:srcCompat="@drawable/icon_delete"
                                 android:layout_weight="1"
                                 android:padding="6dp"/>
 
                         <ImageView
-                                android:id="@+id/id_error"
+                                android:id="@+id/insta_error"
                                 android:layout_width="50dp"
                                 android:layout_height="match_parent"
                                 app:srcCompat="@drawable/icon_error"
@@ -108,7 +108,7 @@
                                 android:visibility="gone"/>
 
                         <ImageView
-                                android:id="@+id/id_success"
+                                android:id="@+id/insta_success"
                                 android:layout_width="50dp"
                                 android:layout_height="match_parent"
                                 app:srcCompat="@drawable/icon_success"
