@@ -3,12 +3,13 @@ package com.download.manager.video.whatsapp.ui.navigation
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.net.Uri
+import android.os.AsyncTask
 import android.os.Bundle
 import android.os.Environment
+import android.os.Handler
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatDelegate
 import android.support.v7.widget.DefaultItemAnimator
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,8 +25,9 @@ import com.download.manager.video.whatsapp.widgets.StickyHeaderGridLayoutManager
 import kotlinx.android.synthetic.main.main_whatsapp.*
 import kotlinx.coroutines.runBlocking
 import java.io.File
-import java.util.*
 import kotlin.collections.ArrayList
+
+
 
 class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
 
@@ -36,6 +38,7 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
     private lateinit var downloadsViewModel: DownloadsViewModel
     private var whatsEntity: MutableList<WhatsEntity> = ArrayList()
     private lateinit var whatsAdapter: WhatsAdapter
+    private val handler: Handler = Handler()
 
     override fun onCreate(savedWhatsnceState: Bundle?) {
         super.onCreate(savedWhatsnceState)
@@ -61,7 +64,7 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
         whats_history.itemAnimator = DefaultItemAnimator()
         whats_history.adapter = whatsAdapter
 
-        populateDownloads()
+//        populateDownloads()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedWhatsnceState: Bundle?): View? {
@@ -70,7 +73,7 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
 
     override fun onResume() {
         super.onResume()
-        populateDownloads()
+        Handler().postDelayed({ populateDownloads() }, 200)
     }
 
     private fun populateDownloads(){
@@ -93,9 +96,8 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
                     if (whatsEntity.size > 0) {
                         whats_history.visibility = View.VISIBLE
                         whats_empty.visibility = View.GONE
-
                         whatsAdapter.setWhats(whatsEntity)
-                    }else {
+                    } else {
                         whats_history.visibility = View.GONE
                         whats_empty.visibility = View.VISIBLE
                     }
@@ -106,9 +108,8 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
                 if (whatsEntity.size > 0) {
                     whats_history.visibility = View.VISIBLE
                     whats_empty.visibility = View.GONE
-
                     whatsAdapter.setWhats(whatsEntity)
-                }else {
+                } else {
                     whats_history.visibility = View.GONE
                     whats_empty.visibility = View.VISIBLE
                 }
@@ -119,7 +120,7 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
     private fun getSavedData() {
         val targetDirector = File(Environment.getExternalStorageDirectory().absolutePath + Constants().FOLDER_NAME)
         val files = targetDirector.listFiles()
-        Log.e("Statuses found", files.size.toString())
+//        Log.e("Statuses found", files.size.toString())
         try {
             for (i in files!!.indices) {
                 val file = files[i]
