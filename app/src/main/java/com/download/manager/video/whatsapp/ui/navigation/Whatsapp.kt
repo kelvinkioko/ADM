@@ -1,5 +1,6 @@
 package com.download.manager.video.whatsapp.ui.navigation
 
+import android.annotation.SuppressLint
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.net.Uri
@@ -25,6 +26,8 @@ import com.download.manager.video.whatsapp.widgets.StickyHeaderGridLayoutManager
 import kotlinx.android.synthetic.main.main_whatsapp.*
 import kotlinx.coroutines.runBlocking
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.collections.ArrayList
 
 
@@ -64,7 +67,6 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
         whats_history.itemAnimator = DefaultItemAnimator()
         whats_history.adapter = whatsAdapter
 
-//        populateDownloads()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedWhatsnceState: Bundle?): View? {
@@ -77,61 +79,44 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
     }
 
     private fun populateDownloads(){
-        downloadsViewModel.getWhats().observe(this, Observer<List<WhatsEntity>>{ whatsEntities ->
-            if (whatsEntities != null){
-                if (whatsEntities.isNotEmpty()){
-                    whats_history.visibility = View.VISIBLE
-                    whats_empty.visibility = View.GONE
-
-                    whatsEntity.clear()
-                    runBlocking { getSavedData() }
-                    for (d in 0 until whatsEntities.size){
-                        val whats = WhatsEntity(whatsEntities[d].id, whatsEntities[d].name, whatsEntities[d].liveUrl, whatsEntities[d].liveUri, whatsEntities[d].localUrl, whatsEntities[d].type, whatsEntities[d].size, whatsEntities[d].datecreated)
-                        this.whatsEntity.add(whats)
-                    }
-                    whatsAdapter.setWhats(whatsEntity)
-                }else{
-                    whatsEntity.clear()
-                    runBlocking { getSavedData() }
-                    if (whatsEntity.size > 0) {
-                        whats_history.visibility = View.VISIBLE
-                        whats_empty.visibility = View.GONE
-                        whatsAdapter.setWhats(whatsEntity)
-                    } else {
-                        whats_history.visibility = View.GONE
-                        whats_empty.visibility = View.VISIBLE
-                    }
-                }
-            }else{
-                whatsEntity.clear()
-                runBlocking { getSavedData() }
-                if (whatsEntity.size > 0) {
-                    whats_history.visibility = View.VISIBLE
-                    whats_empty.visibility = View.GONE
-                    whatsAdapter.setWhats(whatsEntity)
-                } else {
-                    whats_history.visibility = View.GONE
-                    whats_empty.visibility = View.VISIBLE
-                }
-            }
-        })
+        whatsEntity.clear()
+        runBlocking { getDownloadData() }
+        if (whatsEntity.size > 0) {
+            whats_history.visibility = View.VISIBLE
+            whats_empty.visibility = View.GONE
+            whatsAdapter.setWhats(whatsEntity)
+        } else {
+            whats_history.visibility = View.GONE
+            whats_empty.visibility = View.VISIBLE
+        }
     }
 
-    private fun getSavedData() {
-        val targetDirector = File(Environment.getExternalStorageDirectory().absolutePath + Constants().FOLDER_NAME)
-        val files = targetDirector.listFiles()
-//        Log.e("Statuses found", files.size.toString())
+    @SuppressLint("SimpleDateFormat")
+    private fun getDownloadData() {
+        val files = File(Environment.getExternalStorageDirectory().absolutePath + Constants().FOLDER_NAME).listFiles()
+        val savedFiles = File(Environment.getExternalStorageDirectory().absolutePath + Constants().DOWNLOADER_FOLDER).listFiles()
+        var names = ""
         try {
-            for (i in files!!.indices) {
-                val file = files[i]
-                val type = if (Uri.fromFile(file).toString().endsWith(".mp4")) { "Video" } else { "Image" }
+            for (i in savedFiles.indices) {
+                if (names.isEmpty()){ names = savedFiles[i].name } else { names += ",$savedFiles[i].name" }
+                val type = if (Uri.fromFile(savedFiles[i]).toString().endsWith(".mp4")) { "Video" } else { "Image" }
 
-                val whats = WhatsEntity(0, file.name, files[i].absolutePath, Uri.fromFile(file).toString(),"", type, file.length().toString(), Legion().getCurrentDate())
+                val whats = WhatsEntity(0, savedFiles[i].name, savedFiles[i].absolutePath, Uri.fromFile(savedFiles[i]).toString(),"downloaded", type, savedFiles[i].length().toString(), SimpleDateFormat("dd-MM-yyyy").format(Date(savedFiles[i].lastModified())))
                 this.whatsEntity.add(whats)
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
+
+        for (i in files.indices) {
+            if (!names.contains(files[i].name)) {
+                val type = if (Uri.fromFile(files[i]).toString().endsWith(".mp4")) { "Video" } else { "Image" }
+
+                val whats = WhatsEntity(0, files[i].name, files[i].absolutePath, Uri.fromFile(files[i]).toString(), "live", type, files[i].length().toString(), SimpleDateFormat("dd-MM-yyyy").format(Date(files[i].lastModified())))
+                this.whatsEntity.add(whats)
+            }
+        }
+
     }
 
 }

@@ -16,6 +16,7 @@ import com.download.manager.video.whatsapp.utility.Downloader
 import com.download.manager.video.whatsapp.widgets.StickyHeaderGridAdapter
 import kotlinx.android.synthetic.main.item_whats.view.*
 import com.bumptech.glide.Glide
+import com.download.manager.video.whatsapp.engine.Constants
 import kotlinx.android.synthetic.main.item_header.view.*
 import org.apache.commons.io.FileUtils
 import java.io.File
@@ -23,7 +24,8 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.channels.FileChannel
-import java.util.ArrayList
+import java.text.SimpleDateFormat
+import java.util.*
 
 class WhatsAdapter (private val context: Context, private var whatsEntity: List<WhatsEntity>) : StickyHeaderGridAdapter() {
 
@@ -84,20 +86,16 @@ class WhatsAdapter (private val context: Context, private var whatsEntity: List<
 
         holder.whatsID.text = item.id.toString()
         holder.imageClear.scaleType = ImageView.ScaleType.CENTER_CROP
-        if (item.localUrl.isEmpty()){
-            Glide.with(context).load(item.liveUrl).into(holder.imageClear)
-            if (item.type.equals("Video", true)){
-                holder.whatsType.setImageDrawable(VectorDrawableCompat.create(context.resources, R.drawable.icon_video, null)!!)
-            }else {
-                holder.whatsType.setImageDrawable(VectorDrawableCompat.create(context.resources, R.drawable.icon_image, null)!!)
-            }
-        }else{
-            Glide.with(context).load(item.localUrl).into(holder.imageClear)
-            holder.whatsPending.visibility = View.GONE
+        Glide.with(context).load(item.liveUrl).into(holder.imageClear)
+        if (item.type.equals("Video", true)){
+            holder.whatsType.setImageDrawable(VectorDrawableCompat.create(context.resources, R.drawable.icon_video, null)!!)
+        }else {
+            holder.whatsType.setImageDrawable(VectorDrawableCompat.create(context.resources, R.drawable.icon_image, null)!!)
         }
 
         val whatsFile = File(Environment.getExternalStorageDirectory().toString() + File.separator + "Download Manager" + File.separator + "whats")
         if (!whatsFile.exists()) { whatsFile.mkdirs() }
+        if (item.localUrl.equals("downloaded", false)){ holder.whatsPending.visibility = View.GONE }
 
         holder.whatsDownload.setOnClickListener {
             val sourceFile = File(item.liveUrl)

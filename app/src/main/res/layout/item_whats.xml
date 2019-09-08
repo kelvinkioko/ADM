@@ -27,7 +27,6 @@
             <RelativeLayout android:id="@+id/whats_pending"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/white"
                     android:layout_centerInParent="true"
                     android:elevation="5dp" android:layout_marginEnd="16dp" android:layout_marginStart="16dp">
 
@@ -41,13 +40,21 @@
                         app:rcProgressColor="#5500b1b0"
                         app:rcRadius="0dp" android:visibility="gone"/>
 
+                <de.hdodenhof.circleimageview.CircleImageView
+                        android:layout_width="50dp" android:layout_height="50dp"
+                        android:src="@color/colorPositive"
+                        android:layout_centerInParent="true"
+                        android:elevation="5dp" />
+
                 <ImageView
                         android:id="@+id/whats_download"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
                         app:srcCompat="@drawable/icon_download"
-                        android:layout_weight="1"
-                        android:padding="6dp"/>
+                        android:tint="@color/white"
+                        android:padding="6dp"
+                        android:layout_centerInParent="true"
+                        android:elevation="5dp"/>
 
             </RelativeLayout>
 

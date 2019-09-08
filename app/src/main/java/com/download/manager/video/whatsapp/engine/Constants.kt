@@ -5,4 +5,5 @@ class Constants{
     var isFirst: Boolean = true
     var isService: Boolean = false
     val FOLDER_NAME = "/WhatsApp/Media/.Statuses"
+    val DOWNLOADER_FOLDER = "/Download Manager/whats"
 }
