@@ -11,6 +11,7 @@ import android.os.Handler
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatDelegate
 import android.support.v7.widget.DefaultItemAnimator
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -79,41 +80,41 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
     }
 
     private fun populateDownloads(){
-        whatsEntity.clear()
         runBlocking { getDownloadData() }
-        if (whatsEntity.size > 0) {
-            whats_history.visibility = View.VISIBLE
-            whats_empty.visibility = View.GONE
-            whatsAdapter.setWhats(whatsEntity)
-        } else {
-            whats_history.visibility = View.GONE
-            whats_empty.visibility = View.VISIBLE
-        }
+        downloadsViewModel.getWhats().observe(this, Observer<List<WhatsEntity>>{ whatsEntities ->
+            if (whatsEntities != null){
+                if (whatsEntities.isNotEmpty()){
+                    whats_history.visibility = View.VISIBLE
+                    whats_empty.visibility = View.GONE
+
+                    whatsEntity.clear()
+                    for (d in 0 until whatsEntities.size){
+                        val whats = WhatsEntity(whatsEntities[d].id, whatsEntities[d].name, whatsEntities[d].liveUrl, whatsEntities[d].liveUrl, whatsEntities[d].localUrl,
+                            whatsEntities[d].status, whatsEntities[d].type, whatsEntities[d].size, whatsEntities[d].timestamp, whatsEntities[d].datecreated)
+                        this.whatsEntity.add(whats)
+                    }
+                    whatsAdapter.setWhats(whatsEntity)
+                }else{
+                    whats_history.visibility = View.GONE
+                    whats_empty.visibility = View.VISIBLE
+                }
+            }
+        })
     }
 
     @SuppressLint("SimpleDateFormat")
     private fun getDownloadData() {
         val files = File(Environment.getExternalStorageDirectory().absolutePath + Constants().FOLDER_NAME).listFiles()
-        val savedFiles = File(Environment.getExternalStorageDirectory().absolutePath + Constants().DOWNLOADER_FOLDER).listFiles()
-        var names = ""
-        try {
-            for (i in savedFiles.indices) {
-                if (names.isEmpty()){ names = savedFiles[i].name } else { names += ",$savedFiles[i].name" }
-                val type = if (Uri.fromFile(savedFiles[i]).toString().endsWith(".mp4")) { "Video" } else { "Image" }
-
-                val whats = WhatsEntity(0, savedFiles[i].name, savedFiles[i].absolutePath, Uri.fromFile(savedFiles[i]).toString(),"downloaded", type, savedFiles[i].length().toString(), SimpleDateFormat("dd-MM-yyyy").format(Date(savedFiles[i].lastModified())))
-                this.whatsEntity.add(whats)
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
+        // val savedFiles = File(Environment.getExternalStorageDirectory().absolutePath + Constants().DOWNLOADER_FOLDER).listFiles()
+        Log.e("files count live", files.indices.toString())
         for (i in files.indices) {
-            if (!names.contains(files[i].name)) {
-                val type = if (Uri.fromFile(files[i]).toString().endsWith(".mp4")) { "Video" } else { "Image" }
+            val type = if (Uri.fromFile(files[i]).toString().endsWith(".mp4")) { "Video" } else { "Image" }
 
-                val whats = WhatsEntity(0, files[i].name, files[i].absolutePath, Uri.fromFile(files[i]).toString(), "live", type, files[i].length().toString(), SimpleDateFormat("dd-MM-yyyy").format(Date(files[i].lastModified())))
+            val whats = WhatsEntity(0, files[i].name, files[i].absolutePath, Uri.fromFile(files[i]).toString(), "", "live", type, files[i].length().toString(), SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(Date(files[i].lastModified())), Legion().getCurrentDate())
+            if (downloadsViewModel.countWhatsListByName(files[i].name) == 0){
+                Log.e("files count names", files[i].name)
                 this.whatsEntity.add(whats)
+                downloadsViewModel.insertWhats(whats)
             }
         }
 

@@ -12,11 +12,14 @@ interface WhatsDao {
     @Insert
     fun insertWhats(vararg whats: WhatsEntity)
 
-    @Query("SELECT * FROM whatsEntity ORDER BY id DESC")
+    @Query("SELECT * FROM whatsEntity ORDER BY timestamp DESC")
     fun getWhats(): LiveData<List<WhatsEntity>>
 
     @Query("SELECT * FROM whatsEntity ORDER BY id DESC")
     fun getWhatsList(): List<WhatsEntity>
+
+    @Query("SELECT COUNT(id) FROM whatsEntity WHERE name =:name")
+    fun countWhatsListByName(name: String): Int
 
     @Query("SELECT COUNT(id) FROM whatsEntity")
     fun countWhatsList(): Int
@@ -24,11 +27,14 @@ interface WhatsDao {
     @Query("UPDATE whatsEntity SET size =:size WHERE id =:id")
     fun updateWhats(size: String, id: Int)
 
-    @Query("UPDATE whatsEntity SET localurl =:localurl WHERE id =:id")
+    @Query("UPDATE whatsEntity SET localurl =:localurl, status ='downloaded' WHERE id =:id")
     fun updateLocalURL(localurl: String, id: Int)
 
     @Query("UPDATE whatsEntity SET name =:name WHERE id =:id")
     fun updateName(name: String, id: Int)
+
+    @Query("DELETE FROM whatsEntity WHERE id =:id")
+    fun deleteWhatsById(id: Int)
 
     @Query("DELETE FROM whatsEntity")
     fun deleteWhats()

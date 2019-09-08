@@ -25,6 +25,10 @@ class WhatsRepository(application: Application) {
         return whatsDao.getWhatsList()
     }
 
+    fun countWhatsListByName(name: String): Int{
+        return whatsDao.countWhatsListByName(name)
+    }
+
     fun countWhatsList(): Int{
         return whatsDao.countWhatsList()
     }

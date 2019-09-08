@@ -4,11 +4,13 @@ import android.app.Application
 import android.content.Context
 import com.download.manager.video.whatsapp.database.dao.DownloadsDao
 import com.download.manager.video.whatsapp.database.dao.InstaDao
+import com.download.manager.video.whatsapp.database.dao.WhatsDao
 
 class DatabaseApp: Application() {
 
     private lateinit var downloadsDao: DownloadsDao
     private lateinit var instaDao: InstaDao
+    private lateinit var whatsDao: WhatsDao
     private lateinit var instance: DatabaseApp
     private val TAG = "downloadApp"
 
@@ -29,5 +31,11 @@ class DatabaseApp: Application() {
     fun getInstaDao(context: Context): InstaDao {
         instaDao = DownloadDatabase.getDatabase(context.applicationContext).instaDao()
         return instaDao
+    }
+
+    @Synchronized
+    fun getWhatsDao(context: Context): WhatsDao {
+        whatsDao = DownloadDatabase.getDatabase(context.applicationContext).whatsDao()
+        return whatsDao
     }
 }

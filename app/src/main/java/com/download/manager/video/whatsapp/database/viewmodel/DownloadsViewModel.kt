@@ -85,6 +85,10 @@ class DownloadsViewModel(application: Application) : AndroidViewModel(applicatio
         return whatsRepo.getWhatsList()
     }
 
+    fun countWhatsListByName(name: String): Int{
+        return whatsRepo.countWhatsListByName(name)
+    }
+
     fun countWhatsList(): Int{
         return whatsRepo.countWhatsList()
     }

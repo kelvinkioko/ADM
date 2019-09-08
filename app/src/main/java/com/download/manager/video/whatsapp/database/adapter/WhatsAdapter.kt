@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Environment
 import android.os.Handler
 import android.support.graphics.drawable.VectorDrawableCompat
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +17,7 @@ import com.download.manager.video.whatsapp.utility.Downloader
 import com.download.manager.video.whatsapp.widgets.StickyHeaderGridAdapter
 import kotlinx.android.synthetic.main.item_whats.view.*
 import com.bumptech.glide.Glide
+import com.download.manager.video.whatsapp.database.DatabaseApp
 import com.download.manager.video.whatsapp.engine.Constants
 import kotlinx.android.synthetic.main.item_header.view.*
 import org.apache.commons.io.FileUtils
@@ -86,16 +88,21 @@ class WhatsAdapter (private val context: Context, private var whatsEntity: List<
 
         holder.whatsID.text = item.id.toString()
         holder.imageClear.scaleType = ImageView.ScaleType.CENTER_CROP
-        Glide.with(context).load(item.liveUrl).into(holder.imageClear)
+        if (item.localUrl.isNotEmpty()){
+            Glide.with(context).load(item.localUrl).into(holder.imageClear)
+            holder.whatsPending.visibility = View.GONE }
+        else {
+            Glide.with(context).load(item.liveUrl).into(holder.imageClear)
+            holder.whatsPending.visibility = View.VISIBLE
+        }
+
         if (item.type.equals("Video", true)){
             holder.whatsType.setImageDrawable(VectorDrawableCompat.create(context.resources, R.drawable.icon_video, null)!!)
-        }else {
-            holder.whatsType.setImageDrawable(VectorDrawableCompat.create(context.resources, R.drawable.icon_image, null)!!)
-        }
+        }else { holder.whatsType.setImageDrawable(VectorDrawableCompat.create(context.resources, R.drawable.icon_image, null)!!) }
 
         val whatsFile = File(Environment.getExternalStorageDirectory().toString() + File.separator + "Download Manager" + File.separator + "whats")
         if (!whatsFile.exists()) { whatsFile.mkdirs() }
-        if (item.localUrl.equals("downloaded", false)){ holder.whatsPending.visibility = View.GONE }
+        if (item.status.equals("downloaded", false)){ holder.whatsPending.visibility = View.GONE }
 
         holder.whatsDownload.setOnClickListener {
             val sourceFile = File(item.liveUrl)
@@ -115,6 +122,8 @@ class WhatsAdapter (private val context: Context, private var whatsEntity: List<
                 source?.close()
                 destination?.close()
             }
+
+            DatabaseApp().getWhatsDao(context).updateLocalURL(destinationFile.toString(), item.id)
 
             holder.whatsPending.visibility = View.GONE
         }
@@ -136,21 +145,30 @@ class WhatsAdapter (private val context: Context, private var whatsEntity: List<
 
                     currentSection = Section()
                     currentSection.alpha = whats.datecreated
-                    currentSection.whatsEntity.add(whats)
+
+                    if (!File(whats.liveUri).exists() && whats.status.equals("live", true)) { DatabaseApp().getWhatsDao(context).deleteWhatsById(whats.id) }
+                    else { currentSection!!.whatsEntity.add(whats) }
+
                     if (currentSection != null) {
                         sections.add(currentSection)
                     }
                 }
-                secAlpha.equals(alpha, true) -> currentSection!!.whatsEntity.add(whats)
+                secAlpha.equals(alpha, true) -> {
+                    if (!File(whats.liveUri).exists() && whats.status.equals("live", true)) { DatabaseApp().getWhatsDao(context).deleteWhatsById(whats.id) }
+                    else { currentSection!!.whatsEntity.add(whats) }
+                }
                 else -> {
                     if (currentSection != null) {
                         sections.add(currentSection)
                     }
                     secAlpha = whats.datecreated
 
-                    currentSection = Section()
-                    currentSection.alpha = whats.datecreated
-                    currentSection.whatsEntity.add(whats)
+                    if (!File(whats.liveUri).exists() && whats.status.equals("live", true)) { DatabaseApp().getWhatsDao(context).deleteWhatsById(whats.id) }
+                    else {
+                        currentSection = Section()
+                        currentSection.alpha = whats.datecreated
+                        currentSection.whatsEntity.add(whats)
+                    }
                 }
             }
         }
@@ -158,10 +176,12 @@ class WhatsAdapter (private val context: Context, private var whatsEntity: List<
     }
 
     override fun getSectionCount(): Int {
+        Log.e("Adapter section count", sections.size.toString())
         return sections.size
     }
 
     override fun getSectionItemCount(sectionIndex: Int): Int {
+        Log.e("Adapter section data", sections[sectionIndex].whatsEntity.size.toString())
         return sections[sectionIndex].whatsEntity.size
     }
 
