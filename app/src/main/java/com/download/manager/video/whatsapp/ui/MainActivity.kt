@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatDelegate
 import com.download.manager.video.whatsapp.R
 import com.download.manager.video.whatsapp.ui.navigation.Downloads
+import com.download.manager.video.whatsapp.ui.navigation.Facebook
 import com.download.manager.video.whatsapp.ui.navigation.Instagram
 import com.download.manager.video.whatsapp.ui.navigation.Whatsapp
 import com.download.manager.video.whatsapp.widgets.ReadableBottomBar
@@ -62,7 +63,7 @@ class MainActivity : AppCompatActivity() {
                         // Replace the fragment on container and finish the transition
                         mFragmentTransaction.replace(R.id.download_container, whatsappFragment).commit()
                     }
-                    else -> {
+                    2 -> {
                         // Get the text fragment instance
                         val instagramFragment = Instagram()
                         // Get the support fragment manager instance
@@ -73,6 +74,18 @@ class MainActivity : AppCompatActivity() {
                         // mFragmentTransaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
                         // Replace the fragment on container and finish the transition
                         mFragmentTransaction.replace(R.id.download_container, instagramFragment).commit()
+                    }
+                    else -> {
+                        // Get the text fragment instance
+                        val facebookFragment = Facebook()
+                        // Get the support fragment manager instance
+                        mFragmentManager = supportFragmentManager
+                        // Begin the fragment transition using support fragment manager
+                        mFragmentTransaction = mFragmentManager.beginTransaction()
+                        // Animate the transitions as they happen
+                        // mFragmentTransaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
+                        // Replace the fragment on container and finish the transition
+                        mFragmentTransaction.replace(R.id.download_container, facebookFragment).commit()
                     }
                 }
             }

@@ -61,7 +61,7 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
          */
         whatsAdapter = WhatsAdapter(activity as MainActivity, whatsEntity)
         whatsAdapter.setOnItemClickListener(this)
-        val whatsManager = StickyHeaderGridLayoutManager(3)
+        val whatsManager = StickyHeaderGridLayoutManager(2)
         whatsManager.setHeaderBottomOverlapMargin(resources.getDimensionPixelSize(R.dimen.header_shadow_size))
 
         whats_history.layoutManager = whatsManager
@@ -86,13 +86,15 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
                 if (whatsEntities.isNotEmpty()){
                     whats_history.visibility = View.VISIBLE
                     whats_empty.visibility = View.GONE
-
+                    Log.e("files count observer", whatsEntities.size.toString())
                     whatsEntity.clear()
                     for (d in 0 until whatsEntities.size){
                         val whats = WhatsEntity(whatsEntities[d].id, whatsEntities[d].name, whatsEntities[d].liveUrl, whatsEntities[d].liveUrl, whatsEntities[d].localUrl,
                             whatsEntities[d].status, whatsEntities[d].type, whatsEntities[d].size, whatsEntities[d].timestamp, whatsEntities[d].datecreated)
                         this.whatsEntity.add(whats)
                     }
+
+                    Log.e("files count set", whatsEntity.size.toString())
                     whatsAdapter.setWhats(whatsEntity)
                 }else{
                     whats_history.visibility = View.GONE
@@ -105,14 +107,25 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
     @SuppressLint("SimpleDateFormat")
     private fun getDownloadData() {
         val files = File(Environment.getExternalStorageDirectory().absolutePath + Constants().FOLDER_NAME).listFiles()
-        // val savedFiles = File(Environment.getExternalStorageDirectory().absolutePath + Constants().DOWNLOADER_FOLDER).listFiles()
-        Log.e("files count live", files.indices.toString())
+        val savedFiles = File(Environment.getExternalStorageDirectory().absolutePath + Constants().DOWNLOADER_FOLDER).listFiles()
+
+        for (s in savedFiles.indices) {
+            val type = if (Uri.fromFile(savedFiles[s]).toString().endsWith(".mp4")) { "Video" } else { "Image" }
+
+            val whats = WhatsEntity(0, savedFiles[s].name, savedFiles[s].absolutePath, Uri.fromFile(savedFiles[s]).toString(), "", "downloaded", type, savedFiles[s].length().toString(), SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(Date(savedFiles[s].lastModified())), SimpleDateFormat("dd-MM-yyyy").format(Date(savedFiles[s].lastModified())))
+
+            if (downloadsViewModel.countWhatsListByName(Uri.fromFile(savedFiles[s]).toString()) == 0){
+                this.whatsEntity.add(whats)
+                downloadsViewModel.insertWhats(whats)
+            }
+        }
+
         for (i in files.indices) {
             val type = if (Uri.fromFile(files[i]).toString().endsWith(".mp4")) { "Video" } else { "Image" }
 
-            val whats = WhatsEntity(0, files[i].name, files[i].absolutePath, Uri.fromFile(files[i]).toString(), "", "live", type, files[i].length().toString(), SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(Date(files[i].lastModified())), Legion().getCurrentDate())
-            if (downloadsViewModel.countWhatsListByName(files[i].name) == 0){
-                Log.e("files count names", files[i].name)
+            val whats = WhatsEntity(0, files[i].name, files[i].absolutePath, Uri.fromFile(files[i]).toString(), "", "live", type, files[i].length().toString(), SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(Date(files[i].lastModified())), SimpleDateFormat("dd-MM-yyyy").format(Date(files[i].lastModified())))
+
+            if (downloadsViewModel.countWhatsListByName(Uri.fromFile(files[i]).toString()) == 0){
                 this.whatsEntity.add(whats)
                 downloadsViewModel.insertWhats(whats)
             }

@@ -3,5 +3,6 @@
 
     <string name="downloads">Downloads</string>
     <string name="whatsapp">WA</string>
-    <string name="insta">Instagram</string>
+    <string name="insta">IG</string>
+    <string name="face">FB</string>
 </resources>

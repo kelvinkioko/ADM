@@ -8,66 +8,86 @@
     android:background="#f2f3f4">
 
     <android.support.v7.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardElevation="3dp"
-        app:cardCornerRadius="2dp"
-        app:cardUseCompatPadding="true">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardElevation="3dp"
+            app:cardCornerRadius="3dp"
+            app:cardUseCompatPadding="true">
 
         <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="150dp">
-
-            <ImageView
-                android:id="@+id/whats_image_clear"
                 android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:scaleType="centerInside"/>
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-            <RelativeLayout android:id="@+id/whats_pending"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:elevation="5dp" android:layout_marginEnd="16dp" android:layout_marginStart="16dp">
-
-                <com.download.manager.video.whatsapp.widgets.progressbar.RoundCornerProgressBar
-                        android:id="@+id/whats_progress"
-                        android:layout_width="wrap_content"
-                        android:layout_height="40dp"
-                        app:rcBackgroundColor="@color/transparent"
-                        app:rcMax="100"
-                        app:rcProgress="0"
-                        app:rcProgressColor="#5500b1b0"
-                        app:rcRadius="0dp" android:visibility="gone"/>
-
-                <de.hdodenhof.circleimageview.CircleImageView
-                        android:layout_width="50dp" android:layout_height="50dp"
-                        android:src="@color/colorPositive"
-                        android:layout_centerInParent="true"
-                        android:elevation="5dp" />
+            <RelativeLayout
+                    android:id="@+id/whats_image_parent"
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp">
 
                 <ImageView
-                        android:id="@+id/whats_download"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        app:srcCompat="@drawable/icon_download"
-                        android:tint="@color/white"
-                        android:padding="6dp"
-                        android:layout_centerInParent="true"
-                        android:elevation="5dp"/>
+                        android:id="@+id/whats_image_clear"
+                        android:background="@android:color/white"
+                        android:layout_width="match_parent"
+                        android:adjustViewBounds="true"
+                        android:scaleType="centerCrop"
+                        android:layout_height="150dp" />
+
+                <ImageView
+                        android:id="@+id/whats_play"
+                        android:layout_centerHorizontal="true"
+                        android:layout_centerVertical="true"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        app:srcCompat="@drawable/icon_status_play"/>
+
+                <ImageView
+                        android:id="@+id/whats_type"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignParentBottom="true"
+                        android:layout_margin="8dp"
+                        app:srcCompat="@drawable/icon_image"/>
+
+                <TextView android:id="@+id/whats_id" android:visibility="gone"
+                          android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+
 
             </RelativeLayout>
 
-            <ImageView
-                    android:id="@+id/whats_type"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_alignParentBottom="true"
-                    android:layout_margin="8dp"
-                    app:srcCompat="@drawable/icon_image"/>
+            <View
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:alpha="0.6"
+                    android:background="@drawable/toolbar_reverse"
+                    android:layout_above="@id/whats_download" />
 
-            <TextView android:id="@+id/whats_id" android:visibility="gone"
-                    android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            <LinearLayout
+                    android:id="@+id/whats_download"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@color/colorPrimary"
+                    android:layout_below="@id/whats_image_parent">
+
+                <ImageView
+                        android:padding="5dp"
+                        android:layout_width="45dp"
+                        android:layout_height="match_parent"
+                        android:tint="@color/white"
+                        app:srcCompat="@drawable/icon_download"/>
+
+                <TextView
+                        android:id="@+id/isu_download_message"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:textSize="16sp"
+                        android:text="Download Status"
+                        android:textColor="@color/white"
+                        android:layout_weight="1"/>
+
+            </LinearLayout>
 
         </RelativeLayout>
 

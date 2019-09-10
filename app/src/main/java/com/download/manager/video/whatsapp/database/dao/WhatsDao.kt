@@ -18,7 +18,7 @@ interface WhatsDao {
     @Query("SELECT * FROM whatsEntity ORDER BY id DESC")
     fun getWhatsList(): List<WhatsEntity>
 
-    @Query("SELECT COUNT(id) FROM whatsEntity WHERE name =:name")
+    @Query("SELECT COUNT(id) FROM whatsEntity WHERE liveUri =:name")
     fun countWhatsListByName(name: String): Int
 
     @Query("SELECT COUNT(id) FROM whatsEntity")

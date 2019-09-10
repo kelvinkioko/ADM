@@ -53,13 +53,12 @@ class WhatsAdapter (private val context: Context, private var whatsEntity: List<
         val imageClear = view.whats_image_clear
         val whatsType = view.whats_type
         val whatsID = view.whats_id
-        val whatsPending = view.whats_pending
+        val whatsPlay = view.whats_play
 
         /**
          * Actions loaded below
          */
         val whatsDownload = view.whats_download
-        val whatsProgress = view.whats_progress
     }
 
     inner class HeaderViewHolder (headerView: View) : StickyHeaderGridAdapter.HeaderViewHolder(headerView) {
@@ -90,19 +89,23 @@ class WhatsAdapter (private val context: Context, private var whatsEntity: List<
         holder.imageClear.scaleType = ImageView.ScaleType.CENTER_CROP
         if (item.localUrl.isNotEmpty()){
             Glide.with(context).load(item.localUrl).into(holder.imageClear)
-            holder.whatsPending.visibility = View.GONE }
+            holder.whatsDownload.visibility = View.GONE }
         else {
             Glide.with(context).load(item.liveUrl).into(holder.imageClear)
-            holder.whatsPending.visibility = View.VISIBLE
+            holder.whatsDownload.visibility = View.VISIBLE
         }
 
         if (item.type.equals("Video", true)){
+            holder.whatsPlay.visibility = View.VISIBLE
             holder.whatsType.setImageDrawable(VectorDrawableCompat.create(context.resources, R.drawable.icon_video, null)!!)
-        }else { holder.whatsType.setImageDrawable(VectorDrawableCompat.create(context.resources, R.drawable.icon_image, null)!!) }
+        }else {
+            holder.whatsPlay.visibility = View.GONE
+            holder.whatsType.setImageDrawable(VectorDrawableCompat.create(context.resources, R.drawable.icon_image, null)!!)
+        }
 
         val whatsFile = File(Environment.getExternalStorageDirectory().toString() + File.separator + "Download Manager" + File.separator + "whats")
         if (!whatsFile.exists()) { whatsFile.mkdirs() }
-        if (item.status.equals("downloaded", false)){ holder.whatsPending.visibility = View.GONE }
+        if (item.status.equals("downloaded", false)){ holder.whatsDownload.visibility = View.GONE }
 
         holder.whatsDownload.setOnClickListener {
             val sourceFile = File(item.liveUrl)
@@ -125,7 +128,7 @@ class WhatsAdapter (private val context: Context, private var whatsEntity: List<
 
             DatabaseApp().getWhatsDao(context).updateLocalURL(destinationFile.toString(), item.id)
 
-            holder.whatsPending.visibility = View.GONE
+            holder.whatsDownload.visibility = View.GONE
         }
     }
 
@@ -158,16 +161,16 @@ class WhatsAdapter (private val context: Context, private var whatsEntity: List<
                     else { currentSection!!.whatsEntity.add(whats) }
                 }
                 else -> {
-                    if (currentSection != null) {
-                        sections.add(currentSection)
-                    }
                     secAlpha = whats.datecreated
 
+                    currentSection = Section()
+                    currentSection.alpha = whats.datecreated
+
                     if (!File(whats.liveUri).exists() && whats.status.equals("live", true)) { DatabaseApp().getWhatsDao(context).deleteWhatsById(whats.id) }
-                    else {
-                        currentSection = Section()
-                        currentSection.alpha = whats.datecreated
-                        currentSection.whatsEntity.add(whats)
+                    else { currentSection!!.whatsEntity.add(whats) }
+
+                    if (currentSection != null) {
+                        sections.add(currentSection)
                     }
                 }
             }
@@ -176,12 +179,10 @@ class WhatsAdapter (private val context: Context, private var whatsEntity: List<
     }
 
     override fun getSectionCount(): Int {
-        Log.e("Adapter section count", sections.size.toString())
         return sections.size
     }
 
     override fun getSectionItemCount(sectionIndex: Int): Int {
-        Log.e("Adapter section data", sections[sectionIndex].whatsEntity.size.toString())
         return sections[sectionIndex].whatsEntity.size
     }
 

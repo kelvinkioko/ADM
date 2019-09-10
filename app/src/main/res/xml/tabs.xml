@@ -11,4 +11,8 @@
     <tab
         drawable="@drawable/ic_instagram_black_24dp"
         text="@string/insta" />
+
+    <tab
+            drawable="@drawable/ic_facebook_black_24dp"
+            text="@string/face" />
 </tabs>
