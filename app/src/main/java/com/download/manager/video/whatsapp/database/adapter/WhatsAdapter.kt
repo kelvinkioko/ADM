@@ -127,6 +127,7 @@ class WhatsAdapter (private val context: Context, private var whatsEntity: List<
             }
 
             DatabaseApp().getWhatsDao(context).updateLocalURL(destinationFile.toString(), item.id)
+            item.status = "downloaded"
 
             holder.whatsDownload.visibility = View.GONE
         }

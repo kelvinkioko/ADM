@@ -1,45 +1,60 @@
 package com.download.manager.video.whatsapp.ui.navigation
 
 import android.app.Dialog
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.AsyncTask
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatDelegate
+import android.support.v7.widget.DefaultItemAnimator
 import android.util.Log
 import android.view.*
 import android.widget.LinearLayout
+import android.widget.Toast
 import com.download.manager.video.whatsapp.R
+import com.download.manager.video.whatsapp.database.DatabaseApp
+import com.download.manager.video.whatsapp.database.adapter.FaceAdapter
 import com.download.manager.video.whatsapp.ui.MainActivity
-import com.download.manager.video.whatsapp.database.adapter.InstaAdapter
-import com.download.manager.video.whatsapp.database.entity.DownloadsEntity
+import com.download.manager.video.whatsapp.database.entity.FaceEntity
 import com.download.manager.video.whatsapp.database.entity.InstaEntity
 import com.download.manager.video.whatsapp.database.viewmodel.DownloadsViewModel
+import com.download.manager.video.whatsapp.engine.Constants
 import com.download.manager.video.whatsapp.engine.Legion
 import com.download.manager.video.whatsapp.engine.PermissionListener
 import com.download.manager.video.whatsapp.utility.service.InstaService
+import com.download.manager.video.whatsapp.widgets.StickyHeaderGridLayoutManager
 import kotlinx.android.synthetic.main.dialog_add_url.*
-import kotlinx.android.synthetic.main.main_downloads.*
 import kotlinx.android.synthetic.main.main_facebook.*
-import java.io.BufferedReader
+import kotlinx.android.synthetic.main.main_gram.*
+import org.jsoup.Jsoup
 import java.io.IOException
-import java.io.InputStreamReader
-import java.net.HttpURLConnection
-import java.net.URL
 import java.util.*
-import java.util.regex.Matcher
-import java.util.regex.Pattern
+import kotlin.collections.ArrayList
 
-class Facebook : Fragment(), InstaAdapter.OnItemClickListener  {
+
+class Facebook : Fragment(), FaceAdapter.OnItemClickListener  {
 
     override fun parentClick(view: View, position: Int, userCode: String) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     private lateinit var downloadsViewModel: DownloadsViewModel
+    private var faceEntity: MutableList<FaceEntity> = ArrayList()
+    private lateinit var faceAdapter: FaceAdapter
     lateinit var dialog: Dialog
+    private var parentUrl: String = ""
+    private var postedBy: String = ""
+    private var image: String = ""
+    private var name: String = ""
+    private var tempUrl: String = ""
+    private var type: String = ""
+    private var video: String = ""
+    private var isError: Boolean = false
+    private var isVideo: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,6 +68,20 @@ class Facebook : Fragment(), InstaAdapter.OnItemClickListener  {
         PermissionListener(activity as MainActivity).loadPermissions()
         downloadsViewModel = ViewModelProviders.of(this).get(DownloadsViewModel::class.java)
 
+        (activity as MainActivity).startService(Intent(activity, InstaService::class.java).setAction(InstaService().ACTION_START))
+
+        /**
+         * Initializing adapter and layout manager for recyclerView
+         */
+        faceAdapter = FaceAdapter(activity as MainActivity, faceEntity)
+        faceAdapter.setOnItemClickListener(this)
+        val faceManager = StickyHeaderGridLayoutManager(2)
+        faceManager.setHeaderBottomOverlapMargin(resources.getDimensionPixelSize(R.dimen.header_shadow_size))
+
+        face_history.layoutManager = faceManager
+        face_history.itemAnimator = DefaultItemAnimator()
+        face_history.adapter = faceAdapter
+
         main_add_facebook.setOnClickListener{
             dialog = Dialog(activity)
             dialog.setCanceledOnTouchOutside(false)
@@ -63,6 +92,9 @@ class Facebook : Fragment(), InstaAdapter.OnItemClickListener  {
             dialog.window!!.setGravity(Gravity.BOTTOM)
             dialog.show()
 
+            val loader = dialog.dau_loader
+            val title = dialog.dau_title
+            val link_parent = dialog.dau_link_parent
             val link = dialog.dau_link
             val dismiss = dialog.dau_dismiss
             val done = dialog.dau_done
@@ -72,110 +104,97 @@ class Facebook : Fragment(), InstaAdapter.OnItemClickListener  {
             }
 
             done.setOnClickListener {
-                if (link.text.toString().trim().startsWith("https://m.facebook.")) { getFacebookUrl().execute(link.text.toString().trim()) }
-                dialog.dismiss()
-            }
-        }
+                title.visibility = View.GONE
+                link_parent.visibility = View.GONE
+                done.visibility = View.GONE
+                loader.visibility = View.VISIBLE
 
-    }
+                when {
+                    link.text.toString().trim().startsWith("https://m.facebook.com/") -> getFaceUrl().execute(link.text.toString().trim())
+                    link.text.toString().trim().startsWith("https://facebook.com/") -> getFaceUrl().execute(link.text.toString().trim())
+                    link.text.toString().trim().startsWith("https://www.facebook.com/") -> getFaceUrl().execute(link.text.toString().trim())
+                    else -> {
+                        title.visibility = View.VISIBLE
+                        link_parent.visibility = View.VISIBLE
+                        done.visibility = View.VISIBLE
+                        loader.visibility = View.GONE
 
-    inner class getFacebookUrl : AsyncTask<String, String, String>() {
-
-        /* access modifiers changed from: protected */
-        public override fun onPreExecute() { super.onPreExecute() }
-
-        /* access modifiers changed from: protected */
-        public override fun doInBackground(vararg strings: String): String? {
-            var z = false
-
-            val sb = StringBuilder("")
-            try {
-                var httpURLConnection = URL(strings[0]).openConnection() as HttpURLConnection
-                httpURLConnection.requestMethod = "GET"
-                httpURLConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36")
-                httpURLConnection.useCaches = false
-                httpURLConnection.instanceFollowRedirects = true
-                HttpURLConnection.setFollowRedirects(true)
-                val responseCode = httpURLConnection.responseCode
-                if (responseCode != 200 && (responseCode == 302 || responseCode == 301 || responseCode == 303)) { z = true }
-                if (z) {
-                    httpURLConnection = URL(httpURLConnection.getHeaderField("Location")).openConnection() as HttpURLConnection
-                    httpURLConnection.requestMethod = "GET"
-                    httpURLConnection.readTimeout = 5500
-                    httpURLConnection.connectTimeout = 5500
-                    httpURLConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36")
-                    httpURLConnection.useCaches = false
-                    httpURLConnection.instanceFollowRedirects = true
-                    HttpURLConnection.setFollowRedirects(true)
-                }
-                val httpURLConnection2 = httpURLConnection
-                return try {
-                    val bufferedReader2 = BufferedReader(InputStreamReader(httpURLConnection2.getInputStream()))
-                    while (true) {
-                        val readLine2 = bufferedReader2.readLine() ?: break
-                        sb.append(readLine2).append("\n")
+                        Toast.makeText(activity, "Please enter a valid facebook url", Toast.LENGTH_LONG).show()
                     }
-                    bufferedReader2.close()
-                    httpURLConnection2.disconnect()
-                    sb.toString()
-                } catch (e2: Exception) {
-                    val str2 = ""
-                    httpURLConnection2.disconnect()
-                    str2
                 }
-            } catch (e3: IOException) {
-                e3.printStackTrace()
             }
-
-            return ""
         }
 
-        /* access modifiers changed from: protected */
-        public override fun onPostExecute(response: String) {
-            super.onPostExecute(response)
-            val original = response
-            var sample = randomMatcher(response, "background-image:.+?url\\(&quot;(.+?)&quot;")
-            sample.add(phaseTwoMatcher(mainReplacer(original), "\"dest_uri\":\"(.+?)\"").replace("\\", ""))
-            var sampleTwo = phaseTwoMatcher(response, "property=\"og:description\" content=\"([^\"]+)\"")
-            val a = mainReplacer(phaseTwoMatcher(response, "\"([^\"]+)\" data-sigil=\"inlineVideo\""))
-            val a2 = mainReplacer(phaseTwoMatcher(response, "scaledImageFitHeight img\" src=\"([^\"]+)\""))
-            val a3 = mainReplacer(phaseTwoMatcher(response, "data-store=\"([^\"]+imgsrc[^\"]+)\""))
-            val b = phaseTwoMatcher(original, "class=\"_4o54\".+?&amp;url=(.+?)&")
-
-            Log.e("facebook items", original)
-            Log.e("facebook items", sample.toString())
-            Log.e("facebook items", sampleTwo)
-            Log.e("facebook items", a)
-            Log.e("facebook items", a2)
-            Log.e("facebook items", a3)
-            Log.e("facebook items", b)
-        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.main_facebook, container, false)
-
-    }
-
-    fun randomMatcher(str: String, str2: String): ArrayList<String> {
-        val matcher: Matcher = Pattern.compile(str2).matcher(str)
-        val arrayList = ArrayList<String>()
-        while (matcher.find()){ arrayList.add(matcher.group(1)) }
-        return arrayList
-    }
-
-    fun mainReplacer(str: String): String {
-        return str.replace("&#123;", "{").replace("&#125;", "}").replace("&amp;", "&").replace("&gt;", ">").replace("&lt;", "<").replace("&quot;", "\"").replace("&apos;", "'")
-    }
-
-    fun phaseTwoMatcher(str: String, str2: String): String {
-        val matcher: Matcher = Pattern.compile(str2).matcher(str)
-        return if (matcher.find()){ matcher.group(1) }else{ "" }
     }
 
     override fun onResume() {
         super.onResume()
-//        populateDownloads()
+        populateDownloads()
+    }
+
+    private fun populateDownloads(){
+        downloadsViewModel.getFace().observe(this, Observer<List<FaceEntity>>{ faceEntities ->
+            if (faceEntities != null){
+                if (faceEntities.isNotEmpty()){
+                    face_history.visibility = View.VISIBLE
+                    face_empty.visibility = View.GONE
+
+                    faceEntity.clear()
+                    for (d in 0 until faceEntities.size){
+                        val face = FaceEntity(
+                            faceEntities[d].id, faceEntities[d].name, faceEntities[d].postedBy, faceEntities[d].imageUrl, faceEntities[d].videoUrl,
+                            faceEntities[d].parentUrl, faceEntities[d].localUrl, faceEntities[d].type, faceEntities[d].downloaded, faceEntities[d].size, faceEntities[d].datecreated
+                        )
+                        this.faceEntity.add(face)
+                    }
+                    faceAdapter.setFace(faceEntity)
+                }else{
+                    face_history.visibility = View.GONE
+                    face_empty.visibility = View.VISIBLE
+                }
+            }
+        })
+    }
+
+    inner class getFaceUrl : AsyncTask<String, String, String>() {
+
+        /** access modifiers changed from: protected */
+        public override fun onPreExecute() { super.onPreExecute() }
+
+        /** access modifiers changed from: protected */
+        public override fun doInBackground(vararg strings: String): String? {
+            try {
+                val doc = Jsoup.connect(strings[0]).get()
+                image = doc.select("meta[property=og:image]").attr("content")
+                video = doc.select("meta[property=og:video]").attr("content")
+                name = (Random().nextInt(899999999)).toString()
+                isVideo = video.isNotEmpty()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+            return ""
+        }
+
+        /** access modifiers changed from: protected */
+        public override fun onPostExecute(s: String) {
+            super.onPostExecute(s)
+            if (isVideo) {
+                tempUrl = video
+                /** Save item in database */
+                val face = FaceEntity(0, name, "", image, video, parentUrl, "", "Video", "0", "0", Legion().getCurrentDate())
+                DatabaseApp().getFaceDao(activity as MainActivity).insertFace(face)
+            } else {
+                tempUrl = image
+                /** Save item in database */
+                val face = FaceEntity(0, name, "", image, video, parentUrl, "", "Image", "0", "0", Legion().getCurrentDate())
+                DatabaseApp().getFaceDao(activity as MainActivity).insertFace(face)
+            }
+            dialog.dismiss()
+        }
     }
 
 }

@@ -80,7 +80,7 @@
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView
-            android:id="@+id/facebook_history"
+            android:id="@+id/face_history"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintTop_toBottomOf="@+id/facebook_manager" android:layout_marginTop="8dp"
@@ -88,7 +88,7 @@
             app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="0dp"
             app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="0dp" />
 
-    <LinearLayout android:id="@+id/facebook_empty"
+    <LinearLayout android:id="@+id/face_empty"
                   android:layout_width="match_parent" android:layout_height="wrap_content"
                   android:orientation="vertical" android:gravity="center_horizontal"
                   app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"

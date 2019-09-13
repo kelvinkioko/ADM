@@ -50,7 +50,21 @@
                       app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="0dp"
                       app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="0dp"/>
 
+                <com.download.manager.video.whatsapp.widgets.progress.ProgressCircula
+                        android:id="@+id/dau_loader"
+                        android:layout_width="40dp" android:layout_height="40dp"
+                        android:layout_gravity="center" android:layout_marginTop="16dp"
+                        android:visibility="gone"
+                        app:pgc_indeterminate="true"
+                        app:pgc_progress="40"
+                        app:pgc_rimColor="@color/colorAccent"
+                        app:pgc_rimWidth="2dp"
+                        app:pgc_showProgress="true"
+                        app:pgc_speed="1"
+                        app:pgc_textColor="#00FF00"/>
+
                 <TextView
+                        android:id="@+id/dau_title"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Please note any actions you take within the application will be sent to the server you choose. "
@@ -60,6 +74,7 @@
                         android:textColor="@color/secondary_text"/>
 
                 <LinearLayout
+                        android:id="@+id/dau_link_parent"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"

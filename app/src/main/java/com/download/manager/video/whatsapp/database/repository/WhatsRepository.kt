@@ -29,6 +29,10 @@ class WhatsRepository(application: Application) {
         return whatsDao.countWhatsListByName(name)
     }
 
+    fun countWhatsListByNameAndDownloaded(name: String): Int{
+        return whatsDao.countWhatsListByNameAndDownloaded(name)
+    }
+
     fun countWhatsList(): Int{
         return whatsDao.countWhatsList()
     }
@@ -43,6 +47,10 @@ class WhatsRepository(application: Application) {
 
     fun updateName(name: String, id: Int){
         return whatsDao.updateName(name, id)
+    }
+
+    fun deleteWhatsListByNameAndDownloaded(name: String){
+        return whatsDao.deleteWhatsListByNameAndDownloaded(name)
     }
 
     fun deleteWhats(){

@@ -21,6 +21,9 @@ interface WhatsDao {
     @Query("SELECT COUNT(id) FROM whatsEntity WHERE liveUri =:name")
     fun countWhatsListByName(name: String): Int
 
+    @Query("SELECT COUNT(id) FROM whatsEntity WHERE liveUri =:name AND status ='downloaded'")
+    fun countWhatsListByNameAndDownloaded(name: String): Int
+
     @Query("SELECT COUNT(id) FROM whatsEntity")
     fun countWhatsList(): Int
 
@@ -32,6 +35,9 @@ interface WhatsDao {
 
     @Query("UPDATE whatsEntity SET name =:name WHERE id =:id")
     fun updateName(name: String, id: Int)
+
+    @Query("DELETE FROM whatsEntity WHERE liveUri =:name AND status ='live'")
+    fun deleteWhatsListByNameAndDownloaded(name: String)
 
     @Query("DELETE FROM whatsEntity WHERE id =:id")
     fun deleteWhatsById(id: Int)

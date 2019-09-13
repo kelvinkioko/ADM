@@ -136,121 +136,7 @@ class InstaAdapter (private val context: Context, private var instaEntity: List<
         }
 
         holder.instaDownload.setOnClickListener {
-            downloader = Downloader.Builder(context, url).downloadListener(object : OnDownloadListener {
-                override fun onStart() {
-                    Log.e("Download status", "Started")
-                    handler.post {
-                        holder.instaPause.visibility = View.VISIBLE
-                        holder.instaPlay.visibility = View.GONE
-                        holder.instaCancel.visibility = View.VISIBLE
-                        holder.instaDownload.visibility = View.GONE
-                        holder.instaError.visibility = View.GONE
-                        holder.instaSuccess.visibility = View.GONE
-                        holder.instaProgress.visibility = View.VISIBLE
-                    }
-                }
-
-                override fun onPause() {
-                    Log.e("Download status", "Paused")
-                    handler.post {
-                        holder.instaPause.visibility = View.GONE
-                        holder.instaPlay.visibility = View.VISIBLE
-                        holder.instaCancel.visibility = View.VISIBLE
-                        holder.instaDownload.visibility = View.GONE
-                        holder.instaError.visibility = View.GONE
-                        holder.instaSuccess.visibility = View.GONE
-                    }
-                }
-
-                override fun onResume() {
-                    Log.e("Download status", "Resumed")
-                    handler.post {
-                        holder.instaPause.visibility = View.VISIBLE
-                        holder.instaPlay.visibility = View.GONE
-                        holder.instaCancel.visibility = View.VISIBLE
-                        holder.instaDownload.visibility = View.GONE
-                        holder.instaError.visibility = View.GONE
-                        holder.instaSuccess.visibility = View.GONE
-                    }
-                }
-
-                override fun onProgressUpdate(percent: Int, downloadedSize: Int, totalSize: Int) {
-                    handler.post {
-                        holder.instaProgress.max = totalSize.toFloat()
-                        holder.instaProgress.progress = downloadedSize.toFloat()
-                        DatabaseApp().getInstaDao(context).updateInsta(downloadedSize.toString(), totalSize.toString(), item.id)
-                    }
-                }
-
-                override fun onCompleted(file: File?) {
-                    handler.post {
-                        holder.instaPause.visibility = View.GONE
-                        holder.instaPlay.visibility = View.GONE
-                        holder.instaCancel.visibility = View.GONE
-                        holder.instaDownload.visibility = View.GONE
-                        holder.instaError.visibility = View.GONE
-                        holder.instaSuccess.visibility = View.VISIBLE
-                    }
-
-                    val final = if (item.type.equals("video", true)){
-                        File(Environment.getExternalStorageDirectory().toString() + File.separator + "Download Manager" + File.separator + "insta" + File.separator + "videos" + File.separator + file?.name)
-                    }else{
-                        File(Environment.getExternalStorageDirectory().toString() + File.separator + "Download Manager" + File.separator + "insta" + File.separator + "images" + File.separator + file?.name)
-                    }
-
-                    if (!final.parentFile.exists()) { final.parentFile.mkdirs() }
-                    if (!final.exists()) { final.createNewFile() }
-
-                    var source: FileChannel? = null
-                    var destination: FileChannel? = null
-
-                    try {
-                        source = FileInputStream(file).channel
-                        destination = FileOutputStream(final).channel
-                        destination!!.transferFrom(source, 0, source!!.size())
-                    } finally {
-                        file?.delete()
-                        source?.close()
-                        destination?.close()
-                    }
-
-                    DatabaseApp().getInstaDao(context).updateInsta(final.length().toString(), final.length().toString(), item.id)
-                    DatabaseApp().getInstaDao(context).updateLocalURL(final.toString(), item.id)
-                    DatabaseApp().getInstaDao(context).updateName(final.name, item.id)
-
-                    if (item.downloaded.toInt() != 0 && item.size.toInt() != 0){
-                        holder.instaProgress.progress = ((item.downloaded.toInt()/item.size.toInt()) * 100).toFloat()
-                    }
-                    instaEntity = DatabaseApp().getInstaDao(context).getInstaList()
-                    notifyDataSetChanged()
-                }
-
-                override fun onFailure(reason: String?) {
-                    Log.e("Download status", "Failed")
-                    Log.e("Download status", reason)
-                    // Log.d(TAG, "onFailure: reason --> $reason")
-                    handler.post {
-                        holder.instaPause.visibility = View.GONE
-                        holder.instaPlay.visibility = View.GONE
-                        holder.instaCancel.visibility = View.GONE
-                        holder.instaDownload.visibility = View.VISIBLE
-                        holder.instaError.visibility = View.VISIBLE
-                        holder.instaSuccess.visibility = View.GONE
-                    }
-                }
-
-                override fun onCancel() {
-                    Log.e("Download status", "Cancelled")
-                    handler.post {
-                        holder.instaPause.visibility = View.GONE
-                        holder.instaPlay.visibility = View.GONE
-                        holder.instaCancel.visibility = View.GONE
-                        holder.instaDownload.visibility = View.VISIBLE
-                        holder.instaError.visibility = View.GONE
-                        holder.instaSuccess.visibility = View.GONE
-                    }
-                }
-            }).build()
+            downloadFile(holder, url, item)
             downloader.download()
         }
 
@@ -259,123 +145,128 @@ class InstaAdapter (private val context: Context, private var instaEntity: List<
         }
 
         holder.instaPlay.setOnClickListener {
-            downloader = Downloader.Builder(context, url).downloadListener(object : OnDownloadListener {
-                override fun onStart() {
-                    Log.e("Download status", "Started")
-                    handler.post {
-                        holder.instaPause.visibility = View.VISIBLE
-                        holder.instaPlay.visibility = View.GONE
-                        holder.instaCancel.visibility = View.VISIBLE
-                        holder.instaDownload.visibility = View.GONE
-                        holder.instaError.visibility = View.GONE
-                        holder.instaSuccess.visibility = View.GONE
-                        holder.instaProgress.visibility = View.VISIBLE
-                    }
-                }
-
-                override fun onPause() {
-                    handler.post {
-                        holder.instaPause.visibility = View.GONE
-                        holder.instaPlay.visibility = View.VISIBLE
-                        holder.instaCancel.visibility = View.VISIBLE
-                        holder.instaDownload.visibility = View.GONE
-                        holder.instaError.visibility = View.GONE
-                        holder.instaSuccess.visibility = View.GONE
-                    }
-                }
-
-                override fun onResume() {
-                    handler.post {
-                        holder.instaPause.visibility = View.VISIBLE
-                        holder.instaPlay.visibility = View.GONE
-                        holder.instaCancel.visibility = View.VISIBLE
-                        holder.instaDownload.visibility = View.GONE
-                        holder.instaError.visibility = View.GONE
-                        holder.instaSuccess.visibility = View.GONE
-                    }
-                }
-
-                override fun onProgressUpdate(percent: Int, downloadedSize: Int, totalSize: Int) {
-                    handler.post {
-                        holder.instaProgress.max = totalSize.toFloat()
-                        holder.instaProgress.progress = downloadedSize.toFloat()
-                        DatabaseApp().getInstaDao(context).updateInsta(downloadedSize.toString(), totalSize.toString(), item.id)
-                    }
-                }
-
-                override fun onCompleted(file: File?) {
-                    handler.post {
-                        holder.instaPause.visibility = View.GONE
-                        holder.instaPlay.visibility = View.GONE
-                        holder.instaCancel.visibility = View.GONE
-                        holder.instaDownload.visibility = View.GONE
-                        holder.instaError.visibility = View.GONE
-                        holder.instaSuccess.visibility = View.VISIBLE
-                    }
-
-                    val final = if (item.type.equals("video", true)){
-                        File(Environment.getExternalStorageDirectory().toString() + File.separator + "Download Manager" + File.separator + "insta" + File.separator + "videos" + File.separator + file?.name)
-                    }else{
-                        File(Environment.getExternalStorageDirectory().toString() + File.separator + "Download Manager" + File.separator + "insta" + File.separator + "images" + File.separator + file?.name)
-                    }
-
-                    if (!final.parentFile.exists()) { final.parentFile.mkdirs() }
-                    if (!final.exists()) { final.createNewFile() }
-
-                    var source: FileChannel? = null
-                    var destination: FileChannel? = null
-
-                    try {
-                        source = FileInputStream(file).channel
-                        destination = FileOutputStream(final).channel
-                        destination!!.transferFrom(source, 0, source!!.size())
-                    } finally {
-                        file?.delete()
-                        source?.close()
-                        destination?.close()
-                    }
-
-                    DatabaseApp().getInstaDao(context).updateInsta(final.length().toString(), final.length().toString(), item.id)
-                    DatabaseApp().getInstaDao(context).updateLocalURL(final.toString(), item.id)
-                    DatabaseApp().getInstaDao(context).updateName(final.name, item.id)
-
-                    if (item.downloaded.toInt() != 0 && item.size.toInt() != 0){
-                        holder.instaProgress.progress = ((item.downloaded.toInt()/item.size.toInt()) * 100).toFloat()
-                    }
-
-                    instaEntity = DatabaseApp().getInstaDao(context).getInstaList()
-                    notifyDataSetChanged()
-                }
-
-                override fun onFailure(reason: String?) {
-                    Log.e("Download status", reason)
-                    handler.post {
-                        holder.instaPause.visibility = View.GONE
-                        holder.instaPlay.visibility = View.GONE
-                        holder.instaCancel.visibility = View.GONE
-                        holder.instaDownload.visibility = View.VISIBLE
-                        holder.instaError.visibility = View.VISIBLE
-                        holder.instaSuccess.visibility = View.GONE
-                    }
-                }
-
-                override fun onCancel() {
-                    handler.post {
-                        holder.instaPause.visibility = View.GONE
-                        holder.instaPlay.visibility = View.GONE
-                        holder.instaCancel.visibility = View.GONE
-                        holder.instaDownload.visibility = View.VISIBLE
-                        holder.instaError.visibility = View.GONE
-                        holder.instaSuccess.visibility = View.GONE
-                    }
-                }
-            }).build()
+            downloadFile(holder, url, item)
             downloader.resumeDownload()
         }
 
         holder.instaCancel.setOnClickListener {
             downloader.cancelDownload()
         }
+    }
+
+    fun downloadFile(viewHolder: StickyHeaderGridAdapter.ItemViewHolder?, url: String, item: InstaEntity){
+        val holder = viewHolder as ItemViewHolder
+        downloader = Downloader.Builder(context, url).downloadListener(object : OnDownloadListener {
+            override fun onStart() {
+                Log.e("Download status", "Started")
+                handler.post {
+                    holder.instaPause.visibility = View.VISIBLE
+                    holder.instaPlay.visibility = View.GONE
+                    holder.instaCancel.visibility = View.VISIBLE
+                    holder.instaDownload.visibility = View.GONE
+                    holder.instaError.visibility = View.GONE
+                    holder.instaSuccess.visibility = View.GONE
+                    holder.instaProgress.visibility = View.VISIBLE
+                }
+            }
+
+            override fun onPause() {
+                handler.post {
+                    holder.instaPause.visibility = View.GONE
+                    holder.instaPlay.visibility = View.VISIBLE
+                    holder.instaCancel.visibility = View.VISIBLE
+                    holder.instaDownload.visibility = View.GONE
+                    holder.instaError.visibility = View.GONE
+                    holder.instaSuccess.visibility = View.GONE
+                }
+            }
+
+            override fun onResume() {
+                handler.post {
+                    holder.instaPause.visibility = View.VISIBLE
+                    holder.instaPlay.visibility = View.GONE
+                    holder.instaCancel.visibility = View.VISIBLE
+                    holder.instaDownload.visibility = View.GONE
+                    holder.instaError.visibility = View.GONE
+                    holder.instaSuccess.visibility = View.GONE
+                }
+            }
+
+            override fun onProgressUpdate(percent: Int, downloadedSize: Int, totalSize: Int) {
+                handler.post {
+                    holder.instaProgress.max = totalSize.toFloat()
+                    holder.instaProgress.progress = downloadedSize.toFloat()
+                    DatabaseApp().getInstaDao(context).updateInsta(downloadedSize.toString(), totalSize.toString(), item.id)
+                }
+            }
+
+            override fun onCompleted(file: File?) {
+                handler.post {
+                    holder.instaPause.visibility = View.GONE
+                    holder.instaPlay.visibility = View.GONE
+                    holder.instaCancel.visibility = View.GONE
+                    holder.instaDownload.visibility = View.GONE
+                    holder.instaError.visibility = View.GONE
+                    holder.instaSuccess.visibility = View.VISIBLE
+                }
+
+                val final = if (item.type.equals("video", true)){
+                    File(Environment.getExternalStorageDirectory().toString() + File.separator + "Download Manager" + File.separator + "insta" + File.separator + "videos" + File.separator + file?.name)
+                }else{
+                    File(Environment.getExternalStorageDirectory().toString() + File.separator + "Download Manager" + File.separator + "insta" + File.separator + "images" + File.separator + file?.name)
+                }
+
+                if (!final.parentFile.exists()) { final.parentFile.mkdirs() }
+                if (!final.exists()) { final.createNewFile() }
+
+                var source: FileChannel? = null
+                var destination: FileChannel? = null
+
+                try {
+                    source = FileInputStream(file).channel
+                    destination = FileOutputStream(final).channel
+                    destination!!.transferFrom(source, 0, source!!.size())
+                } finally {
+                    file?.delete()
+                    source?.close()
+                    destination?.close()
+                }
+
+                DatabaseApp().getInstaDao(context).updateInsta(final.length().toString(), final.length().toString(), item.id)
+                DatabaseApp().getInstaDao(context).updateLocalURL(final.toString(), item.id)
+                DatabaseApp().getInstaDao(context).updateName(final.name, item.id)
+
+                if (item.downloaded.toInt() != 0 && item.size.toInt() != 0){
+                    holder.instaProgress.progress = ((item.downloaded.toInt()/item.size.toInt()) * 100).toFloat()
+                }
+
+                instaEntity = DatabaseApp().getInstaDao(context).getInstaList()
+                notifyDataSetChanged()
+            }
+
+            override fun onFailure(reason: String?) {
+                Log.e("Download status", reason)
+                handler.post {
+                    holder.instaPause.visibility = View.GONE
+                    holder.instaPlay.visibility = View.GONE
+                    holder.instaCancel.visibility = View.GONE
+                    holder.instaDownload.visibility = View.VISIBLE
+                    holder.instaError.visibility = View.VISIBLE
+                    holder.instaSuccess.visibility = View.GONE
+                }
+            }
+
+            override fun onCancel() {
+                handler.post {
+                    holder.instaPause.visibility = View.GONE
+                    holder.instaPlay.visibility = View.GONE
+                    holder.instaCancel.visibility = View.GONE
+                    holder.instaDownload.visibility = View.VISIBLE
+                    holder.instaError.visibility = View.GONE
+                    holder.instaSuccess.visibility = View.GONE
+                }
+            }
+        }).build()
     }
 
     fun setInsta(instaEntities: List<InstaEntity>) {

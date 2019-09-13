@@ -3,6 +3,7 @@ package com.download.manager.video.whatsapp.database
 import android.app.Application
 import android.content.Context
 import com.download.manager.video.whatsapp.database.dao.DownloadsDao
+import com.download.manager.video.whatsapp.database.dao.FaceDao
 import com.download.manager.video.whatsapp.database.dao.InstaDao
 import com.download.manager.video.whatsapp.database.dao.WhatsDao
 
@@ -11,6 +12,7 @@ class DatabaseApp: Application() {
     private lateinit var downloadsDao: DownloadsDao
     private lateinit var instaDao: InstaDao
     private lateinit var whatsDao: WhatsDao
+    private lateinit var faceDao: FaceDao
     private lateinit var instance: DatabaseApp
     private val TAG = "downloadApp"
 
@@ -37,5 +39,11 @@ class DatabaseApp: Application() {
     fun getWhatsDao(context: Context): WhatsDao {
         whatsDao = DownloadDatabase.getDatabase(context.applicationContext).whatsDao()
         return whatsDao
+    }
+
+    @Synchronized
+    fun getFaceDao(context: Context): FaceDao {
+        faceDao = DownloadDatabase.getDatabase(context.applicationContext).faceDao()
+        return faceDao
     }
 }

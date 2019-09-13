@@ -109,25 +109,31 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
         val files = File(Environment.getExternalStorageDirectory().absolutePath + Constants().FOLDER_NAME).listFiles()
         val savedFiles = File(Environment.getExternalStorageDirectory().absolutePath + Constants().DOWNLOADER_FOLDER).listFiles()
 
-        for (s in savedFiles.indices) {
-            val type = if (Uri.fromFile(savedFiles[s]).toString().endsWith(".mp4")) { "Video" } else { "Image" }
+        if (savedFiles != null) {
+            for (s in savedFiles.indices) {
+                val type = if (Uri.fromFile(savedFiles[s]).toString().endsWith(".mp4")) { "Video" } else { "Image" }
+                val whats = WhatsEntity(0, savedFiles[s].name, savedFiles[s].absolutePath, Uri.fromFile(savedFiles[s]).toString(), savedFiles[s].absolutePath, "downloaded", type, savedFiles[s].length().toString(), SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(Date(savedFiles[s].lastModified())), SimpleDateFormat("dd-MM-yyyy").format(Date(savedFiles[s].lastModified())))
 
-            val whats = WhatsEntity(0, savedFiles[s].name, savedFiles[s].absolutePath, Uri.fromFile(savedFiles[s]).toString(), "", "downloaded", type, savedFiles[s].length().toString(), SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(Date(savedFiles[s].lastModified())), SimpleDateFormat("dd-MM-yyyy").format(Date(savedFiles[s].lastModified())))
-
-            if (downloadsViewModel.countWhatsListByName(Uri.fromFile(savedFiles[s]).toString()) == 0){
-                this.whatsEntity.add(whats)
-                downloadsViewModel.insertWhats(whats)
+                if (downloadsViewModel.countWhatsListByName(Uri.fromFile(savedFiles[s]).toString()) == 0) {
+                    this.whatsEntity.add(whats)
+                    downloadsViewModel.insertWhats(whats)
+                }
             }
         }
 
-        for (i in files.indices) {
-            val type = if (Uri.fromFile(files[i]).toString().endsWith(".mp4")) { "Video" } else { "Image" }
+        if (files != null) {
+            for (i in files.indices) {
+                val type = if (Uri.fromFile(files[i]).toString().endsWith(".mp4")) { "Video" } else { "Image" }
+                val whats = WhatsEntity(0, files[i].name, files[i].absolutePath, Uri.fromFile(files[i]).toString(), "", "live", type, files[i].length().toString(), SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(Date(files[i].lastModified())), SimpleDateFormat("dd-MM-yyyy").format(Date(files[i].lastModified())))
 
-            val whats = WhatsEntity(0, files[i].name, files[i].absolutePath, Uri.fromFile(files[i]).toString(), "", "live", type, files[i].length().toString(), SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(Date(files[i].lastModified())), SimpleDateFormat("dd-MM-yyyy").format(Date(files[i].lastModified())))
+                if (downloadsViewModel.countWhatsListByName(Uri.fromFile(files[i]).toString()) == 0) {
+                    this.whatsEntity.add(whats)
+                    downloadsViewModel.insertWhats(whats)
+                }
 
-            if (downloadsViewModel.countWhatsListByName(Uri.fromFile(files[i]).toString()) == 0){
-                this.whatsEntity.add(whats)
-                downloadsViewModel.insertWhats(whats)
+                if (downloadsViewModel.countWhatsListByNameAndDownloaded(Uri.fromFile(files[i]).toString()) == 1) {
+                    downloadsViewModel.deleteWhatsListByNameAndDownloaded(Uri.fromFile(files[i]).toString())
+                }
             }
         }
 
