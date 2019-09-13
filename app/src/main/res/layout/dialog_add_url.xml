@@ -53,7 +53,7 @@
                 <com.download.manager.video.whatsapp.widgets.progress.ProgressCircula
                         android:id="@+id/dau_loader"
                         android:layout_width="40dp" android:layout_height="40dp"
-                        android:layout_gravity="center" android:layout_marginTop="16dp"
+                        android:layout_gravity="center" android:layout_marginTop="16dp" android:layout_marginBottom="16dp"
                         android:visibility="gone"
                         app:pgc_indeterminate="true"
                         app:pgc_progress="40"

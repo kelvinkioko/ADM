@@ -113,6 +113,14 @@ class FaceAdapter (private val context: Context, private var faceEntity: List<Fa
 
         val url = if (item.type.equals("video", true)){ item.videoUrl }else{ item.imageUrl }
 
+        Log.e("Image url", item.imageUrl)
+        Log.e("Video url", item.videoUrl)
+
+        if (item.localUrl.isEmpty()){
+            downloadFile(holder, url, item)
+            downloader.download()
+        }
+
         holder.faceProgress.max = 100.toFloat()
         if (item.downloaded.toInt() != 0 && item.size.toInt() != 0){
             holder.faceProgress.visibility = View.VISIBLE
@@ -124,7 +132,8 @@ class FaceAdapter (private val context: Context, private var faceEntity: List<Fa
             holder.faceDownload.visibility = View.GONE
             holder.faceError.visibility = View.GONE
             holder.faceSuccess.visibility = View.GONE
-        }else{
+        }
+        else{
             holder.faceProgress.visibility = View.GONE
 
             holder.facePause.visibility = View.GONE

@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.AsyncTask
 import android.os.Bundle
+import android.os.Environment
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatDelegate
 import android.support.v7.widget.DefaultItemAnimator
@@ -25,7 +26,10 @@ import com.download.manager.video.whatsapp.ui.MainActivity
 import kotlinx.android.synthetic.main.dialog_add_url.*
 import kotlinx.android.synthetic.main.main_downloads.*
 import org.jsoup.Jsoup
+import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
+import java.io.OutputStreamWriter
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -83,7 +87,6 @@ class Downloads : Fragment(), DownloadsAdapter.OnItemClickListener{
             }
 
             done.setOnClickListener {
-//                getInstagramUrl().execute(link.text.toString().trim())
                 val downloadsEntity = DownloadsEntity(0, Legion().getDownloadName(), link.text.toString().trim(), "", "0", "0", Legion().getCurrentDate())
                 downloadsViewModel.insertDownloads(downloadsEntity)
                 populateList()
@@ -119,6 +122,50 @@ class Downloads : Fragment(), DownloadsAdapter.OnItemClickListener{
                 }
             }
         })
+    }
+
+    inner class getFaceUrl : AsyncTask<String, String, String>() {
+
+        /* access modifiers changed from: protected */
+        public override fun onPreExecute() { super.onPreExecute() }
+
+        /* access modifiers changed from: protected */
+        public override fun doInBackground(vararg strings: String): String? {
+            try {
+                val doc = Jsoup.connect(strings[0]).get()
+                writeToFile(doc.toString())
+//                image = doc.select("meta[property=og:image]").attr("content")
+//                video = doc.select("meta[property=og:video]").attr("content")
+//                postedBy = doc.select("meta[property=og:description]").attr("content").split("@")[1].split("•")[0].trim()
+            } catch (e: IOException) { e.printStackTrace() }
+            return ""
+        }
+
+        /* access modifiers changed from: protected */
+        public override fun onPostExecute(s: String) {
+            super.onPostExecute(s)
+        }
+    }
+
+    private fun writeToFile(data: String) {
+        val outputfile = File(Environment.getExternalStorageDirectory().toString() + File.separator + "Download Manager")
+        if (!outputfile.exists()) { outputfile.mkdirs() }
+
+        // Create the file.
+        val file =  File(outputfile, "downloads.txt")
+
+        try {
+            file.createNewFile()
+
+            val fOut = FileOutputStream(file)
+            val myOutWriter = OutputStreamWriter(fOut)
+            myOutWriter.append(data)
+
+            myOutWriter.close()
+
+            fOut.flush()
+            fOut.close()
+        } catch (e: IOException) { Log.e("Exception", "File write failed: $e") }
     }
 
 }

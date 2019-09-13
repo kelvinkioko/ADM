@@ -73,7 +73,7 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
          */
         instaAdapter = InstaAdapter(activity as MainActivity, instaEntity)
         instaAdapter.setOnItemClickListener(this)
-        val instaManager = StickyHeaderGridLayoutManager(3)
+        val instaManager = StickyHeaderGridLayoutManager(2)
         instaManager.setHeaderBottomOverlapMargin(resources.getDimensionPixelSize(R.dimen.header_shadow_size))
 
         insta_history.layoutManager = instaManager

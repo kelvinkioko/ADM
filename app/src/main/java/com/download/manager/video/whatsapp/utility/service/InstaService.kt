@@ -69,7 +69,6 @@ class InstaService : IntentService("InstaService") {
                 this@InstaService.postedBy = doc.select("meta[property=og:description]").attr("content").split("@")[1].split("•")[0].trim()
                 this@InstaService.name = (Random().nextInt(899999999)).toString()
                 this@InstaService.isVideo = video.isNotEmpty()
-                Log.e("Final URL iMAGE", "$video - $image")
             } catch (e: IOException) {
                 isError = true
                 isVideo = false
@@ -136,13 +135,17 @@ class InstaService : IntentService("InstaService") {
             if (isVideo) {
                 tempUrl = video
                 /*** Save item in database*/
-                val face = FaceEntity(0, name, postedBy, image, video, parentUrl, "", "Video", "0", "0", Legion().getCurrentDate())
-                DatabaseApp().getFaceDao(applicationContext).insertFace(face)
+                if (image.isNotEmpty()){
+                    val face = FaceEntity(0, name, postedBy, image, video, parentUrl, "", "Video", "0", "0", Legion().getCurrentDate())
+                    DatabaseApp().getFaceDao(applicationContext).insertFace(face)
+                }
             } else {
                 tempUrl = image
                 /** Save item in database */
-                val face = FaceEntity(0, name, postedBy, image, video, parentUrl, "", "Image", "1", "0", Legion().getCurrentDate())
-                DatabaseApp().getFaceDao(applicationContext as MainActivity).insertFace(face)
+                if (image.isNotEmpty()){
+                    val face = FaceEntity(0, name, postedBy, image, video, parentUrl, "", "Image", "1", "0", Legion().getCurrentDate())
+                    DatabaseApp().getFaceDao(applicationContext as MainActivity).insertFace(face)
+                }
             }
         }
     }

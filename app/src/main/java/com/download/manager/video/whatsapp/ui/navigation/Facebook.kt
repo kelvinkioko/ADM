@@ -20,20 +20,18 @@ import com.download.manager.video.whatsapp.database.DatabaseApp
 import com.download.manager.video.whatsapp.database.adapter.FaceAdapter
 import com.download.manager.video.whatsapp.ui.MainActivity
 import com.download.manager.video.whatsapp.database.entity.FaceEntity
-import com.download.manager.video.whatsapp.database.entity.InstaEntity
 import com.download.manager.video.whatsapp.database.viewmodel.DownloadsViewModel
-import com.download.manager.video.whatsapp.engine.Constants
 import com.download.manager.video.whatsapp.engine.Legion
 import com.download.manager.video.whatsapp.engine.PermissionListener
-import com.download.manager.video.whatsapp.utility.service.InstaService
 import com.download.manager.video.whatsapp.widgets.StickyHeaderGridLayoutManager
 import kotlinx.android.synthetic.main.dialog_add_url.*
 import kotlinx.android.synthetic.main.main_facebook.*
-import kotlinx.android.synthetic.main.main_gram.*
 import org.jsoup.Jsoup
-import java.io.IOException
 import java.util.*
 import kotlin.collections.ArrayList
+import android.content.Context.MODE_PRIVATE
+import android.os.Environment
+import java.io.*
 
 
 class Facebook : Fragment(), FaceAdapter.OnItemClickListener  {
@@ -68,7 +66,7 @@ class Facebook : Fragment(), FaceAdapter.OnItemClickListener  {
         PermissionListener(activity as MainActivity).loadPermissions()
         downloadsViewModel = ViewModelProviders.of(this).get(DownloadsViewModel::class.java)
 
-        (activity as MainActivity).startService(Intent(activity, InstaService::class.java).setAction(InstaService().ACTION_START))
+//        (activity as MainActivity).startService(Intent(activity, InstaService::class.java).setAction(InstaService().ACTION_START))
 
         /**
          * Initializing adapter and layout manager for recyclerView
@@ -169,6 +167,7 @@ class Facebook : Fragment(), FaceAdapter.OnItemClickListener  {
         public override fun doInBackground(vararg strings: String): String? {
             try {
                 val doc = Jsoup.connect(strings[0]).get()
+                writeToFile(doc.toString())
                 image = doc.select("meta[property=og:image]").attr("content")
                 video = doc.select("meta[property=og:video]").attr("content")
                 name = (Random().nextInt(899999999)).toString()
@@ -185,16 +184,45 @@ class Facebook : Fragment(), FaceAdapter.OnItemClickListener  {
             if (isVideo) {
                 tempUrl = video
                 /** Save item in database */
-                val face = FaceEntity(0, name, "", image, video, parentUrl, "", "Video", "0", "0", Legion().getCurrentDate())
-                DatabaseApp().getFaceDao(activity as MainActivity).insertFace(face)
+                if (image.isNotEmpty()){
+                    val face = FaceEntity(0, name, "", image, video, parentUrl, "", "Video", "0", "0", Legion().getCurrentDate())
+                    DatabaseApp().getFaceDao(activity as MainActivity).insertFace(face)
+                }
             } else {
                 tempUrl = image
                 /** Save item in database */
-                val face = FaceEntity(0, name, "", image, video, parentUrl, "", "Image", "0", "0", Legion().getCurrentDate())
-                DatabaseApp().getFaceDao(activity as MainActivity).insertFace(face)
+                if (image.isNotEmpty()){
+                    val face = FaceEntity(0, name, "", image, video, parentUrl, "", "Image", "0", "0", Legion().getCurrentDate())
+                    DatabaseApp().getFaceDao(activity as MainActivity).insertFace(face)
+                }
             }
+            populateDownloads()
             dialog.dismiss()
         }
+    }
+
+    private fun writeToFile(data: String) {
+        val outputfile = File(Environment.getExternalStorageDirectory().toString() + File.separator + "Download Manager")
+        if (!outputfile.exists()) { outputfile.mkdirs() }
+
+        // Create the file.
+        val file =  File(outputfile, "config.txt")
+
+        try {
+            file.createNewFile()
+
+            val fOut = FileOutputStream(file)
+            val myOutWriter = OutputStreamWriter(fOut)
+            myOutWriter.append(data)
+
+            myOutWriter.close()
+
+            fOut.flush()
+            fOut.close()
+        } catch (e: IOException) {
+            Log.e("Exception", "File write failed: $e")
+        }
+
     }
 
 }
