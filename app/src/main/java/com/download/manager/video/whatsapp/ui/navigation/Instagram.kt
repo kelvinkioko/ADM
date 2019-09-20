@@ -12,6 +12,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.AsyncTask
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.DefaultItemAnimator
 import android.util.Log
 import android.view.*
@@ -54,6 +55,10 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
     private var instaEntity: MutableList<InstaEntity> = ArrayList()
     private lateinit var instaAdapter: InstaAdapter
 
+    lateinit var _primary: LinearLayout
+    lateinit var _success: LinearLayout
+    lateinit var _error: LinearLayout
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
@@ -61,6 +66,9 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        if(activity is AppCompatActivity){
+            (activity as AppCompatActivity).setSupportActionBar(toolbar)
+        }
         (activity as MainActivity).supportActionBar!!.title = "Home | Insta"
 
         PermissionListener(activity as MainActivity).loadPermissions()
@@ -90,6 +98,13 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
             dialog.window!!.setGravity(Gravity.BOTTOM)
             dialog.show()
 
+            _primary = dialog.dau_primary
+            _success = dialog.dau_success
+            _error = dialog.dau_error
+
+            _success.visibility = View.GONE
+            _error.visibility = View.GONE
+
             val loader = dialog.dau_loader
             val title = dialog.dau_title
             val link_parent = dialog.dau_link_parent
@@ -97,8 +112,19 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
             val dismiss = dialog.dau_dismiss
             val done = dialog.dau_done
 
-            dismiss.setOnClickListener {
-                dialog.dismiss()
+            val success_message = dialog.dau_success_message
+            val success_dismiss = dialog.dau_success_dismiss
+
+            val error_message = dialog.dau_error_message
+            val error_dismiss = dialog.dau_error_dismiss
+            val error_done = dialog.dau_error_done
+
+            success_dismiss.setOnClickListener { dialog.dismiss() }
+            error_dismiss.setOnClickListener { dialog.dismiss() }
+            dismiss.setOnClickListener { dialog.dismiss() }
+            error_done.setOnClickListener {
+                _error.visibility = View.GONE
+                _primary.visibility = View.VISIBLE
             }
 
             done.setOnClickListener {

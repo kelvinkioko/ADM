@@ -3,18 +3,28 @@ package com.download.manager.video.whatsapp.ui.navigation
 import android.app.Dialog
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.os.AsyncTask
-import android.os.Bundle
-import android.os.Environment
+import android.os.*
+import android.preference.PreferenceManager
 import android.support.v4.app.Fragment
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.app.AppCompatDelegate
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
+import android.text.InputType
 import android.util.Log
+import android.util.Patterns
 import android.view.*
+import android.view.inputmethod.EditorInfo
+import android.webkit.WebChromeClient
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
 import com.download.manager.video.whatsapp.R
 import com.download.manager.video.whatsapp.database.adapter.DownloadsAdapter
 import com.download.manager.video.whatsapp.database.adapter.SectionableAdapter
@@ -23,6 +33,10 @@ import com.download.manager.video.whatsapp.database.viewmodel.DownloadsViewModel
 import com.download.manager.video.whatsapp.engine.Legion
 import com.download.manager.video.whatsapp.engine.PermissionListener
 import com.download.manager.video.whatsapp.ui.MainActivity
+import com.download.manager.video.whatsapp.utility.Downloader
+import com.download.manager.video.whatsapp.utility.VideoContentSearch
+import com.download.manager.video.whatsapp.utility.download.core.OnDownloadListener
+import com.download.manager.video.whatsapp.widgets.web.ScriptUtil
 import kotlinx.android.synthetic.main.dialog_add_url.*
 import kotlinx.android.synthetic.main.main_downloads.*
 import org.jsoup.Jsoup
@@ -31,18 +45,14 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStreamWriter
 import java.util.*
+import java.util.regex.Pattern
+import javax.net.ssl.HttpsURLConnection
+import javax.net.ssl.SSLSocketFactory
 import kotlin.collections.ArrayList
 
-class Downloads : Fragment(), DownloadsAdapter.OnItemClickListener{
+class Downloads : Fragment(){
 
-    override fun parentClick(view: View, position: Int, userCode: String) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    private lateinit var downloadsViewModel: DownloadsViewModel
-    private var downloadsEntity: MutableList<DownloadsEntity> = ArrayList()
-    private lateinit var downloadsAdapter: DownloadsAdapter
-    lateinit var dialog: Dialog
+    private var defaultSSLSF: SSLSocketFactory? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,121 +61,114 @@ class Downloads : Fragment(), DownloadsAdapter.OnItemClickListener{
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        (activity as MainActivity).supportActionBar!!.title = "Home | Downloads"
 
         PermissionListener(activity as MainActivity).loadPermissions()
-        downloadsViewModel = ViewModelProviders.of(this).get(DownloadsViewModel::class.java)
 
-        /**
-         * Initializing adapter and layout manager for recyclerView
-         */
-        downloadsAdapter = DownloadsAdapter(activity as MainActivity, downloadsEntity)
-        downloadsAdapter.setOnItemClickListener(this)
-        val occupantManager = LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
-        download_history.layoutManager = occupantManager
-        download_history.itemAnimator = DefaultItemAnimator()
-        download_history.adapter = downloadsAdapter
+        defaultSSLSF = HttpsURLConnection.getDefaultSSLSocketFactory()
 
-        populateList()
+        webview.settings.javaScriptEnabled = true
+        webview.addJavascriptInterface(this, "browser")
+        webview.webViewClient = webViewClient
+        webview.webChromeClient = webChromeClient
 
-        main_add_download.setOnClickListener{
-            dialog = Dialog(activity)
-            dialog.setCanceledOnTouchOutside(false)
-            dialog.setCancelable(true)
-            dialog.setContentView(R.layout.dialog_add_url)
-            Objects.requireNonNull<Window>(dialog.window).setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            dialog.window!!.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            dialog.window!!.setGravity(Gravity.BOTTOM)
-            dialog.show()
+        search_box.setOnEditorActionListener(TextView.OnEditorActionListener { v, actionId, event ->
 
-            val link = dialog.dau_link
-            val dismiss = dialog.dau_dismiss
-            val done = dialog.dau_done
+            val query = search_box.text.toString().trim()
+            if(actionId== EditorInfo.IME_ACTION_GO) {
+                if (query.isEmpty()) {
+                    Toast.makeText(activity, "Please enter a valid url", Toast.LENGTH_LONG).show()
+                    return@OnEditorActionListener true
+                }else{
+                    if (Patterns.WEB_URL.matcher(query).matches()){
+                        webview.loadUrl(query)
+                    }else{
 
-            dismiss.setOnClickListener {
-                dialog.dismiss()
+                        webview.loadUrl("https://www.google.com/search?q=$query")
+                    }
+                }
             }
 
-            done.setOnClickListener {
-                val downloadsEntity = DownloadsEntity(0, Legion().getDownloadName(), link.text.toString().trim(), "", "0", "0", Legion().getCurrentDate())
-                downloadsViewModel.insertDownloads(downloadsEntity)
-                populateList()
-                dialog.dismiss()
-            }
-        }
+            false
+        })
 
     }
+
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.main_downloads, container, false)
     }
 
-    private fun populateList(){
-        downloadsViewModel.getDownloads().observe(this, Observer<List<DownloadsEntity>>{ downloadsEntities ->
-            if (downloadsEntities != null){
-                if (downloadsEntities.isNotEmpty()){
-                    download_history.visibility = View.VISIBLE
-                    download_empty.visibility = View.GONE
-
-                    downloadsEntity.clear()
-                    for (d in 0 until downloadsEntities.size){
-                        val download = DownloadsEntity(
-                            downloadsEntities[d].id, downloadsEntities[d].name, downloadsEntities[d].url, downloadsEntities[d].localurl, downloadsEntities[d].downloaded,
-                            downloadsEntities[d].size, downloadsEntities[d].datecreated
-                        )
-                        this.downloadsEntity.add(download)
-                    }
-                    downloadsAdapter.setDownloads(downloadsEntity)
-                }else{
-                    download_history.visibility = View.GONE
-                    download_empty.visibility = View.VISIBLE
-                }
-            }
-        })
+    private var webChromeClient: WebChromeClient = object : WebChromeClient() {
+        override fun onProgressChanged(view: WebView, newProgress: Int) {
+            Log.e("progress", newProgress.toString())
+            super.onProgressChanged(view, newProgress)
+        }
     }
 
-    inner class getFaceUrl : AsyncTask<String, String, String>() {
+    private var webViewClient: WebViewClient = object : WebViewClient() {
+        override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
+            search_box.setText(url)
+            super.onPageStarted(view, url, favicon)
+        }
 
-        /* access modifiers changed from: protected */
-        public override fun onPreExecute() { super.onPreExecute() }
 
-        /* access modifiers changed from: protected */
-        public override fun doInBackground(vararg strings: String): String? {
+        override fun shouldOverrideUrlLoading(view: WebView, url: String?): Boolean {
+            search_box.setText(url.toString())
+            view.loadUrl(url)
+            return super.shouldOverrideUrlLoading(view, url)
+        }
+
+        override fun onLoadResource(view: WebView, url: String?) {
+            super.onLoadResource(view, url)
             try {
-                val doc = Jsoup.connect(strings[0]).get()
-                writeToFile(doc.toString())
-//                image = doc.select("meta[property=og:image]").attr("content")
-//                video = doc.select("meta[property=og:video]").attr("content")
-//                postedBy = doc.select("meta[property=og:description]").attr("content").split("@")[1].split("•")[0].trim()
-            } catch (e: IOException) { e.printStackTrace() }
-            return ""
+                if (url.toString().contains("facebook.com")) {
+                    view.loadUrl(ScriptUtil.FACEBOOK_SCRIPT)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            val page = view.url
+            val title = view.title
+            object : VideoContentSearch(activity, url, page, title) {
+                override fun onStartInspectingURL() {
+                    Log.e("Video check start", "Hopefully we find something")
+                    Handler(Looper.getMainLooper()).post {
+                        /**
+                         * Display loader to show searching for video link
+                         */
+                    }
+//                    Utils.disableSSLCertificateChecking()
+                }
+
+                override fun onFinishedInspectingURL(finishedAll: Boolean) {
+                    Log.e("Video Check end", "Hopefully we found something")
+                    HttpsURLConnection.setDefaultSSLSocketFactory(defaultSSLSF)
+                    if (finishedAll) {
+                        Handler(Looper.getMainLooper()).post {
+                            /**
+                             * Hide loader to show searching for video link
+                             */
+                        }
+                    }
+                }
+
+                override fun onVideoFound(size: String, type: String, link: String, name: String, page: String, chunked: Boolean, website: String) {
+                    Log.e("Size", size)
+                    Log.e("type", type)
+                    Log.e("link", link)
+                    Log.e("name", name)
+                    Log.e("page", page)
+                    Log.e("chunked", chunked.toString())
+                    Log.e("website", website)
+                }
+            }.start()
         }
 
-        /* access modifiers changed from: protected */
-        public override fun onPostExecute(s: String) {
-            super.onPostExecute(s)
+        override fun onPageFinished(view: WebView, url: String) {
+            Log.e("progress", "finished")
+            super.onPageFinished(view, url)
         }
-    }
-
-    private fun writeToFile(data: String) {
-        val outputfile = File(Environment.getExternalStorageDirectory().toString() + File.separator + "Download Manager")
-        if (!outputfile.exists()) { outputfile.mkdirs() }
-
-        // Create the file.
-        val file =  File(outputfile, "downloads.txt")
-
-        try {
-            file.createNewFile()
-
-            val fOut = FileOutputStream(file)
-            val myOutWriter = OutputStreamWriter(fOut)
-            myOutWriter.append(data)
-
-            myOutWriter.close()
-
-            fOut.flush()
-            fOut.close()
-        } catch (e: IOException) { Log.e("Exception", "File write failed: $e") }
     }
 
 }

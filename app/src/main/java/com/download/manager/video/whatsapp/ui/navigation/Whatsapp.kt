@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
 import android.support.v4.app.Fragment
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.app.AppCompatDelegate
 import android.support.v7.widget.DefaultItemAnimator
 import android.util.Log
@@ -51,6 +52,9 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
 
     override fun onActivityCreated(savedWhatsnceState: Bundle?) {
         super.onActivityCreated(savedWhatsnceState)
+        if(activity is AppCompatActivity){
+            (activity as AppCompatActivity).setSupportActionBar(toolbar)
+        }
         (activity as MainActivity).supportActionBar!!.title = "Home | Whatsapp"
 
         PermissionListener(activity as MainActivity).loadPermissions()

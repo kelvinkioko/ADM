@@ -101,7 +101,8 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
             holder.idDownload.visibility = View.GONE
             holder.idError.visibility = View.GONE
             holder.idSuccess.visibility = View.GONE
-        }else{
+        }
+        else{
             holder.idProgress.visibility = View.GONE
             holder.idDetails.text = "Pending. Tap the download button to start downloading"
 
@@ -114,9 +115,7 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
         }
 
         val outputfile = File(Environment.getExternalStorageDirectory().toString() + File.separator + "Download Manager")
-        if (!outputfile.exists()) {
-            outputfile.mkdirs()
-        }
+        if (!outputfile.exists()) { outputfile.mkdirs() }
 
         if (item.localurl.isNotEmpty()){
             val fileChecker = File(item.localurl)
@@ -132,121 +131,7 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
         }
 
         holder.idDownload.setOnClickListener {
-            downloader = Downloader.Builder(context, item.url).downloadListener(object : OnDownloadListener {
-                override fun onStart() {
-                    Log.e("Download status", "Started")
-                    handler.post {
-                        holder.idPause.visibility = View.VISIBLE
-                        holder.idPlay.visibility = View.GONE
-                        holder.idCancel.visibility = View.VISIBLE
-                        holder.idDownload.visibility = View.GONE
-                        holder.idError.visibility = View.GONE
-                        holder.idSuccess.visibility = View.GONE
-                        holder.idProgress.visibility = View.VISIBLE
-                    }
-                }
-
-                override fun onPause() {
-                    Log.e("Download status", "Paused")
-                    handler.post {
-                        holder.idPause.visibility = View.GONE
-                        holder.idPlay.visibility = View.VISIBLE
-                        holder.idCancel.visibility = View.VISIBLE
-                        holder.idDownload.visibility = View.GONE
-                        holder.idError.visibility = View.GONE
-                        holder.idSuccess.visibility = View.GONE
-                        holder.idDetails.text = holder.idDetails.text.toString().trim().replace("Downloading ...", "Paused ...")
-                    }
-                }
-
-                override fun onResume() {
-                    Log.e("Download status", "Resumed")
-                    handler.post {
-                        holder.idPause.visibility = View.VISIBLE
-                        holder.idPlay.visibility = View.GONE
-                        holder.idCancel.visibility = View.VISIBLE
-                        holder.idDownload.visibility = View.GONE
-                        holder.idError.visibility = View.GONE
-                        holder.idSuccess.visibility = View.GONE
-                    }
-                }
-
-                override fun onProgressUpdate(percent: Int, downloadedSize: Int, totalSize: Int) {
-                    handler.post {
-                        holder.idProgress.max = totalSize.toFloat()
-                        holder.idProgress.progress = downloadedSize.toFloat()
-                        holder.idDetails.text = "Downloading ..." + percent.toString().plus("%")
-                        DatabaseApp().getDownloadsDao(context).updateDownloads(downloadedSize.toString(), totalSize.toString(), item.id)
-                    }
-                }
-
-                override fun onCompleted(file: File?) {
-                    Log.e("Download status", "Complete")
-                    handler.post {
-                        holder.idPause.visibility = View.GONE
-                        holder.idPlay.visibility = View.GONE
-                        holder.idCancel.visibility = View.GONE
-                        holder.idDownload.visibility = View.GONE
-                        holder.idError.visibility = View.GONE
-                        holder.idSuccess.visibility = View.VISIBLE
-                        Log.e("TAG COMPLETE", "onCompleted: file --> $file")
-                    }
-                    val final = File((Environment.getExternalStorageDirectory()).toString() + File.separator + "Download Manager" + File.separator + file?.name)
-
-                    if (!final.parentFile.exists()) { final.parentFile.mkdirs() }
-                    if (!final.exists()) { final.createNewFile() }
-
-                    var source: FileChannel? = null
-                    var destination: FileChannel? = null
-
-                    try {
-                        source = FileInputStream(file).channel
-                        destination = FileOutputStream(final).channel
-                        destination!!.transferFrom(source, 0, source!!.size())
-                    } finally {
-                        file?.delete()
-                        source?.close()
-                        destination?.close()
-                    }
-
-                    DatabaseApp().getDownloadsDao(context).updateDownloads(final.length().toString(), final.length().toString(), item.id)
-                    DatabaseApp().getDownloadsDao(context).updateLocalURL(final.toString(), item.id)
-                    DatabaseApp().getDownloadsDao(context).updateName(final.name, item.id)
-
-                    if (item.downloaded.toInt() != 0 && item.size.toInt() != 0){
-                        holder.idDetails.text = "Download Complete " + getFileSize(item.downloaded.toLong()) + "/" + getFileSize(item.size.toLong())
-                        holder.idProgress.progress = ((item.downloaded.toInt()/item.size.toInt()) * 100).toFloat()
-                    }
-                    downloadsEntity = DatabaseApp().getDownloadsDao(context).getDownloadsList()
-                    notifyDataSetChanged()
-                }
-
-                override fun onFailure(reason: String?) {
-                    Log.e("Download status", "Failed")
-                    Log.e("Download status", reason)
-                    // Log.d(TAG, "onFailure: reason --> $reason")
-                    handler.post {
-                        holder.idPause.visibility = View.GONE
-                        holder.idPlay.visibility = View.GONE
-                        holder.idCancel.visibility = View.GONE
-                        holder.idDownload.visibility = View.VISIBLE
-                        holder.idError.visibility = View.VISIBLE
-                        holder.idSuccess.visibility = View.GONE
-                    }
-                }
-
-                override fun onCancel() {
-                    Log.e("Download status", "Cancelled")
-                    handler.post {
-                        holder.idPause.visibility = View.GONE
-                        holder.idPlay.visibility = View.GONE
-                        holder.idCancel.visibility = View.GONE
-                        holder.idDownload.visibility = View.VISIBLE
-                        holder.idError.visibility = View.GONE
-                        holder.idSuccess.visibility = View.GONE
-                    }
-                }
-            }).build()
+            downloadFile(holder, item)
             downloader.download()
         }
 
@@ -255,121 +140,7 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
         }
 
         holder.idPlay.setOnClickListener {
-            downloader = Downloader.Builder(context, item.url).downloadListener(object : OnDownloadListener {
-                override fun onStart() {
-                    Log.e("Download status", "Started")
-                    handler.post {
-                        holder.idPause.visibility = View.VISIBLE
-                        holder.idPlay.visibility = View.GONE
-                        holder.idCancel.visibility = View.VISIBLE
-                        holder.idDownload.visibility = View.GONE
-                        holder.idError.visibility = View.GONE
-                        holder.idSuccess.visibility = View.GONE
-                        holder.idProgress.visibility = View.VISIBLE
-                    }
-                }
-
-                override fun onPause() {
-                    Log.e("Download status", "Paused")
-                    handler.post {
-                        holder.idPause.visibility = View.GONE
-                        holder.idPlay.visibility = View.VISIBLE
-                        holder.idCancel.visibility = View.VISIBLE
-                        holder.idDownload.visibility = View.GONE
-                        holder.idError.visibility = View.GONE
-                        holder.idSuccess.visibility = View.GONE
-                        holder.idDetails.text = holder.idDetails.text.toString().trim().replace("Downloading ...", "Paused ...")
-                    }
-                }
-
-                override fun onResume() {
-                    Log.e("Download status", "Resumed")
-                    handler.post {
-                        holder.idPause.visibility = View.VISIBLE
-                        holder.idPlay.visibility = View.GONE
-                        holder.idCancel.visibility = View.VISIBLE
-                        holder.idDownload.visibility = View.GONE
-                        holder.idError.visibility = View.GONE
-                        holder.idSuccess.visibility = View.GONE
-                    }
-                }
-
-                override fun onProgressUpdate(percent: Int, downloadedSize: Int, totalSize: Int) {
-                    handler.post {
-                        holder.idProgress.max = totalSize.toFloat()
-                        holder.idProgress.progress = downloadedSize.toFloat()
-                        holder.idDetails.text = "Downloading ..." + percent.toString().plus("%")
-                        DatabaseApp().getDownloadsDao(context).updateDownloads(downloadedSize.toString(), totalSize.toString(), item.id)
-                    }
-                }
-
-                override fun onCompleted(file: File?) {
-                    Log.e("Download status", "Complete")
-                    handler.post {
-                        holder.idPause.visibility = View.GONE
-                        holder.idPlay.visibility = View.GONE
-                        holder.idCancel.visibility = View.GONE
-                        holder.idDownload.visibility = View.GONE
-                        holder.idError.visibility = View.GONE
-                        holder.idSuccess.visibility = View.VISIBLE
-                        Log.e("TAG COMPLETE", "onCompleted: file --> $file")
-                    }
-                    val final = File((Environment.getExternalStorageDirectory()).toString() + File.separator + "Download Manager" + File.separator + file?.name)
-
-                    if (!final.parentFile.exists()) { final.parentFile.mkdirs() }
-                    if (!final.exists()) { final.createNewFile() }
-
-                    var source: FileChannel? = null
-                    var destination: FileChannel? = null
-
-                    try {
-                        source = FileInputStream(file).channel
-                        destination = FileOutputStream(final).channel
-                        destination!!.transferFrom(source, 0, source!!.size())
-                    } finally {
-                        file?.delete()
-                        source?.close()
-                        destination?.close()
-                    }
-
-                    DatabaseApp().getDownloadsDao(context).updateDownloads(final.length().toString(), final.length().toString(), item.id)
-                    DatabaseApp().getDownloadsDao(context).updateLocalURL(final.toString(), item.id)
-                    DatabaseApp().getDownloadsDao(context).updateName(final.name, item.id)
-
-                    if (item.downloaded.toInt() != 0 && item.size.toInt() != 0){
-                        holder.idDetails.text = "Download Complete " + getFileSize(item.downloaded.toLong()) + "/" + getFileSize(item.size.toLong())
-                        holder.idProgress.progress = ((item.downloaded.toInt()/item.size.toInt()) * 100).toFloat()
-                    }
-                    downloadsEntity = DatabaseApp().getDownloadsDao(context).getDownloadsList()
-                    notifyDataSetChanged()
-                }
-
-                override fun onFailure(reason: String?) {
-                    Log.e("Download status", "Failed")
-                    Log.e("Download status", reason)
-                    // Log.d(TAG, "onFailure: reason --> $reason")
-                    handler.post {
-                        holder.idPause.visibility = View.GONE
-                        holder.idPlay.visibility = View.GONE
-                        holder.idCancel.visibility = View.GONE
-                        holder.idDownload.visibility = View.VISIBLE
-                        holder.idError.visibility = View.VISIBLE
-                        holder.idSuccess.visibility = View.GONE
-                    }
-                }
-
-                override fun onCancel() {
-                    Log.e("Download status", "Cancelled")
-                    handler.post {
-                        holder.idPause.visibility = View.GONE
-                        holder.idPlay.visibility = View.GONE
-                        holder.idCancel.visibility = View.GONE
-                        holder.idDownload.visibility = View.VISIBLE
-                        holder.idError.visibility = View.GONE
-                        holder.idSuccess.visibility = View.GONE
-                    }
-                }
-            }).build()
+            downloadFile(holder, item)
             downloader.resumeDownload()
         }
 
@@ -410,14 +181,15 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
                 }
                 secAlpha.equals(alpha, true) -> currentSection!!.downloadsEntity.add(insta)
                 else -> {
-                    if (currentSection != null) {
-                        sections.add(currentSection)
-                    }
                     secAlpha = insta.datecreated
 
                     currentSection = Section()
                     currentSection.alpha = insta.datecreated
                     currentSection.downloadsEntity.add(insta)
+
+                    if (currentSection != null) {
+                        sections.add(currentSection)
+                    }
                 }
             }
         }
@@ -433,6 +205,126 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
         val digitGroups = (Math.log10(size.toDouble()) / Math.log10(1024.0)).toInt()
 
         return DecimalFormat("#,##0.#").format(size / Math.pow(1024.0, digitGroups.toDouble())) + " " + units[digitGroups]
+    }
+
+    private fun downloadFile(viewHolder: SectioningAdapter.ItemViewHolder, item: DownloadsEntity){
+        val holder = viewHolder as ItemViewHolder
+        Log.e("Download url", item.url)
+        downloader = Downloader.Builder(context, item.url).downloadListener(object : OnDownloadListener {
+            override fun onStart() {
+                Log.e("Download status", "Started")
+                handler.post {
+                    holder.idPause.visibility = View.VISIBLE
+                    holder.idPlay.visibility = View.GONE
+                    holder.idCancel.visibility = View.VISIBLE
+                    holder.idDownload.visibility = View.GONE
+                    holder.idError.visibility = View.GONE
+                    holder.idSuccess.visibility = View.GONE
+                    holder.idProgress.visibility = View.VISIBLE
+                }
+            }
+
+            override fun onPause() {
+                Log.e("Download status", "Paused")
+                handler.post {
+                    holder.idPause.visibility = View.GONE
+                    holder.idPlay.visibility = View.VISIBLE
+                    holder.idCancel.visibility = View.VISIBLE
+                    holder.idDownload.visibility = View.GONE
+                    holder.idError.visibility = View.GONE
+                    holder.idSuccess.visibility = View.GONE
+                    holder.idDetails.text = holder.idDetails.text.toString().trim().replace("Downloading ...", "Paused ...")
+                }
+            }
+
+            override fun onResume() {
+                Log.e("Download status", "Resumed")
+                handler.post {
+                    holder.idPause.visibility = View.VISIBLE
+                    holder.idPlay.visibility = View.GONE
+                    holder.idCancel.visibility = View.VISIBLE
+                    holder.idDownload.visibility = View.GONE
+                    holder.idError.visibility = View.GONE
+                    holder.idSuccess.visibility = View.GONE
+                }
+            }
+
+            override fun onProgressUpdate(percent: Int, downloadedSize: Int, totalSize: Int) {
+                handler.post {
+                    holder.idProgress.max = totalSize.toFloat()
+                    holder.idProgress.progress = downloadedSize.toFloat()
+                    holder.idDetails.text = "Downloading ..." + percent.toString().plus("%")
+                    DatabaseApp().getDownloadsDao(context).updateDownloads(downloadedSize.toString(), totalSize.toString(), item.id)
+                }
+            }
+
+            override fun onCompleted(file: File?) {
+                Log.e("Download status", "Complete")
+                handler.post {
+                    holder.idPause.visibility = View.GONE
+                    holder.idPlay.visibility = View.GONE
+                    holder.idCancel.visibility = View.GONE
+                    holder.idDownload.visibility = View.GONE
+                    holder.idError.visibility = View.GONE
+                    holder.idSuccess.visibility = View.VISIBLE
+                    Log.e("TAG COMPLETE", "onCompleted: file --> $file")
+                }
+                val final = File((Environment.getExternalStorageDirectory()).toString() + File.separator + "Download Manager" + File.separator + file?.name)
+
+                if (!final.parentFile.exists()) { final.parentFile.mkdirs() }
+                if (!final.exists()) { final.createNewFile() }
+
+                var source: FileChannel? = null
+                var destination: FileChannel? = null
+
+                try {
+                    source = FileInputStream(file).channel
+                    destination = FileOutputStream(final).channel
+                    destination!!.transferFrom(source, 0, source!!.size())
+                } finally {
+                    file?.delete()
+                    source?.close()
+                    destination?.close()
+                }
+
+                DatabaseApp().getDownloadsDao(context).updateDownloads(final.length().toString(), final.length().toString(), item.id)
+                DatabaseApp().getDownloadsDao(context).updateLocalURL(final.toString(), item.id)
+                DatabaseApp().getDownloadsDao(context).updateName(final.name, item.id)
+
+                if (item.downloaded.toInt() != 0 && item.size.toInt() != 0){
+                    holder.idDetails.text = "Download Complete " + getFileSize(item.downloaded.toLong()) + "/" + getFileSize(item.size.toLong())
+                    holder.idProgress.progress = ((item.downloaded.toInt()/item.size.toInt()) * 100).toFloat()
+                }
+                downloadsEntity = DatabaseApp().getDownloadsDao(context).getDownloadsList()
+                notifyDataSetChanged()
+            }
+
+            override fun onFailure(reason: String?) {
+                Log.e("Download status", "Failed")
+                Log.e("Download status", reason)
+                // Log.d(TAG, "onFailure: reason --> $reason")
+                handler.post {
+                    holder.idPause.visibility = View.GONE
+                    holder.idPlay.visibility = View.GONE
+                    holder.idCancel.visibility = View.GONE
+                    holder.idDownload.visibility = View.VISIBLE
+                    holder.idError.visibility = View.VISIBLE
+                    holder.idSuccess.visibility = View.GONE
+                }
+            }
+
+            override fun onCancel() {
+                Log.e("Download status", "Cancelled")
+                handler.post {
+                    holder.idPause.visibility = View.GONE
+                    holder.idPlay.visibility = View.GONE
+                    holder.idCancel.visibility = View.GONE
+                    holder.idDownload.visibility = View.VISIBLE
+                    holder.idError.visibility = View.GONE
+                    holder.idSuccess.visibility = View.GONE
+                }
+            }
+        }).build()
     }
 
 }

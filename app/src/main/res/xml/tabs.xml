@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <tabs>
     <tab
-        drawable="@drawable/ic_home_black_24dp"
-        text="@string/downloads" />
-
-    <tab
         drawable="@drawable/ic_whatsapp_black_24dp"
         text="@string/whatsapp" />
 
@@ -15,4 +11,9 @@
     <tab
             drawable="@drawable/ic_facebook_black_24dp"
             text="@string/face" />
+
+    <tab
+            drawable="@drawable/ic_browser_black_24dp"
+            text="@string/downloads" />
+
 </tabs>

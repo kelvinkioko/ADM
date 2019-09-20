@@ -31,6 +31,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 import android.content.Context.MODE_PRIVATE
 import android.os.Environment
+import android.support.v7.app.AppCompatActivity
 import java.io.*
 
 
@@ -61,6 +62,9 @@ class Facebook : Fragment(), FaceAdapter.OnItemClickListener  {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        if(activity is AppCompatActivity){
+            (activity as AppCompatActivity).setSupportActionBar(toolbar)
+        }
         (activity as MainActivity).supportActionBar!!.title = "Home | FB"
 
         PermissionListener(activity as MainActivity).loadPermissions()
@@ -106,6 +110,8 @@ class Facebook : Fragment(), FaceAdapter.OnItemClickListener  {
                 link_parent.visibility = View.GONE
                 done.visibility = View.GONE
                 loader.visibility = View.VISIBLE
+
+                getFaceUrl().execute(link.text.toString().trim())
 
                 when {
                     link.text.toString().trim().startsWith("https://m.facebook.com/") -> getFaceUrl().execute(link.text.toString().trim())
@@ -168,9 +174,10 @@ class Facebook : Fragment(), FaceAdapter.OnItemClickListener  {
             try {
                 val doc = Jsoup.connect(strings[0]).get()
                 writeToFile(doc.toString())
-                image = doc.select("meta[property=og:image]").attr("content")
-                video = doc.select("meta[property=og:video]").attr("content")
-                name = (Random().nextInt(899999999)).toString()
+                Log.e("message", doc.select("title").toString())
+//                image = doc.select("meta[property=og:image]").attr("content")
+//                video = doc.select("meta[property=og:video]").attr("content")
+//                name = (Random().nextInt(899999999)).toString()
                 isVideo = video.isNotEmpty()
             } catch (e: IOException) {
                 e.printStackTrace()

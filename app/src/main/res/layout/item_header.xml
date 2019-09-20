@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical" android:paddingBottom="4dp">
 
-    <View android:visibility="visible" android:layout_width="match_parent" android:alpha="0.6" android:layout_height="4dp" android:background="@drawable/toolbar_reverse"/>
-
-    <TextView android:id="@+id/insta_header" android:padding="8dp"
-              android:text="12-12-2019" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/white"
-              android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@color/colorPrimary" />
+    <TextView android:id="@+id/insta_header" android:padding="8dp" android:gravity="center_vertical"
+              android:text="12-12-2019" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/colorPrimaryDark"
+              android:layout_width="match_parent" android:layout_height="40dp" android:background="@color/text_medium" />
 
     <View android:layout_width="match_parent" android:alpha="0.6" android:layout_height="4dp" android:background="@drawable/toolbar_shadow"/>
 
-</LinearLayout>
+    <View android:layout_width="match_parent" android:alpha="0.6" android:layout_height="4dp" android:background="@drawable/toolbar_reverse" android:layout_alignParentBottom="true"/>
+
+</RelativeLayout>

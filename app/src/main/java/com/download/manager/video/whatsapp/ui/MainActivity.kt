@@ -25,16 +25,18 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
-        setSupportActionBar(toolbar)
+//        setSupportActionBar(toolbar)
 
         // Get the text fragment instance
-        val tripFragment = Downloads()
+        val whatsappFragment = Whatsapp()
         // Get the support fragment manager instance
         mFragmentManager = supportFragmentManager
         // Begin the fragment transition using support fragment manager
         mFragmentTransaction = mFragmentManager.beginTransaction()
-        // Replace the fragment on container
-        mFragmentTransaction.replace(R.id.download_container, tripFragment).commit()
+        // Animate the transitions as they happen
+        // mFragmentTransaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
+        // Replace the fragment on container and finish the transition
+        mFragmentTransaction.replace(R.id.download_container, whatsappFragment).commit()
 
         menu.selectItem(0)
 
@@ -42,16 +44,6 @@ class MainActivity : AppCompatActivity() {
             override fun onItemSelected(index: Int) {
                 when (index) {
                     0 -> {
-                        // Get the text fragment instance
-                        val downloadFragment = Downloads()
-                        // Get the support fragment manager instance
-                        mFragmentManager = supportFragmentManager
-                        // Begin the fragment transition using support fragment manager
-                        mFragmentTransaction = mFragmentManager.beginTransaction()
-                        // Replace the fragment on container
-                        mFragmentTransaction.replace(R.id.download_container, downloadFragment).commit()
-                    }
-                    1 -> {
                         // Get the text fragment instance
                         val whatsappFragment = Whatsapp()
                         // Get the support fragment manager instance
@@ -63,7 +55,7 @@ class MainActivity : AppCompatActivity() {
                         // Replace the fragment on container and finish the transition
                         mFragmentTransaction.replace(R.id.download_container, whatsappFragment).commit()
                     }
-                    2 -> {
+                    1 -> {
                         // Get the text fragment instance
                         val instagramFragment = Instagram()
                         // Get the support fragment manager instance
@@ -75,7 +67,7 @@ class MainActivity : AppCompatActivity() {
                         // Replace the fragment on container and finish the transition
                         mFragmentTransaction.replace(R.id.download_container, instagramFragment).commit()
                     }
-                    else -> {
+                    2 -> {
                         // Get the text fragment instance
                         val facebookFragment = Facebook()
                         // Get the support fragment manager instance
@@ -86,6 +78,18 @@ class MainActivity : AppCompatActivity() {
                         // mFragmentTransaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
                         // Replace the fragment on container and finish the transition
                         mFragmentTransaction.replace(R.id.download_container, facebookFragment).commit()
+                    }
+                    else -> {
+                        // Get the text fragment instance
+                        val tripFragment = Downloads()
+                        // Get the support fragment manager instance
+                        mFragmentManager = supportFragmentManager
+                        // Begin the fragment transition using support fragment manager
+                        mFragmentTransaction = mFragmentManager.beginTransaction()
+                        // Animate the transitions as they happen
+//                         mFragmentTransaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
+                        // Replace the fragment on container
+                        mFragmentTransaction.replace(R.id.download_container, tripFragment).commit()
                     }
                 }
             }

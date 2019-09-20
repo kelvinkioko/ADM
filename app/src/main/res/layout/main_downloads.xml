@@ -4,15 +4,80 @@
         android:layout_width="match_parent" android:layout_height="match_parent"
         xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools">
 
+    <android.support.design.widget.AppBarLayout
+            android:id="@+id/app_bar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
+                      android:orientation="vertical" android:gravity="center_vertical" android:paddingStart="8dp" android:paddingEnd="8dp">
+
+            <android.support.v7.widget.CardView
+                    android:layout_width="wrap_content"
+                    android:layout_height="45dp"
+                    android:background="@android:color/transparent"
+                    app:cardCornerRadius="3dp"
+                    app:cardElevation="3dp">
+
+                <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                    <AutoCompleteTextView
+                            android:id="@+id/search_box"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:hint="Search or enter url"
+                            android:lines="1"
+                            android:paddingLeft="8dp"
+                            android:paddingRight="40dp"
+                            android:textSize="14dp"
+                            android:selectAllOnFocus="true"
+                            android:completionThreshold="1"
+                            android:singleLine="true"
+                            android:imeOptions="actionGo"
+                            android:inputType="textNoSuggestions|textWebEditText"
+                            android:background="@color/white" />
+
+                    <android.support.v7.widget.AppCompatImageView
+                            android:id="@+id/iv_close_refresh"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginRight="8dp"
+                            app:srcCompat="@drawable/ic_refresh_gray_24dp"
+                            tools:ignore="VectorDrawableCompat" />
+
+                </RelativeLayout>
+
+            </android.support.v7.widget.CardView>
+
+        </LinearLayout>
+
+    </android.support.design.widget.AppBarLayout>
+
+    <View android:id="@+id/main_topview"
+          android:layout_width="match_parent"
+          android:alpha="0.6"
+          android:layout_height="4dp"
+          android:background="@drawable/toolbar_shadow"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@+id/app_bar"/>
+
     <LinearLayout
             android:id="@+id/downloads_manager"
-            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_width="match_parent" android:layout_height="0dp"
             android:orientation="vertical"
             android:background="@drawable/line_dotted"
-            android:gravity="center"
+            android:gravity="center" android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"
             app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
-            app:layout_constraintTop_toTopOf="parent" android:layout_marginTop="8dp">
+            app:layout_constraintTop_toBottomOf="@+id/toolbar" android:layout_marginTop="8dp">
 
         <LinearLayout
                 android:layout_width="match_parent"
@@ -62,7 +127,7 @@
                 android:layout_marginBottom="8dp">
 
             <Button
-                    android:id="@+id/main_add_download"
+                    android:id="@+id/main_add_download_hidden"
                     android:layout_width="0dp"
                     android:layout_height="36dp"
                     android:layout_gravity="bottom"
@@ -79,50 +144,13 @@
 
     </LinearLayout>
 
-    <android.support.v7.widget.RecyclerView
-            android:id="@+id/download_history"
-            android:layout_width="0dp"
+    <com.download.manager.video.whatsapp.widgets.web.NestedScrollWebView
+            android:id="@+id/webview"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
-            app:layout_constraintTop_toBottomOf="@+id/downloads_manager" android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/app_bar" android:layout_marginTop="0dp"
             app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="0dp"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="0dp"
-            app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="0dp" />
-
-    <LinearLayout android:id="@+id/download_empty"
-            android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:orientation="vertical" android:gravity="center_horizontal"
-            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"
-            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
-            app:layout_constraintTop_toBottomOf="@+id/downloads_manager" android:layout_marginTop="8dp"
-            app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="8dp">
-
-        <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:scaleType="centerCrop"
-                app:srcCompat="@drawable/icon_empty"
-                tools:ignore="ContentDescription" />
-
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Empty list"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="@color/primary_text"
-                android:layout_marginBottom="8dp"/>
-
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="32dp"
-                android:layout_marginEnd="32dp"
-                android:gravity="center"
-                android:textSize="17sp"
-                android:text="You have no downloads to show."
-                android:textColor="@color/secondary_text" />
-
-    </LinearLayout>
+            app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="0dp"/>
 
 </android.support.constraint.ConstraintLayout>

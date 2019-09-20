@@ -292,14 +292,15 @@ class InstaAdapter (private val context: Context, private var instaEntity: List<
                 }
                 secAlpha.equals(alpha, true) -> currentSection!!.instaEntity.add(insta)
                 else -> {
-                    if (currentSection != null) {
-                        sections.add(currentSection)
-                    }
                     secAlpha = insta.datecreated
 
                     currentSection = Section()
                     currentSection.alpha = insta.datecreated
                     currentSection.instaEntity.add(insta)
+
+                    if (currentSection != null) {
+                        sections.add(currentSection)
+                    }
                 }
             }
         }
