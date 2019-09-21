@@ -9,10 +9,6 @@
         text="@string/insta" />
 
     <tab
-            drawable="@drawable/ic_facebook_black_24dp"
-            text="@string/face" />
-
-    <tab
             drawable="@drawable/ic_browser_black_24dp"
             text="@string/downloads" />
 

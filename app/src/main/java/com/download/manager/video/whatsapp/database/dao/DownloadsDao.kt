@@ -25,6 +25,12 @@ interface DownloadsDao {
     @Query("UPDATE downloadsEntity SET name =:name WHERE id =:id")
     fun updateName(name: String, id: Int)
 
+    @Query("SELECT COUNT(id) FROM downloadsEntity WHERE url =:url")
+    fun countDownload(url: String): Int
+
+    @Query("SELECT * FROM downloadsEntity WHERE url =:url")
+    fun getDownloadByUrl(url: String): DownloadsEntity
+
     @Query("DELETE FROM downloadsEntity")
     fun deleteDownloads()
 }

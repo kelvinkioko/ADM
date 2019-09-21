@@ -13,48 +13,68 @@
             app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent">
 
         <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
-                      android:orientation="vertical" android:gravity="center_vertical" android:paddingStart="8dp" android:paddingEnd="8dp">
+                      android:orientation="horizontal" android:gravity="center_vertical" android:paddingStart="8dp" android:paddingEnd="8dp">
 
             <android.support.v7.widget.CardView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="45dp"
                     android:background="@android:color/transparent"
                     app:cardCornerRadius="3dp"
-                    app:cardElevation="3dp">
+                    app:cardElevation="3dp"
+                    android:layout_weight="1">
 
-                <RelativeLayout
+                <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                    <android.support.v7.widget.AppCompatImageView
+                            android:id="@+id/iv_back"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_marginEnd="4dp"
+                            android:layout_marginStart="4dp"
+                            app:srcCompat="@drawable/icon_back"
+                            tools:ignore="VectorDrawableCompat" />
 
                     <AutoCompleteTextView
                             android:id="@+id/search_box"
-                            android:layout_width="match_parent"
+                            android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:hint="Search or enter url"
                             android:lines="1"
-                            android:paddingLeft="8dp"
-                            android:paddingRight="40dp"
+                            android:paddingStart="8dp"
+                            android:paddingEnd="40dp"
                             android:textSize="14dp"
                             android:selectAllOnFocus="true"
                             android:completionThreshold="1"
                             android:singleLine="true"
                             android:imeOptions="actionGo"
                             android:inputType="textNoSuggestions|textWebEditText"
-                            android:background="@color/white" />
+                            android:background="@color/white"
+                            android:layout_weight="1"/>
 
                     <android.support.v7.widget.AppCompatImageView
-                            android:id="@+id/iv_close_refresh"
+                            android:id="@+id/iv_refresh"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_alignParentRight="true"
-                            android:layout_centerVertical="true"
                             android:layout_marginRight="8dp"
                             app:srcCompat="@drawable/ic_refresh_gray_24dp"
                             tools:ignore="VectorDrawableCompat" />
 
-                </RelativeLayout>
+                </LinearLayout>
 
             </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/iv_downloads"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="0dp"
+                    app:srcCompat="@drawable/icon_download_header"
+                    tools:ignore="VectorDrawableCompat" />
 
         </LinearLayout>
 
@@ -152,5 +172,28 @@
             app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="0dp"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="0dp"
             app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="0dp"/>
+
+    <RelativeLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp" android:id="@+id/downloads_parent"
+                    app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="8dp">
+
+        <de.hdodenhof.circleimageview.CircleImageView  android:layout_centerInParent="true" android:elevation="5dp"
+                android:layout_width="56dp" android:layout_height="56dp"
+                android:id="@+id/downloads_background" android:src="@color/colorPrimaryDark"/>
+
+        <ImageView android:layout_centerInParent="true" android:elevation="5dp" android:visibility="gone"
+                android:layout_width="56dp" android:layout_height="wrap_content" android:id="@+id/downloads_icon"
+                app:srcCompat="@drawable/ic_refresh_gray_24dp" android:tint="@color/white"/>
+
+        <TextView android:layout_centerInParent="true" android:elevation="5dp" android:id="@+id/downloads_counter"
+                  android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0"
+                  android:textColor="@color/white" android:textSize="20sp" android:textStyle="bold"/>
+
+        <com.download.manager.video.whatsapp.widgets.progress.ProgressCircula android:layout_centerInParent="true"
+                android:layout_width="64dp" android:layout_height="64dp" android:id="@+id/downloads_loader"
+                app:pgc_indeterminate="true" app:pgc_showProgress="true" android:visibility="gone"
+                app:pgc_rimColor="@color/pocket_color_4" app:pgc_rimWidth="5dp" app:pgc_speed="1"/>
+
+    </RelativeLayout>
 
 </android.support.constraint.ConstraintLayout>

@@ -18,11 +18,7 @@ import com.download.manager.video.whatsapp.R
 import com.download.manager.video.whatsapp.database.DatabaseApp
 import com.download.manager.video.whatsapp.engine.Legion
 import android.content.Context
-import com.download.manager.video.whatsapp.database.entity.FaceEntity
 import java.io.IOException
-import java.util.ArrayList
-import java.util.regex.Matcher
-import java.util.regex.Pattern
 
 class InstaService : IntentService("InstaService") {
 
@@ -136,15 +132,15 @@ class InstaService : IntentService("InstaService") {
                 tempUrl = video
                 /*** Save item in database*/
                 if (image.isNotEmpty()){
-                    val face = FaceEntity(0, name, postedBy, image, video, parentUrl, "", "Video", "0", "0", Legion().getCurrentDate())
-                    DatabaseApp().getFaceDao(applicationContext).insertFace(face)
+//                    val face = FaceEntity(0, name, postedBy, image, video, parentUrl, "", "Video", "0", "0", Legion().getCurrentDate())
+//                    DatabaseApp().getFaceDao(applicationContext).insertFace(face)
                 }
             } else {
                 tempUrl = image
                 /** Save item in database */
                 if (image.isNotEmpty()){
-                    val face = FaceEntity(0, name, postedBy, image, video, parentUrl, "", "Image", "1", "0", Legion().getCurrentDate())
-                    DatabaseApp().getFaceDao(applicationContext as MainActivity).insertFace(face)
+//                    val face = FaceEntity(0, name, postedBy, image, video, parentUrl, "", "Image", "1", "0", Legion().getCurrentDate())
+//                    DatabaseApp().getFaceDao(applicationContext as MainActivity).insertFace(face)
                 }
             }
         }

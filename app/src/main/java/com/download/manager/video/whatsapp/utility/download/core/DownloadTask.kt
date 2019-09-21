@@ -1,5 +1,6 @@
 package com.download.manager.video.whatsapp.utility.download.core
 
+import android.app.Activity
 import com.download.manager.video.whatsapp.utility.download.core.database.DownloaderDao
 import com.download.manager.video.whatsapp.utility.download.core.model.FileModel
 import com.download.manager.video.whatsapp.utility.download.core.model.StatusModel
@@ -9,6 +10,7 @@ import com.download.manager.video.whatsapp.utility.download.helper.MimeHelper
 import android.content.Context
 import android.os.AsyncTask
 import android.util.Pair
+import com.download.manager.video.whatsapp.database.DatabaseApp
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.File
@@ -184,11 +186,21 @@ internal data class DownloadTask(
                 fileName = fileName?.lastIndexOf(".")?.let { fileName?.substring(0, it) }
             }
 
-            fileName =
-                if (fileName == null) System.currentTimeMillis().toString()
-                else fileName
+            /**
+             * Added the name string checker to make sure the 'file is too long' exception doesn't happen again
+             */
+            fileName = when {
+                fileName == null -> System.currentTimeMillis().toString()
+                fileName.toString().length > 20 -> cleanName()
+                else -> fileName
+            }
 
             extension = MimeHelper.guessExtensionFromMimeType(contentType)
         }
+    }
+
+    private fun cleanName(): String{
+        return DatabaseApp().getDownloadsDao(context.get()!!.applicationContext).getDownloadByUrl(url).name
+            .replace("[VIDEO ONLY]", "").replace("[AUDIO ONLY]", "").substring(0, 25)
     }
 }
