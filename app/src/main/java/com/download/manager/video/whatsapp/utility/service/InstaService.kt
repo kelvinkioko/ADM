@@ -42,9 +42,6 @@ class InstaService : IntentService("InstaService") {
     private var ClipboardListener: OnPrimaryClipChangedListener = OnPrimaryClipChangedListener {
         parentUrl = (getSystemService("clipboard") as ClipboardManager).primaryClip.getItemAt(0).text.toString()
         if (parentUrl.startsWith("https://www.instagram.com/")) { getInstagramUrl().execute(parentUrl) }
-        if (parentUrl.startsWith("https://m.facebook.com/")) { getFaceUrl().execute(parentUrl) }
-        if (parentUrl.startsWith("https://www.facebook.com/")) { getFaceUrl().execute(parentUrl) }
-        else if  (parentUrl.startsWith("https://facebook.com/")) { getFaceUrl().execute(parentUrl) }
     }
 
     override fun onHandleIntent(intent: Intent?) {
@@ -76,72 +73,13 @@ class InstaService : IntentService("InstaService") {
         /* access modifiers changed from: protected */
         public override fun onPostExecute(s: String) {
             super.onPostExecute(s)
-            if (isVideo) {
-                tempUrl = video
-                /**
-                 * Save item in database
-                 */
-                val instant = InstaEntity(0, name, postedBy, image, video, parentUrl, "", "Video", "0", "0", Legion().getCurrentDate())
-                DatabaseApp().getInstaDao(applicationContext).insertInsta(instant)
-
-                if (Constants().isAutoDownload){
-                    downloadVideo(tempUrl, instant)
-                }
+            val instant = if (isVideo) {
+                InstaEntity(0, name, postedBy, parentUrl, video, "", "Video", "0", "0", Legion().getCurrentDate())
             } else {
-                tempUrl = image
-                /**
-                 * Save item in database
-                 */
-                val instant = InstaEntity(0, name, postedBy, image, video, parentUrl, "", "Image", "1", "0", Legion().getCurrentDate())
+                InstaEntity(0, name, postedBy, parentUrl, image, "", "Image", "0", "0", Legion().getCurrentDate())
+            }
+            if (DatabaseApp().getInstaDao(applicationContext).countInstaListByUrl(instant.liveUrl) == 0) {
                 DatabaseApp().getInstaDao(applicationContext).insertInsta(instant)
-                if (Constants().isAutoDownload){
-                    downloadImage(tempUrl, instant)
-                }
-            }
-
-            Log.e("Insta items", DatabaseApp().getInstaDao(applicationContext).countInstaList().toString())
-        }
-    }
-
-    inner class getFaceUrl : AsyncTask<String, String, String>() {
-
-        /* access modifiers changed from: protected */
-        public override fun onPreExecute() { super.onPreExecute() }
-
-        /* access modifiers changed from: protected */
-        public override fun doInBackground(vararg strings: String): String? {
-            try {
-                val doc = Jsoup.connect(strings[0]).get()
-                image = doc.select("meta[property=og:image]").attr("content")
-                video = doc.select("meta[property=og:video]").attr("content")
-                postedBy = doc.select("meta[property=og:description]").attr("content").split("@")[1].split("•")[0].trim()
-                name = (Random().nextInt(899999999)).toString()
-                isVideo = video.isNotEmpty()
-            } catch (e: IOException) {
-                isError = true
-                isVideo = false
-                e.printStackTrace()
-            }
-            return ""
-        }
-
-        /* access modifiers changed from: protected */
-        public override fun onPostExecute(s: String) {
-            super.onPostExecute(s)
-            if (isVideo) {
-                tempUrl = video
-                /*** Save item in database*/
-                if (image.isNotEmpty()){
-//                    val face = FaceEntity(0, name, postedBy, image, video, parentUrl, "", "Video", "0", "0", Legion().getCurrentDate())
-//                    DatabaseApp().getFaceDao(applicationContext).insertFace(face)
-                }
-            } else {
-                tempUrl = image
-                /** Save item in database */
-                if (image.isNotEmpty()){
-//                    val face = FaceEntity(0, name, postedBy, image, video, parentUrl, "", "Image", "1", "0", Legion().getCurrentDate())
-//                    DatabaseApp().getFaceDao(applicationContext as MainActivity).insertFace(face)
-                }
             }
         }
     }

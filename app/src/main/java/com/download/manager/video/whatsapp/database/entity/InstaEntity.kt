@@ -11,9 +11,8 @@ data class InstaEntity(
 
     @ColumnInfo(name = "name") var name: String,
     @ColumnInfo(name = "postedBy") var postedBy: String,
-    @ColumnInfo(name = "imageUrl") var imageUrl: String,
-    @ColumnInfo(name = "videoUrl") var videoUrl: String,
     @ColumnInfo(name = "parentUrl") var parentUrl: String,
+    @ColumnInfo(name = "liveUrl") var liveUrl: String,
     @ColumnInfo(name = "localUrl") var localUrl: String,
     @ColumnInfo(name = "type") var type: String,
     @ColumnInfo(name = "downloaded") var downloaded: String,

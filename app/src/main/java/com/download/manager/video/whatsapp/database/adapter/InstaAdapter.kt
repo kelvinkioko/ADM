@@ -39,7 +39,7 @@ class InstaAdapter (private val context: Context, private var instaEntity: List<
     }
 
     interface OnItemClickListener {
-        fun parentClick(view: View, position: Int, userCode: String)
+        fun parentClick(localUrl: String, type: String)
     }
 
     private inner class Section {
@@ -93,14 +93,14 @@ class InstaAdapter (private val context: Context, private var instaEntity: List<
         holder.imageClear.scaleType = ImageView.ScaleType.CENTER_CROP
         holder.instaProgress.max = 100.toFloat()
         holder.instaProgress.progress = 36.toFloat()
+        if (item.type.equals("Video", true)){
+            holder.instaType.setImageDrawable(VectorDrawableCompat.create(context.resources, R.drawable.icon_video, null)!!)
+        }else {
+            holder.instaType.setImageDrawable(VectorDrawableCompat.create(context.resources, R.drawable.icon_image, null)!!)
+        }
+
         if (item.localUrl.isEmpty()){
-            if (item.type.equals("Video", true)){
-                Glide.with(context).load(item.videoUrl).into(holder.imageClear)
-                holder.instaType.setImageDrawable(VectorDrawableCompat.create(context.resources, R.drawable.icon_video, null)!!)
-            }else {
-                Glide.with(context).load(item.imageUrl).into(holder.imageClear)
-                holder.instaType.setImageDrawable(VectorDrawableCompat.create(context.resources, R.drawable.icon_image, null)!!)
-            }
+            Glide.with(context).load(item.liveUrl).into(holder.imageClear)
         }else{
             Glide.with(context).load(item.localUrl).into(holder.imageClear)
             holder.instaPending.visibility = View.GONE
@@ -110,8 +110,6 @@ class InstaAdapter (private val context: Context, private var instaEntity: List<
         val imagefile = File(Environment.getExternalStorageDirectory().toString() + File.separator + "Download Manager" + File.separator + "insta" + File.separator + "images")
         if (!videofile.exists()) { videofile.mkdirs() }
         if (!imagefile.exists()) { imagefile.mkdirs() }
-
-        val url = if (item.type.equals("video", true)){ item.videoUrl }else{ item.imageUrl }
 
         holder.instaProgress.max = 100.toFloat()
         if (item.downloaded.toInt() != 0 && item.size.toInt() != 0){
@@ -136,27 +134,37 @@ class InstaAdapter (private val context: Context, private var instaEntity: List<
         }
 
         holder.instaDownload.setOnClickListener {
-            downloadFile(holder, url, item)
+            downloadFile(holder, item.liveUrl, item)
             downloader.download()
         }
 
         holder.instaPause.setOnClickListener {
-            downloader.pauseDownload()
+            if (downloader != null) {
+                downloader.pauseDownload()
+            }
         }
 
         holder.instaPlay.setOnClickListener {
-            downloadFile(holder, url, item)
+            downloadFile(holder, item.liveUrl, item)
             downloader.resumeDownload()
         }
 
         holder.instaCancel.setOnClickListener {
-            downloader.cancelDownload()
+            if (downloader != null) {
+                downloader.cancelDownload()
+            }
+        }
+
+        holder.imageClear.setOnClickListener {
+            if (item.localUrl.isNotEmpty()) {
+                clickListener.parentClick(item.localUrl, item.type)
+            }
         }
     }
 
     fun downloadFile(viewHolder: StickyHeaderGridAdapter.ItemViewHolder?, url: String, item: InstaEntity){
         val holder = viewHolder as ItemViewHolder
-        downloader = Downloader.Builder(context, url).downloadListener(object : OnDownloadListener {
+        downloader = Downloader.Builder(context, url, "Insta:" + item.type).downloadListener(object : OnDownloadListener {
             override fun onStart() {
                 Log.e("Download status", "Started")
                 handler.post {

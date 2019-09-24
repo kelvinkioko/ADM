@@ -6,7 +6,6 @@ import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatDelegate
-import com.download.manager.video.whatsapp.R
 import com.download.manager.video.whatsapp.ui.MainActivity
 import android.content.Intent
 import android.graphics.Color
@@ -14,7 +13,6 @@ import android.graphics.drawable.ColorDrawable
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.DefaultItemAnimator
-import android.util.Log
 import android.view.*
 import android.widget.LinearLayout
 import android.widget.Toast
@@ -22,10 +20,7 @@ import com.download.manager.video.whatsapp.database.DatabaseApp
 import com.download.manager.video.whatsapp.database.adapter.InstaAdapter
 import com.download.manager.video.whatsapp.database.entity.InstaEntity
 import com.download.manager.video.whatsapp.database.viewmodel.DownloadsViewModel
-import com.download.manager.video.whatsapp.engine.Constants
 import com.download.manager.video.whatsapp.engine.Legion
-import com.download.manager.video.whatsapp.engine.PermissionListener
-import com.download.manager.video.whatsapp.utility.service.InstaService
 import kotlinx.android.synthetic.main.main_gram.*
 import com.download.manager.video.whatsapp.widgets.StickyHeaderGridLayoutManager
 import kotlinx.android.synthetic.main.dialog_add_url.*
@@ -33,6 +28,11 @@ import org.jsoup.Jsoup
 import java.io.IOException
 import java.util.*
 import kotlin.collections.ArrayList
+import android.support.v4.content.FileProvider
+import com.download.manager.video.whatsapp.BuildConfig
+import com.download.manager.video.whatsapp.R
+import java.io.File
+
 
 class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
 
@@ -47,8 +47,18 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
     private var isError: Boolean = false
     private var isVideo: Boolean = false
 
-    override fun parentClick(view: View, position: Int, userCode: String) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun parentClick(localUrl: String, type: String) {
+        val videoFile = File(localUrl)
+        val fileUri = FileProvider.getUriForFile(context!!, BuildConfig.APPLICATION_ID +".admprovider", videoFile)
+        (activity as MainActivity).grantUriPermission("com.download.manager.video.whatsapp", fileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        val intent = Intent(Intent.ACTION_VIEW)
+        if (type.equals("Image", true)){
+            intent.setDataAndType(fileUri, "image/*")
+        }else{
+            intent.setDataAndType(fileUri, "video/*")
+        }
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)//DO NOT FORGET THIS EVER
+        startActivity(intent)
     }
 
     private lateinit var downloadsViewModel: DownloadsViewModel
@@ -71,10 +81,7 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
         }
         (activity as MainActivity).supportActionBar!!.title = "Home | Insta"
 
-        PermissionListener(activity as MainActivity).loadPermissions()
         downloadsViewModel = ViewModelProviders.of(this).get(DownloadsViewModel::class.java)
-
-        (activity as MainActivity).startService(Intent(activity, InstaService::class.java).setAction(InstaService().ACTION_START))
 
         /**
          * Initializing adapter and layout manager for recyclerView
@@ -162,8 +169,7 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
                     instaEntity.clear()
                     for (d in 0 until instaEntities.size){
                         val insta = InstaEntity(
-                            instaEntities[d].id, instaEntities[d].name, instaEntities[d].postedBy, instaEntities[d].imageUrl, instaEntities[d].videoUrl,
-                            instaEntities[d].parentUrl, instaEntities[d].localUrl, instaEntities[d].type, instaEntities[d].downloaded, instaEntities[d].size, instaEntities[d].datecreated
+                            instaEntities[d].id, instaEntities[d].name, instaEntities[d].postedBy, instaEntities[d].parentUrl, instaEntities[d].liveUrl, instaEntities[d].localUrl, instaEntities[d].type, instaEntities[d].downloaded, instaEntities[d].size, instaEntities[d].datecreated
                         )
                         this.instaEntity.add(insta)
                     }
@@ -201,15 +207,12 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
         /* access modifiers changed from: protected */
         public override fun onPostExecute(s: String) {
             super.onPostExecute(s)
-            if (isVideo) {
-                tempUrl = video
-                /*** Save item in database ***/
-                val instant = InstaEntity(0, name, postedBy, image, video, parentUrl, "", "Video", "0", "0", Legion().getCurrentDate())
-                DatabaseApp().getInstaDao(activity as MainActivity).insertInsta(instant)
+            val instant = if (isVideo) {
+                InstaEntity(0, name, postedBy, parentUrl, video, "", "Video", "0", "0", Legion().getCurrentDate())
             } else {
-                tempUrl = image
-                /*** Save item in database ***/
-                val instant = InstaEntity(0, name, postedBy, image, video, parentUrl, "", "Image", "0", "0", Legion().getCurrentDate())
+                InstaEntity(0, name, postedBy, parentUrl, image, "", "Image", "1", "0", Legion().getCurrentDate())
+            }
+            if (DatabaseApp().getInstaDao(activity as MainActivity).countInstaListByUrl(instant.liveUrl) == 0) {
                 DatabaseApp().getInstaDao(activity as MainActivity).insertInsta(instant)
             }
             dialog.dismiss()

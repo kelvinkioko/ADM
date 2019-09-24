@@ -16,19 +16,41 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="150dp">
+            android:layout_height="wrap_content">
 
-            <ImageView
-                android:id="@+id/insta_image_clear"
-                android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:scaleType="centerInside"/>
+            <RelativeLayout android:id="@+id/insta_parent"
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp">
+
+                <ImageView
+                        android:id="@+id/insta_image_clear"
+                        android:layout_width="match_parent"
+                        android:layout_height="150dp"
+                        android:scaleType="centerInside"/>
+
+                <ImageView
+                        android:id="@+id/insta_type"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignParentBottom="true"
+                        android:layout_margin="8dp"
+                        app:srcCompat="@drawable/icon_image"/>
+
+            </RelativeLayout>
+
+            <View
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:alpha="0.6"
+                    android:background="@drawable/toolbar_reverse"
+                    android:layout_below="@id/insta_parent" />
 
             <RelativeLayout android:id="@+id/insta_pending"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/white"
-                    android:layout_centerInParent="true">
+                    android:layout_centerInParent="true"
+                    android:layout_below="@id/insta_parent">
 
                 <com.download.manager.video.whatsapp.widgets.progressbar.RoundCornerProgressBar
                         android:id="@+id/insta_progress"
@@ -121,14 +143,6 @@
                 </LinearLayout>
 
             </RelativeLayout>
-
-            <ImageView
-                    android:id="@+id/insta_type"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_alignParentBottom="true"
-                    android:layout_margin="8dp"
-                    app:srcCompat="@drawable/icon_image"/>
 
             <TextView android:id="@+id/insta_id" android:visibility="gone"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"/>

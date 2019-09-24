@@ -87,10 +87,10 @@ class SectionableAdapter (private val context: Context, private var instaEntity:
         holder.instaProgress.progress = 36.toFloat()
         if (item.localUrl.isEmpty()){
             if (item.type.equals("Video", true)){
-                Glide.with(context).load(item.videoUrl).into(holder.imageClear)
+                Glide.with(context).load(item.liveUrl).into(holder.imageClear)
                 holder.instaType.setImageDrawable(VectorDrawableCompat.create(context.resources, R.drawable.icon_video, null)!!)
             }else {
-                Glide.with(context).load(item.imageUrl).into(holder.imageClear)
+                Glide.with(context).load(item.liveUrl).into(holder.imageClear)
                 holder.instaType.setImageDrawable(VectorDrawableCompat.create(context.resources, R.drawable.icon_image, null)!!)
             }
         }else{

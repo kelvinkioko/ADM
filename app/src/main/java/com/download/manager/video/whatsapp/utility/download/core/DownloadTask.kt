@@ -9,6 +9,7 @@ import com.download.manager.video.whatsapp.utility.download.helper.ConnectionHel
 import com.download.manager.video.whatsapp.utility.download.helper.MimeHelper
 import android.content.Context
 import android.os.AsyncTask
+import android.util.Log
 import android.util.Pair
 import com.download.manager.video.whatsapp.database.DatabaseApp
 import java.io.BufferedInputStream
@@ -34,6 +35,7 @@ internal data class DownloadTask(
     val downloadListener: OnDownloadListener? = null,
     val header: Map<String, String>? = null,
     var fileName: String? = null,
+    var downloadType: String,
     var extension: String? = null
 ) :
     AsyncTask<Void, Void, Pair<Boolean, Exception?>>() {
@@ -89,7 +91,17 @@ internal data class DownloadTask(
             connection?.connect()
 
             // get filename and file extension
-            detectFileName()
+            when {
+                downloadType.equals("Insta:Video", true) -> {
+                    fileName = DatabaseApp().getInstaDao(context.get()!!.applicationContext).getInstaByUrl(url).name
+                    extension = "mp4"
+                }
+                downloadType.equals("Insta:Image", true) -> {
+                    fileName = DatabaseApp().getInstaDao(context.get()!!.applicationContext).getInstaByUrl(url).name
+                    extension = "jpeg"
+                }
+                else -> detectFileName()
+            }
 
             // check file size
             if (!resume) totalSize = connection?.contentLength!!
@@ -174,10 +186,8 @@ internal data class DownloadTask(
 
             val raw = connection?.getHeaderField("Content-Disposition")
             if (raw?.indexOf("=") != -1) {
-                fileName =
-                    raw?.split("=".toRegex())?.dropLastWhile { it.isEmpty() }
-                        ?.toTypedArray()?.get(1)
-                        ?.replace("\"", "")
+                fileName = raw?.split("=".toRegex())?.dropLastWhile { it.isEmpty() }?.toTypedArray()?.get(1)
+                    ?.replace("\"", "").toString()
                 fileName = fileName?.lastIndexOf(".")?.let { fileName?.substring(0, it) }
             }
 
@@ -200,7 +210,6 @@ internal data class DownloadTask(
     }
 
     private fun cleanName(): String{
-        return DatabaseApp().getDownloadsDao(context.get()!!.applicationContext).getDownloadByUrl(url).name
-            .replace("[VIDEO ONLY]", "").replace("[AUDIO ONLY]", "").substring(0, 25)
+        return DatabaseApp().getDownloadsDao(context.get()!!.applicationContext).getDownloadByUrl(url).name.replace("[VIDEO ONLY]", "").replace("[AUDIO ONLY]", "").substring(0, 25)
     }
 }

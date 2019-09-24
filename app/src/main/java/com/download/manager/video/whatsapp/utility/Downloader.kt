@@ -51,7 +51,7 @@ class Downloader private constructor(downloadTask: DownloadTask) : IDownload {
     }
     //endregion
 
-    class Builder(private val mContext: Context, private var mUrl: String) {
+    class Builder(private val mContext: Context, private var mUrl: String, private var mType: String) {
 
         //region field
         private var mTimeOut: Int = 0
@@ -144,6 +144,7 @@ class Downloader private constructor(downloadTask: DownloadTask) : IDownload {
                 mDownloadListener,
                 mHeader,
                 mFileName,
+                mType,
                 mExtension
             )
             return Downloader(downloadTask)

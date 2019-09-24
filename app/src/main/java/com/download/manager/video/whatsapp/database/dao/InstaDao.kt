@@ -16,6 +16,12 @@ interface InstaDao {
     @Query("SELECT * FROM instaEntity ORDER BY id DESC")
     fun getInstaList(): List<InstaEntity>
 
+    @Query("SELECT * FROM instaEntity WHERE liveUrl =:url")
+    fun getInstaByUrl(url: String): InstaEntity
+
+    @Query("SELECT COUNT(id) FROM instaEntity WHERE liveUrl =:url")
+    fun countInstaListByUrl(url: String): Int
+
     @Query("SELECT COUNT(id) FROM instaEntity")
     fun countInstaList(): Int
 

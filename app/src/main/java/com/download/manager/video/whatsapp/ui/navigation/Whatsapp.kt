@@ -3,12 +3,14 @@ package com.download.manager.video.whatsapp.ui.navigation
 import android.annotation.SuppressLint
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Intent
 import android.net.Uri
 import android.os.AsyncTask
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
 import android.support.v4.app.Fragment
+import android.support.v4.content.FileProvider
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.app.AppCompatDelegate
 import android.support.v7.widget.DefaultItemAnimator
@@ -16,6 +18,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import com.download.manager.video.whatsapp.BuildConfig
 import com.download.manager.video.whatsapp.R
 import com.download.manager.video.whatsapp.database.adapter.WhatsAdapter
 import com.download.manager.video.whatsapp.database.entity.WhatsEntity
@@ -36,8 +40,18 @@ import kotlin.collections.ArrayList
 
 class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
 
-    override fun parentClick(view: View, position: Int, userCode: String) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun parentClick(localUrl: String) {
+        val videoFile = File(localUrl)
+        val fileUri = FileProvider.getUriForFile(context!!, BuildConfig.APPLICATION_ID +".admprovider", videoFile)
+        (activity as MainActivity).grantUriPermission("com.download.manager.video.whatsapp", fileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        val intent = Intent(Intent.ACTION_VIEW)
+        if (localUrl.endsWith(".jpg")){
+            intent.setDataAndType(fileUri, "image/*")
+        }else{
+            intent.setDataAndType(fileUri, "video/*")
+        }
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)//DO NOT FORGET THIS EVER
+        startActivity(intent)
     }
 
     private lateinit var downloadsViewModel: DownloadsViewModel

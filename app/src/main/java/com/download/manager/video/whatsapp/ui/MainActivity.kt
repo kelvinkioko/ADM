@@ -1,5 +1,6 @@
 package com.download.manager.video.whatsapp.ui
 
+import android.content.Intent
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -7,9 +8,11 @@ import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatDelegate
 import com.download.manager.video.whatsapp.R
+import com.download.manager.video.whatsapp.engine.PermissionListener
 import com.download.manager.video.whatsapp.ui.navigation.Browser
 import com.download.manager.video.whatsapp.ui.navigation.Instagram
 import com.download.manager.video.whatsapp.ui.navigation.Whatsapp
+import com.download.manager.video.whatsapp.utility.service.InstaService
 import com.download.manager.video.whatsapp.widgets.ReadableBottomBar
 
 class MainActivity : AppCompatActivity() {
@@ -23,6 +26,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
+
+        PermissionListener(this).loadPermissions()
+
+//        startService(Intent(this, InstaService::class.java).setAction(InstaService().ACTION_START))
 
         // Get the text fragment instance
         val whatsappFragment = Whatsapp()

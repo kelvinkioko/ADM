@@ -41,7 +41,7 @@ class WhatsAdapter (private val context: Context, private var whatsEntity: List<
     }
 
     interface OnItemClickListener {
-        fun parentClick(view: View, position: Int, userCode: String)
+        fun parentClick(localUrl: String)
     }
 
     private inner class Section {
@@ -130,6 +130,14 @@ class WhatsAdapter (private val context: Context, private var whatsEntity: List<
             item.status = "downloaded"
 
             holder.whatsDownload.visibility = View.GONE
+        }
+
+        holder.imageClear.setOnClickListener {
+            if (item.localUrl.isEmpty()){
+                clickListener.parentClick(item.liveUrl)
+            }else{
+                clickListener.parentClick(item.localUrl)
+            }
         }
     }
 

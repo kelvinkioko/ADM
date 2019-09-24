@@ -210,7 +210,7 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
     private fun downloadFile(viewHolder: SectioningAdapter.ItemViewHolder, item: DownloadsEntity){
         val holder = viewHolder as ItemViewHolder
         Log.e("Download url", item.url)
-        downloader = Downloader.Builder(context, item.url).downloadListener(object : OnDownloadListener {
+        downloader = Downloader.Builder(context, item.url, item.name).downloadListener(object : OnDownloadListener {
             override fun onStart() {
                 Log.e("Download status", "Started")
                 handler.post {
