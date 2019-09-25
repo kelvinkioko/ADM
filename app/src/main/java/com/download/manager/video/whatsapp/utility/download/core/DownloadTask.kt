@@ -100,7 +100,10 @@ internal data class DownloadTask(
                     fileName = DatabaseApp().getInstaDao(context.get()!!.applicationContext).getInstaByUrl(url).name
                     extension = "jpeg"
                 }
-                else -> detectFileName()
+                else -> {
+                    fileName = DatabaseApp().getDownloadsDao(context.get()!!.applicationContext).getDownloadByUrl(url).name
+                    extension = if (url.contains(".mp4")){ "mp4" }else{ "jpeg" }
+                }
             }
 
             // check file size

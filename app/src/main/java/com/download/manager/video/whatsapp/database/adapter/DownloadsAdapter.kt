@@ -104,7 +104,7 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
         }
         else{
             holder.idProgress.visibility = View.GONE
-            holder.idDetails.text = "Pending. Tap the download button to start downloading"
+            holder.idDetails.text = "Tap download to start downloading"
 
             holder.idPause.visibility = View.GONE
             holder.idPlay.visibility = View.GONE
