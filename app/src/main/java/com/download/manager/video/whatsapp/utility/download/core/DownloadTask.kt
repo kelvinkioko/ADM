@@ -102,7 +102,19 @@ internal data class DownloadTask(
                 }
                 else -> {
                     fileName = DatabaseApp().getDownloadsDao(context.get()!!.applicationContext).getDownloadByUrl(url).name
-                    extension = if (url.contains(".mp4")){ "mp4" }else{ "jpeg" }
+                    extension = when {
+                        url.contains(".mp4") -> "mp4"
+                        url.contains(".mp3") -> "mp3"
+                        url.contains(".pdf") -> "pdf"
+                        url.contains(".wav") -> "wav"
+                        url.contains(".xml") -> "xml"
+                        url.contains(".doc") -> "doc"
+                        url.contains(".ppt") -> "ppt"
+                        url.contains(".xls") -> "xls"
+                        url.contains(".zip") -> "zip"
+                        url.contains(".png") -> "png0"
+                        else -> "jpeg"
+                    }
                 }
             }
 

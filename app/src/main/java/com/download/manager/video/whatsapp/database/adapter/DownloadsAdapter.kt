@@ -8,6 +8,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import com.bumptech.glide.Glide
 import com.download.manager.video.whatsapp.R
 import com.download.manager.video.whatsapp.database.DatabaseApp
 import com.download.manager.video.whatsapp.database.entity.DownloadsEntity
@@ -38,7 +40,7 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
     }
 
     interface OnItemClickListener {
-        fun parentClick(view: View, position: Int, userCode: String)
+        fun parentClick(localUrl: String)
     }
 
     private inner class Section {
@@ -51,6 +53,8 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
         val idDetails = view.id_details
         val idID = view.id_id
         val idProgress = view.id_downloadprogress
+        val idImageClear = view.id_image_clear
+        val idParent = view.id_parent
 
         val idDownload = view.id_download
         val idPlay = view.id_play
@@ -88,6 +92,27 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
 
         holder.idID.text = item.id.toString()
         holder.idName.text = item.name
+        if (item.localurl.isNotEmpty()){
+            val fileLoc = File(item.localurl)
+            if (fileLoc.exists()) {
+                when {
+                    item.localurl.contains(".mp4") -> Glide.with(context).load(item.localurl).into(holder.idImageClear)
+                    item.localurl.contains(".jpeg") -> Glide.with(context).load(item.localurl).into(holder.idImageClear)
+                    item.localurl.contains(".jpg") -> Glide.with(context).load(item.localurl).into(holder.idImageClear)
+                }
+
+                val fileChecker = File(item.localurl)
+                if (fileChecker.exists()) {
+                    holder.idPause.visibility = View.GONE
+                    holder.idPlay.visibility = View.GONE
+                    holder.idCancel.visibility = View.GONE
+                    holder.idDownload.visibility = View.GONE
+                    holder.idError.visibility = View.GONE
+                    holder.idSuccess.visibility = View.VISIBLE
+                    holder.idProgress.progress = 100.toFloat()
+                }
+            }
+        }
 
         holder.idProgress.max = 100.toFloat()
         if (item.downloaded.toInt() != 0 && item.size.toInt() != 0){
@@ -117,19 +142,6 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
         val outputfile = File(Environment.getExternalStorageDirectory().toString() + File.separator + "Download Manager")
         if (!outputfile.exists()) { outputfile.mkdirs() }
 
-        if (item.localurl.isNotEmpty()){
-            val fileChecker = File(item.localurl)
-            if (fileChecker.exists()) {
-                holder.idPause.visibility = View.GONE
-                holder.idPlay.visibility = View.GONE
-                holder.idCancel.visibility = View.GONE
-                holder.idDownload.visibility = View.GONE
-                holder.idError.visibility = View.GONE
-                holder.idSuccess.visibility = View.VISIBLE
-                holder.idProgress.progress = 100.toFloat()
-            }
-        }
-
         holder.idDownload.setOnClickListener {
             downloadFile(holder, item)
             downloader.download()
@@ -146,6 +158,12 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
 
         holder.idCancel.setOnClickListener {
             downloader.cancelDownload()
+        }
+
+        holder.idParent.setOnClickListener {
+            if (item.localurl.isNotEmpty()){
+                clickListener.parentClick(item.localurl)
+            }
         }
     }
 

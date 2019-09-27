@@ -20,9 +20,12 @@
 
 <resources>
     <string-array name="videourl_filters">
+        <item>mp3</item>
         <item>mp4</item>
         <item>video</item>
         <item>googleusercontent</item>
         <item>embed</item>
+        <item>jpeg</item>
+        <item>jpg</item>
     </string-array>
 </resources>

@@ -1,31 +1,18 @@
 package com.download.manager.video.whatsapp.database.adapter
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Environment
-import android.os.Handler
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.bumptech.glide.Glide
 import com.download.manager.video.whatsapp.R
 import com.download.manager.video.whatsapp.database.DatabaseApp
 import com.download.manager.video.whatsapp.database.entity.DownloadsEntity
-import com.download.manager.video.whatsapp.engine.Legion
-import com.download.manager.video.whatsapp.utility.Downloader
-import com.download.manager.video.whatsapp.utility.download.core.OnDownloadListener
-import com.download.manager.video.whatsapp.widgets.SectioningAdapter
-import kotlinx.android.synthetic.main.item_download.view.*
 import kotlinx.android.synthetic.main.item_download_list.view.*
-import kotlinx.android.synthetic.main.item_header.view.*
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.nio.channels.FileChannel
 import java.text.DecimalFormat
-import java.util.*
-class DownloadListAdapter  (private val context: Context, private var downloadsEntity: List<DownloadsEntity>) :
+
+class DownloadListAdapter (private val context: Context, private var downloadsEntity: List<DownloadsEntity>) :
     RecyclerView.Adapter<DownloadListAdapter.ModuleHolder>() {
 
     private var originalModel: List<DownloadsEntity> = downloadsEntity
@@ -43,6 +30,7 @@ class DownloadListAdapter  (private val context: Context, private var downloadsE
         val listParent = view.list_parent
         val listName = view.list_name
         val listDetails = view.list_details
+        val listImageClear = view.list_image_clear
         val listUrl = view.list_url
 
         val listDownload = view.list_download
@@ -61,6 +49,21 @@ class DownloadListAdapter  (private val context: Context, private var downloadsE
         holder.listDetails.text = getFileSize(item.size.toLong())
         holder.listName.text = item.name
 
+        if (item.url.isNotEmpty()) {
+            when {
+                item.url.contains(".mp4") -> Glide.with(context).load(item.url).into(holder.listImageClear)
+                item.url.contains(".jpeg") -> Glide.with(context).load(item.url).into(holder.listImageClear)
+                item.url.contains(".jpg") -> Glide.with(context).load(item.url).into(holder.listImageClear)
+                item.url.contains(".mp3") -> {
+                    val density = context.resources.displayMetrics.density
+                    val paddingPixel = (25 * density).toInt()
+                    holder.listImageClear.setPadding(0,paddingPixel,0,paddingPixel)
+
+                    holder.listImageClear.setImageDrawable(context.getDrawable(R.drawable.icon_file_mp3))
+                }
+            }
+        }
+
         if (DatabaseApp().getDownloadsDao(context).countDownload(item.url) > 0){
             holder.listDownload.visibility = View.GONE
             holder.listSuccess.visibility = View.VISIBLE
@@ -68,18 +71,6 @@ class DownloadListAdapter  (private val context: Context, private var downloadsE
             holder.listDownload.visibility = View.VISIBLE
             holder.listSuccess.visibility = View.GONE
         }
-
-        holder.listParent.setOnClickListener {
-            item.downloaded = item.size
-            holder.listDownload.visibility = View.GONE
-            holder.listSuccess.visibility = View.VISIBLE
-
-            val download = DownloadsEntity(0, item.name, item.url, "", "0", item.size, Legion().getCurrentDate())
-            DatabaseApp().getDownloadsDao(context).insertDownloads(download)
-
-            notifyDataSetChanged()
-        }
-
     }
 
     override fun getItemCount(): Int {

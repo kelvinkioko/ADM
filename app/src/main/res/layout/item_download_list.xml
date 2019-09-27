@@ -12,9 +12,15 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
+        <ImageView
+                android:id="@+id/list_image_clear"
+                android:layout_width="100dp"
+                android:layout_height="86dp"
+                android:scaleType="centerInside"/>
+
         <LinearLayout android:id="@+id/list_parent"
                 android:layout_width="0dp"
-                android:layout_height="56dp"
+                android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:gravity="center_vertical"
                 android:paddingStart="8dp"

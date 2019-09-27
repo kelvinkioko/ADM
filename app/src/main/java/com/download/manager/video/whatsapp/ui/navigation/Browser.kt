@@ -24,15 +24,19 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import com.download.manager.video.whatsapp.R
+import com.download.manager.video.whatsapp.database.DatabaseApp
 import com.download.manager.video.whatsapp.database.adapter.DownloadListAdapter
 import com.download.manager.video.whatsapp.database.entity.DownloadsEntity
 import com.download.manager.video.whatsapp.database.viewmodel.DownloadsViewModel
+import com.download.manager.video.whatsapp.engine.Legion
 import com.download.manager.video.whatsapp.engine.PermissionListener
+import com.download.manager.video.whatsapp.engine.RecyclerTouchListener
 import com.download.manager.video.whatsapp.ui.DownloadsActivity
 import com.download.manager.video.whatsapp.ui.MainActivity
 import com.download.manager.video.whatsapp.utility.VideoContentSearch
 import com.download.manager.video.whatsapp.widgets.web.ScriptUtil
 import kotlinx.android.synthetic.main.dialog_links.*
+import kotlinx.android.synthetic.main.dialog_save_download.*
 import kotlinx.android.synthetic.main.main_browser.*
 import java.util.*
 import javax.net.ssl.HttpsURLConnection
@@ -42,6 +46,7 @@ import kotlin.collections.ArrayList
 class Browser : Fragment(){
 
     private lateinit var dialog: Dialog
+    private lateinit var saveDialog: Dialog
     private var defaultSSLSF: SSLSocketFactory? = null
     private lateinit var downloadsViewModel: DownloadsViewModel
     private var downloadsEntity: MutableList<DownloadsEntity> = ArrayList()
@@ -107,7 +112,7 @@ class Browser : Fragment(){
             dialog.show()
 
             val _links: RecyclerView = dialog.download_links
-            var _dismiss: TextView = dialog.dl_dismiss
+            val _dismiss: TextView = dialog.dl_dismiss
 
             val downloadsListAdapter = DownloadListAdapter(activity as MainActivity, downloadsEntity)
             val linksManager = LinearLayoutManager(activity as MainActivity, LinearLayoutManager.VERTICAL, false)
@@ -117,9 +122,64 @@ class Browser : Fragment(){
 
             downloadsListAdapter.setList(downloadsEntity)
 
+            _links.addOnItemTouchListener(RecyclerTouchListener(this.requireActivity(), _links, object : RecyclerTouchListener.OnItemClickListener {
+                override fun onItemClick(viewClick: View, position: Int) {
+                    queueDownload(downloadsEntity[position])
+                }
+
+                override fun onItemLongClick(view: View?, position: Int) {
+                    Toast.makeText(activity, "do nothing", Toast.LENGTH_LONG).show()
+                    TODO("do nothing")
+                }
+            }))
+
             _dismiss.setOnClickListener { dialog.dismiss() }
         }
 
+    }
+
+    lateinit var _primary: LinearLayout
+    lateinit var _success: LinearLayout
+
+    private fun queueDownload(download: DownloadsEntity){
+        saveDialog = Dialog(activity)
+        saveDialog.setCanceledOnTouchOutside(false)
+        saveDialog.setCancelable(true)
+        saveDialog.setContentView(R.layout.dialog_save_download)
+        Objects.requireNonNull<Window>(saveDialog.window).setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        saveDialog.window!!.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        saveDialog.window!!.setGravity(Gravity.BOTTOM)
+        saveDialog.show()
+
+        _primary = saveDialog.dsd_primary
+        _success = saveDialog.dsd_success
+
+        _success.visibility = View.GONE
+
+        val title = saveDialog.dau_title
+        val link_parent = saveDialog.dau_link_parent
+        val name = saveDialog.dsd_name
+        val dismiss = saveDialog.dsd_dismiss
+        val done = saveDialog.dsd_done
+
+        val success_message = saveDialog.dsd_success_message
+        val success_dismiss = saveDialog.dsd_success_dismiss
+
+
+        success_dismiss.setOnClickListener { saveDialog.dismiss() }
+        dismiss.setOnClickListener { saveDialog.dismiss() }
+
+        done.setOnClickListener {
+            title.visibility = View.GONE
+            link_parent.visibility = View.GONE
+            done.visibility = View.GONE
+            if (name.text.toString().trim().isEmpty()) {
+                name.error = "Please set your preferred file name"
+            }else {
+                val downlod = DownloadsEntity(0, name.text.toString().trim(), download.url, "", "0", download.size, Legion().getCurrentDate())
+                DatabaseApp().getDownloadsDao(activity as MainActivity).insertDownloads(downlod)
+            }
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -156,7 +216,7 @@ class Browser : Fragment(){
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-            search_box.setText(view.url.toString())
+
             val page = view.url
             val title = view.title
             object : VideoContentSearch(activity, url, page, title) {
@@ -213,6 +273,5 @@ class Browser : Fragment(){
             super.onPageFinished(view, url)
         }
     }
-
 
 }

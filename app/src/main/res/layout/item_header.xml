@@ -4,12 +4,8 @@
         android:layout_width="match_parent" android:layout_height="wrap_content"
         android:orientation="vertical" android:paddingBottom="4dp">
 
-    <TextView android:id="@+id/insta_header" android:padding="8dp" android:gravity="center_vertical"
-              android:text="12-12-2019" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/colorPrimaryDark"
-              android:layout_width="match_parent" android:layout_height="40dp" android:background="@color/text_medium" />
-
-    <View android:layout_width="match_parent" android:alpha="0.6" android:layout_height="4dp" android:background="@drawable/toolbar_shadow"/>
-
-    <View android:layout_width="match_parent" android:alpha="0.6" android:layout_height="4dp" android:background="@drawable/toolbar_reverse" android:layout_alignParentBottom="true"/>
+    <TextView android:id="@+id/insta_header" android:paddingStart="8dp" android:gravity="center_vertical"
+              android:text="12-12-2019" android:textSize="18sp" android:textColor="@color/secondary_text"
+              android:layout_width="match_parent" android:layout_height="30dp" />
 
 </RelativeLayout>

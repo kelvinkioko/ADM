@@ -65,19 +65,19 @@ public abstract class VideoContentSearch extends Thread {
                 String contentType = uCon.getHeaderField("content-type");
 
                 if (contentType != null) {
+                    Log.e(TAG, contentType);
                     contentType = contentType.toLowerCase();
-                    if (contentType.contains("video") || contentType.contains
-                            ("audio")) {
+                    if (contentType.contains("video") || contentType.contains("audio")) {
                         addVideoToList(uCon, page, title, contentType);
-                    } else if (contentType.equals("application/x-mpegurl") ||
-                            contentType.equals("application/vnd.apple.mpegurl")) {
+                    } else if (contentType.equals("application/x-mpegurl") || contentType.equals("application/vnd.apple.mpegurl")) {
                         addVideosToListFromM3U8(uCon, page, title, contentType);
-                    } else Log.i(TAG, "Not a video. Content type = " +
-                            contentType);
+                    } else if (contentType.contains("image")) {
+                        addVideoToList(uCon, page, title, contentType);
+                    } else Log.e(TAG, "Not a video. Content type = " + contentType);
                 } else {
-                    Log.i(TAG, "no content type");
+                    Log.e(TAG, "no content type");
                 }
-            } else Log.i(TAG, "no connection");
+            } else Log.e(TAG, "no connection");
 
             numLinksInspected--;
             boolean finishedAll = false;
@@ -97,7 +97,7 @@ public abstract class VideoContentSearch extends Thread {
             }
 
             String host = new URL(page).getHost();
-            String website = null;
+            String website = "empty";
             boolean chunked = false;
 
             // Skip twitter video chunks.
@@ -132,23 +132,21 @@ public abstract class VideoContentSearch extends Thread {
                 website = "https://www.youtube.com";
 
                 if (host.contains("youtube.com")) {
-                    URL embededURL = new URL("http://www.youtube.com/oembed?url=" + page +
-                            "&format=json");
+                    URL embededURL = new URL("http://www.youtube.com/oembed?url=" + page + "&format=json");
                     try {
                         //name = new JSONObject(IOUtils.toString(embededURL)).getString("title");
-                        String jSonString;
+                        String jsonString;
                         InputStream in = embededURL.openStream();
-                        InputStreamReader inReader = new InputStreamReader(in, Charset
-                                .defaultCharset());
+                        InputStreamReader inReader = new InputStreamReader(in, Charset.defaultCharset());
                         StringBuilder sb = new StringBuilder();
                         char[] buffer = new char[1024];
                         int read;
                         while ((read = inReader.read(buffer)) != -1) {
                             sb.append(buffer, 0, read);
                         }
-                        jSonString = sb.toString();
+                        jsonString = sb.toString();
 
-                        name = new JSONObject(jSonString).getString("title");
+                        name = new JSONObject(jsonString).getString("title");
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
