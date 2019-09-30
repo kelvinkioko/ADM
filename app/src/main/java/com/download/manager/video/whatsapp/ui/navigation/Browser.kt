@@ -1,6 +1,7 @@
 package com.download.manager.video.whatsapp.ui.navigation
 
 import android.app.Dialog
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.graphics.Bitmap
@@ -10,6 +11,7 @@ import android.os.*
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatDelegate
 import android.support.v7.widget.DefaultItemAnimator
+import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
@@ -25,7 +27,9 @@ import android.widget.TextView
 import android.widget.Toast
 import com.download.manager.video.whatsapp.R
 import com.download.manager.video.whatsapp.database.DatabaseApp
+import com.download.manager.video.whatsapp.database.adapter.BookmarkAdapter
 import com.download.manager.video.whatsapp.database.adapter.DownloadListAdapter
+import com.download.manager.video.whatsapp.database.entity.BookmarkEntity
 import com.download.manager.video.whatsapp.database.entity.DownloadsEntity
 import com.download.manager.video.whatsapp.database.viewmodel.DownloadsViewModel
 import com.download.manager.video.whatsapp.engine.Legion
@@ -39,6 +43,7 @@ import kotlinx.android.synthetic.main.dialog_links.*
 import kotlinx.android.synthetic.main.dialog_save_download.*
 import kotlinx.android.synthetic.main.main_browser.*
 import java.util.*
+
 import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLSocketFactory
 import kotlin.collections.ArrayList
@@ -49,7 +54,9 @@ class Browser : Fragment(){
     private lateinit var saveDialog: Dialog
     private var defaultSSLSF: SSLSocketFactory? = null
     private lateinit var downloadsViewModel: DownloadsViewModel
+    private lateinit var bookmarkAdapter: BookmarkAdapter
     private var downloadsEntity: MutableList<DownloadsEntity> = ArrayList()
+    private var bookmarkEntity: MutableList<BookmarkEntity> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,6 +68,14 @@ class Browser : Fragment(){
 
         PermissionListener(activity as MainActivity).loadPermissions()
         downloadsViewModel = ViewModelProviders.of(this).get(DownloadsViewModel::class.java)
+
+        bookmarkAdapter = BookmarkAdapter(activity as MainActivity, bookmarkEntity)
+        val linksManager = GridLayoutManager(activity as MainActivity, 4, GridLayoutManager.VERTICAL, false)
+        web_history.layoutManager = linksManager
+        web_history.itemAnimator = DefaultItemAnimator()
+        web_history.adapter = bookmarkAdapter
+
+        populateBookmarks()
 
         defaultSSLSF = HttpsURLConnection.getDefaultSSLSocketFactory()
 
@@ -272,6 +287,30 @@ class Browser : Fragment(){
             iv_refresh.clearAnimation()
             super.onPageFinished(view, url)
         }
+    }
+
+    private fun populateBookmarks(){
+        if (downloadsViewModel.countBookmark() == 0){
+            downloadsViewModel.insertBookmark(BookmarkEntity(0, "Google", "https://www.google.com"))
+            downloadsViewModel.insertBookmark(BookmarkEntity(0, "Facebook", "https://www.facebook.com"))
+            downloadsViewModel.insertBookmark(BookmarkEntity(0, "Twitter", "https://www.twitter.com"))
+            downloadsViewModel.insertBookmark(BookmarkEntity(0, "Daily Motion", "https://www.dailymotion.com"))
+            downloadsViewModel.insertBookmark(BookmarkEntity(0, "Vimeo", "https://www.vimeo.com"))
+            downloadsViewModel.insertBookmark(BookmarkEntity(0, "Tubidy", "https://www.tubidy.mobi"))
+        }
+
+        downloadsViewModel.getBookmark().observe(this, Observer<List<BookmarkEntity>>{ bookmarkEntities ->
+            if (bookmarkEntities != null){
+                if (bookmarkEntities.isNotEmpty()){
+                    bookmarkEntity.clear()
+                    for (d in 0 until bookmarkEntities.size){
+                        val bookmark = BookmarkEntity(bookmarkEntities[d].id, bookmarkEntities[d].name, bookmarkEntities[d].url)
+                        this.bookmarkEntity.add(bookmark)
+                    }
+                    bookmarkAdapter.setList(bookmarkEntity)
+                }
+            }
+        })
     }
 
 }

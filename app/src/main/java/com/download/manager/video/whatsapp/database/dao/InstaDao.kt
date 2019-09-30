@@ -19,11 +19,20 @@ interface InstaDao {
     @Query("SELECT * FROM instaEntity WHERE liveUrl =:url")
     fun getInstaByUrl(url: String): InstaEntity
 
+    @Query("SELECT * FROM instaEntity WHERE parentUrl =:url")
+    fun getInstaByParent(url: String): InstaEntity
+
+    @Query("SELECT COUNT(id) FROM instaEntity WHERE parentUrl =:url")
+    fun countInstaListByParent(url: String): Int
+
     @Query("SELECT COUNT(id) FROM instaEntity WHERE liveUrl =:url")
     fun countInstaListByUrl(url: String): Int
 
     @Query("SELECT COUNT(id) FROM instaEntity")
     fun countInstaList(): Int
+
+    @Query("UPDATE instaEntity SET name =:name, postedBy =:postedBy, liveUrl =:liveUrl, type =:type WHERE id =:id")
+    fun updateInstaDetails(name: String, postedBy: String, liveUrl: String, type: String, id: Int)
 
     @Query("UPDATE instaEntity SET downloaded =:downloaded, size =:size WHERE id =:id")
     fun updateInsta(downloaded: String, size: String, id: Int)

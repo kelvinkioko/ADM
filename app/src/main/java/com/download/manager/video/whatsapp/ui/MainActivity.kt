@@ -1,6 +1,5 @@
 package com.download.manager.video.whatsapp.ui
 
-import android.content.Intent
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -12,8 +11,15 @@ import com.download.manager.video.whatsapp.engine.PermissionListener
 import com.download.manager.video.whatsapp.ui.navigation.Browser
 import com.download.manager.video.whatsapp.ui.navigation.Instagram
 import com.download.manager.video.whatsapp.ui.navigation.Whatsapp
-import com.download.manager.video.whatsapp.utility.service.InstaService
 import com.download.manager.video.whatsapp.widgets.ReadableBottomBar
+import android.app.job.JobInfo
+import android.content.ComponentName
+import android.app.job.JobScheduler
+import android.content.Context
+import android.content.Intent
+import android.support.annotation.RequiresApi
+import com.download.manager.video.whatsapp.utility.service.ClipDataService
+import com.download.manager.video.whatsapp.utility.service.InstaService
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,7 +35,21 @@ class MainActivity : AppCompatActivity() {
 
         PermissionListener(this).loadPermissions()
 
-//        startService(Intent(this, InstaService::class.java).setAction(InstaService().ACTION_START))
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            val jobScheduler = applicationContext.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+
+            val componentName = ComponentName(this, ClipDataService::class.java!!)
+
+            val jobInfo = JobInfo.Builder(1, componentName)
+                .setRequiresCharging(false)
+                .setRequiresDeviceIdle(false)
+                .setPeriodic(1000)
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                .setPersisted(true).build()
+            jobScheduler.schedule(jobInfo)
+        }else {
+            startService(Intent(this, InstaService::class.java).setAction(InstaService().ACTION_START))
+        }
 
         // Get the text fragment instance
         val whatsappFragment = Whatsapp()
@@ -95,4 +115,5 @@ class MainActivity : AppCompatActivity() {
             window.navigationBarColor = resources.getColor(R.color.colorPrimary)
         }
     }
+
 }

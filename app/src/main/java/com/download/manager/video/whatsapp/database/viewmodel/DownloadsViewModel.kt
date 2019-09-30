@@ -4,6 +4,7 @@ import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LiveData
 import android.support.annotation.WorkerThread
+import com.download.manager.video.whatsapp.database.entity.BookmarkEntity
 import com.download.manager.video.whatsapp.database.entity.DownloadsEntity
 import com.download.manager.video.whatsapp.database.entity.InstaEntity
 import com.download.manager.video.whatsapp.database.entity.WhatsEntity
@@ -115,6 +116,26 @@ class DownloadsViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun deleteWhats(){
         return whatsRepo.deleteWhats()
+    }
+
+
+    /**
+     *
+     */
+    fun insertBookmark(bookmark: BookmarkEntity) {
+        downloadsRepo.insertBookmark(bookmark)
+    }
+
+    fun getBookmark(): LiveData<List<BookmarkEntity>> {
+        return downloadsRepo.getBookmark()
+    }
+
+    fun countBookmark(): Int{
+        return downloadsRepo.countBookmark()
+    }
+
+    fun deleteBookmark(){
+        downloadsRepo.deleteBookmark()
     }
 
 }

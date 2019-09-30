@@ -31,6 +31,9 @@ interface DownloadsDao {
     @Query("SELECT * FROM downloadsEntity WHERE url =:url")
     fun getDownloadByUrl(url: String): DownloadsEntity
 
+    @Query("DELETE FROM downloadsEntity WHERE id =:id")
+    fun deleteDownloadsByID(id: Int)
+
     @Query("DELETE FROM downloadsEntity")
     fun deleteDownloads()
 }

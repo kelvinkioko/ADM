@@ -6,17 +6,20 @@ import android.arch.persistence.room.Room
 import android.arch.persistence.room.RoomDatabase
 import android.arch.persistence.room.migration.Migration
 import android.content.Context
+import com.download.manager.video.whatsapp.database.dao.BookmarkDao
 import com.download.manager.video.whatsapp.database.dao.DownloadsDao
 import com.download.manager.video.whatsapp.database.dao.InstaDao
 import com.download.manager.video.whatsapp.database.dao.WhatsDao
+import com.download.manager.video.whatsapp.database.entity.BookmarkEntity
 import com.download.manager.video.whatsapp.database.entity.DownloadsEntity
 import com.download.manager.video.whatsapp.database.entity.InstaEntity
 import com.download.manager.video.whatsapp.database.entity.WhatsEntity
 
-@Database(entities = arrayOf(DownloadsEntity::class, InstaEntity::class, WhatsEntity::class), version = 1)
+@Database(entities = arrayOf(DownloadsEntity::class, InstaEntity::class, WhatsEntity::class, BookmarkEntity::class), version = 1)
 abstract class DownloadDatabase : RoomDatabase() {
 
     abstract fun downloadsDao(): DownloadsDao
+    abstract fun bookmarkDao(): BookmarkDao
     abstract fun instaDao(): InstaDao
     abstract fun whatsDao(): WhatsDao
 

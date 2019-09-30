@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
@@ -42,5 +43,11 @@
                     android:name="android.support.FILE_PROVIDER_PATHS"
                     android:resource="@xml/file_provider_paths"/>
         </provider>
+        <service android:name=".utility.service.ClipDataService" android:permission="android.permission.BIND_JOB_SERVICE" >
+            <intent-filter>
+                <action android:name="com.download.manager.video.whatsapp.action.STOP"/>
+                <action android:name="com.download.manager.video.whatsapp.action.START"/>
+            </intent-filter>
+        </service>
     </application>
 </manifest>

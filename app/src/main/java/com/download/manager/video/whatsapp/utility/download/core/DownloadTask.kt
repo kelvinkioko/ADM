@@ -101,8 +101,15 @@ internal data class DownloadTask(
                     extension = "jpeg"
                 }
                 else -> {
-                    fileName = DatabaseApp().getDownloadsDao(context.get()!!.applicationContext).getDownloadByUrl(url).name
+                    val downds = DatabaseApp().getDownloadsDao(context.get()!!.applicationContext).getDownloadByUrl(url)
+                    fileName = downds.name
                     extension = when {
+                        url.contains("webm") -> "webm"
+                        url.contains(".webm") -> "webm"
+                        url.contains(".avi") -> "avi"
+                        url.contains(".flv") -> "flv"
+                        url.contains(".mov") -> "mov"
+                        url.contains(".mkv") -> "mkv"
                         url.contains(".mp4") -> "mp4"
                         url.contains(".mp3") -> "mp3"
                         url.contains(".pdf") -> "pdf"
@@ -113,7 +120,7 @@ internal data class DownloadTask(
                         url.contains(".xls") -> "xls"
                         url.contains(".zip") -> "zip"
                         url.contains(".png") -> "png0"
-                        else -> "jpeg"
+                        else -> "mp4"
                     }
                 }
             }

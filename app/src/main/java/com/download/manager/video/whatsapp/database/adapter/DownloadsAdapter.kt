@@ -157,7 +157,9 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
         }
 
         holder.idCancel.setOnClickListener {
-            downloader.cancelDownload()
+            DatabaseApp().getDownloadsDao(context).deleteDownloadsByID(item.id)
+            setDownloads(DatabaseApp().getDownloadsDao(context).getDownloadsList())
+            notifyDataSetChanged()
         }
 
         holder.idParent.setOnClickListener {
@@ -307,7 +309,6 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
 
                 DatabaseApp().getDownloadsDao(context).updateDownloads(final.length().toString(), final.length().toString(), item.id)
                 DatabaseApp().getDownloadsDao(context).updateLocalURL(final.toString(), item.id)
-                DatabaseApp().getDownloadsDao(context).updateName(final.name, item.id)
 
                 if (item.downloaded.toInt() != 0 && item.size.toInt() != 0){
                     holder.idDetails.text = "Download Complete " + getFileSize(item.downloaded.toLong()) + "/" + getFileSize(item.size.toLong())
