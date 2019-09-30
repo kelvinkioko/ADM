@@ -1,5 +1,6 @@
 package com.download.manager.video.whatsapp.utility.service
 
+import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.app.Notification
 import android.app.PendingIntent
@@ -8,14 +9,22 @@ import android.app.job.JobService
 import android.content.ClipboardManager
 import android.content.Intent
 import android.os.AsyncTask
+import android.os.Environment
 import android.util.Log
+import android.view.View
 import com.download.manager.video.whatsapp.R
 import com.download.manager.video.whatsapp.database.DatabaseApp
 import com.download.manager.video.whatsapp.database.entity.InstaEntity
 import com.download.manager.video.whatsapp.engine.Legion
 import com.download.manager.video.whatsapp.ui.MainActivity
+import com.download.manager.video.whatsapp.utility.Downloader
+import com.download.manager.video.whatsapp.utility.download.core.OnDownloadListener
 import org.jsoup.Jsoup
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.io.IOException
+import java.nio.channels.FileChannel
 import java.util.*
 
 class ClipDataService : JobService(){
@@ -36,7 +45,6 @@ class ClipDataService : JobService(){
                 val instant = InstaEntity(0, "", "", parentUrl, "", "", "", "0", "0", Legion().getCurrentDate())
                 DatabaseApp().getInstaDao(applicationContext).insertInsta(instant)
                 getInstagramUrl().execute(parentUrl)
-                Log.e("clip url", parentUrl)
             }
         }
 
@@ -83,11 +91,12 @@ class ClipDataService : JobService(){
         public override fun doInBackground(vararg strings: String): String? {
             try {
                 val doc = Jsoup.connect(strings[0]).get()
-                this@ClipDataService.image = doc.select("meta[property=og:image]").attr("content")
-                this@ClipDataService.video = doc.select("meta[property=og:video:secure_url]").attr("content")
-                this@ClipDataService.postedBy = doc.select("meta[property=og:description]").attr("content").split("@")[1].split("•")[0].trim()
-                this@ClipDataService.name = (Random().nextInt(899999999)).toString()
-                this@ClipDataService.isVideo = video.isNotEmpty()
+                parentUrl = strings[0]
+                image = doc.select("meta[property=og:image]").attr("content")
+                video = doc.select("meta[property=og:video:secure_url]").attr("content")
+                postedBy = doc.select("meta[property=og:description]").attr("content").split("@")[1].split("•")[0].trim()
+                name = (Random().nextInt(899999999)).toString()
+                isVideo = video.isNotEmpty()
             } catch (e: IOException) {
                 isError = true
                 isVideo = false
@@ -101,12 +110,55 @@ class ClipDataService : JobService(){
             super.onPostExecute(s)
             val parentInsta = DatabaseApp().getInstaDao(applicationContext).getInstaByParent(parentUrl)
             if (isVideo) {
-                DatabaseApp().getInstaDao(applicationContext).updateInstaDetails(name, postedBy, video, "Video", parentInsta.id)
-                Log.e("clip url", video)
+                DatabaseApp().getInstaDao(applicationContext).updateInstaDetails(name, postedBy, video, "Video", parentInsta.id); downloadFile(video)
             } else {
-                DatabaseApp().getInstaDao(applicationContext).updateInstaDetails(name, postedBy, image, "Image", parentInsta.id)
-                Log.e("clip url", image)
+                DatabaseApp().getInstaDao(applicationContext).updateInstaDetails(name, postedBy, image, "Image", parentInsta.id); downloadFile(image)
             }
         }
+    }
+
+    fun downloadFile(url: String){
+        val item = DatabaseApp().getInstaDao(applicationContext).getInstaByParent(parentUrl)
+        val downloader = Downloader.Builder(applicationContext, url, "Insta:" + item.type)
+            .downloadListener(object : OnDownloadListener {
+            override fun onStart() {}
+
+            override fun onPause() {}
+
+            override fun onResume() {}
+
+            override fun onProgressUpdate(percent: Int, downloadedSize: Int, totalSize: Int) {}
+
+            override fun onCompleted(file: File?) {
+                val final = if (item.type.equals("video", true)){
+                    File(Environment.getExternalStorageDirectory().toString() + File.separator + "Download Manager" + File.separator + "instaVideos" + File.separator + file?.name)
+                }else{
+                    File(Environment.getExternalStorageDirectory().toString() + File.separator + "Download Manager" + File.separator + "instaImages" + File.separator + file?.name)
+                }
+
+                if (!final.parentFile.exists()) { final.parentFile.mkdirs() }
+                if (!final.exists()) { final.createNewFile() }
+
+                var source: FileChannel? = null
+                var destination: FileChannel? = null
+
+                try {
+                    source = FileInputStream(file).channel
+                    destination = FileOutputStream(final).channel
+                    destination!!.transferFrom(source, 0, source!!.size())
+                } finally {
+                    file?.delete()
+                    source?.close()
+                    destination?.close()
+                }
+
+                DatabaseApp().getInstaDao(applicationContext).updateLocalURL(final.toString(), item.id)
+            }
+
+            override fun onFailure(reason: String?) {}
+
+            override fun onCancel() {}
+        }).build()
+        downloader.download()
     }
 }

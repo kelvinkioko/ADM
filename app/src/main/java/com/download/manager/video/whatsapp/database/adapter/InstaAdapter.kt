@@ -166,7 +166,6 @@ class InstaAdapter (private val context: Context, private var instaEntity: List<
         val holder = viewHolder as ItemViewHolder
         downloader = Downloader.Builder(context, url, "Insta:" + item.type).downloadListener(object : OnDownloadListener {
             override fun onStart() {
-                Log.e("Download status", "Started")
                 handler.post {
                     holder.instaPause.visibility = View.VISIBLE
                     holder.instaPlay.visibility = View.GONE
@@ -253,7 +252,6 @@ class InstaAdapter (private val context: Context, private var instaEntity: List<
             }
 
             override fun onFailure(reason: String?) {
-                Log.e("Download status", reason)
                 handler.post {
                     holder.instaPause.visibility = View.GONE
                     holder.instaPlay.visibility = View.GONE
