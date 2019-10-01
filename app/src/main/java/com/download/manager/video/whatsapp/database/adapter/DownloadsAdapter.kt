@@ -99,44 +99,50 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
                     item.localurl.contains(".mp4") -> Glide.with(context).load(item.localurl).into(holder.idImageClear)
                     item.localurl.contains(".jpeg") -> Glide.with(context).load(item.localurl).into(holder.idImageClear)
                     item.localurl.contains(".jpg") -> Glide.with(context).load(item.localurl).into(holder.idImageClear)
+                    item.localurl.contains(".mp3") -> {
+                        val density = context.resources.displayMetrics.density
+                        val paddingPixel = (8 * density).toInt()
+                        holder.idImageClear.setPadding(0,paddingPixel,0,paddingPixel)
+                        holder.idImageClear.setImageDrawable(context.getDrawable(R.drawable.icon_file_mp3))
+                    }
                 }
 
                 val fileChecker = File(item.localurl)
                 if (fileChecker.exists()) {
                     holder.idPause.visibility = View.GONE
                     holder.idPlay.visibility = View.GONE
-                    holder.idCancel.visibility = View.GONE
+                    holder.idCancel.visibility = View.VISIBLE
                     holder.idDownload.visibility = View.GONE
                     holder.idError.visibility = View.GONE
-                    holder.idSuccess.visibility = View.VISIBLE
+                    holder.idSuccess.visibility = View.GONE
                     holder.idProgress.progress = 100.toFloat()
                 }
             }
-        }
+        }else {
 
-        holder.idProgress.max = 100.toFloat()
-        if (item.downloaded.toInt() != 0 && item.size.toInt() != 0){
-            holder.idDetails.text = getFileSize(item.downloaded.toLong()) + "/" + getFileSize(item.size.toLong())
-            holder.idProgress.visibility = View.VISIBLE
-            holder.idProgress.progress = ((item.downloaded.toInt()/item.size.toInt()) * 100).toFloat()
+            holder.idProgress.max = 100.toFloat()
+            if (item.downloaded.toInt() != 0 && item.size.toInt() != 0) {
+                holder.idDetails.text = getFileSize(item.downloaded.toLong()) + "/" + getFileSize(item.size.toLong())
+                holder.idProgress.visibility = View.VISIBLE
+                holder.idProgress.progress = ((item.downloaded.toInt() / item.size.toInt()) * 100).toFloat()
 
-            holder.idPause.visibility = View.GONE
-            holder.idPlay.visibility = View.VISIBLE
-            holder.idCancel.visibility = View.VISIBLE
-            holder.idDownload.visibility = View.GONE
-            holder.idError.visibility = View.GONE
-            holder.idSuccess.visibility = View.GONE
-        }
-        else{
-            holder.idProgress.visibility = View.GONE
-            holder.idDetails.text = "Tap download to start downloading"
+                holder.idPause.visibility = View.GONE
+                holder.idPlay.visibility = View.VISIBLE
+                holder.idCancel.visibility = View.VISIBLE
+                holder.idDownload.visibility = View.GONE
+                holder.idError.visibility = View.GONE
+                holder.idSuccess.visibility = View.GONE
+            } else {
+                holder.idProgress.visibility = View.GONE
+                holder.idDetails.text = "Tap download to start downloading"
 
-            holder.idPause.visibility = View.GONE
-            holder.idPlay.visibility = View.GONE
-            holder.idCancel.visibility = View.VISIBLE
-            holder.idDownload.visibility = View.VISIBLE
-            holder.idError.visibility = View.GONE
-            holder.idSuccess.visibility = View.GONE
+                holder.idPause.visibility = View.GONE
+                holder.idPlay.visibility = View.GONE
+                holder.idCancel.visibility = View.VISIBLE
+                holder.idDownload.visibility = View.VISIBLE
+                holder.idError.visibility = View.GONE
+                holder.idSuccess.visibility = View.GONE
+            }
         }
 
         val outputfile = File(Environment.getExternalStorageDirectory().toString() + File.separator + "Download Manager")

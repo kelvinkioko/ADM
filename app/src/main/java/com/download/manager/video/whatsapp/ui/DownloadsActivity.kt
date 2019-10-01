@@ -13,6 +13,7 @@ import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
 import android.view.View
+import android.view.WindowManager
 import com.download.manager.video.whatsapp.BuildConfig
 import com.download.manager.video.whatsapp.R
 import com.download.manager.video.whatsapp.database.adapter.DownloadsAdapter
@@ -40,6 +41,8 @@ class DownloadsActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListe
             intent.setDataAndType(fileUri, "image/*")
         }else if (localUrl.endsWith(".jpeg", true)){
             intent.setDataAndType(fileUri, "image/*")
+        }else if (localUrl.endsWith(".mp3", true)){
+            intent.setDataAndType(fileUri, "audio/*")
         }
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)//DO NOT FORGET THIS EVER
         startActivity(intent)
@@ -48,6 +51,7 @@ class DownloadsActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListe
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_downloads)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
         setSupportActionBar(toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)

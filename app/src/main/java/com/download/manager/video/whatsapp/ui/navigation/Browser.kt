@@ -41,6 +41,7 @@ import com.download.manager.video.whatsapp.utility.VideoContentSearch
 import com.download.manager.video.whatsapp.widgets.web.ScriptUtil
 import kotlinx.android.synthetic.main.dialog_links.*
 import kotlinx.android.synthetic.main.dialog_save_download.*
+import kotlinx.android.synthetic.main.item_album.view.*
 import kotlinx.android.synthetic.main.main_browser.*
 import java.util.*
 
@@ -70,12 +71,29 @@ class Browser : Fragment(){
         downloadsViewModel = ViewModelProviders.of(this).get(DownloadsViewModel::class.java)
 
         bookmarkAdapter = BookmarkAdapter(activity as MainActivity, bookmarkEntity)
-        val linksManager = GridLayoutManager(activity as MainActivity, 4, GridLayoutManager.VERTICAL, false)
+        val linksManager = GridLayoutManager(activity as MainActivity, 3, GridLayoutManager.VERTICAL, false)
         web_history.layoutManager = linksManager
         web_history.itemAnimator = DefaultItemAnimator()
         web_history.adapter = bookmarkAdapter
 
         populateBookmarks()
+
+        web_history.addOnItemTouchListener(RecyclerTouchListener(this.requireActivity(), web_history, object : RecyclerTouchListener.OnItemClickListener {
+            override fun onItemClick(viewClick: View, position: Int) {
+                val bookmarkIcon = viewClick.album_cover
+                val bookmarkName = viewClick.album_title
+                val bookmarkUrl = viewClick.album_url
+
+                web_history.visibility = View.GONE
+                webview.visibility = View.VISIBLE
+                webview.loadUrl(bookmarkUrl.text.toString())
+            }
+
+            override fun onItemLongClick(view: View?, position: Int) {
+                Toast.makeText(activity, "do nothing", Toast.LENGTH_LONG).show()
+                TODO("do nothing")
+            }
+        }))
 
         defaultSSLSF = HttpsURLConnection.getDefaultSSLSocketFactory()
 
@@ -185,9 +203,8 @@ class Browser : Fragment(){
         dismiss.setOnClickListener { saveDialog.dismiss() }
 
         done.setOnClickListener {
-            title.visibility = View.GONE
-            link_parent.visibility = View.GONE
-            done.visibility = View.GONE
+            _primary.visibility = View.GONE
+            _success.visibility = View.VISIBLE
             if (name.text.toString().trim().isEmpty()) {
                 name.error = "Please set your preferred file name"
             }else {

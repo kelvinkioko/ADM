@@ -30,6 +30,9 @@
     <color name="colorPositive">#1db14e</color>
     <color name="colorNegative">#e25d6f</color>
 
+    <color name="background_dark">#212121</color>
+    <color name="shadow_dark">#CC212121</color>
+
     <integer-array name="pocket_bar_colors">
         <item>@color/pocket_color_1</item>
         <item>@color/pocket_color_1</item>

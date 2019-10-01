@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.download.manager.video.whatsapp.R
 import com.download.manager.video.whatsapp.database.entity.BookmarkEntity
+import kotlinx.android.synthetic.main.item_album.view.*
 import kotlinx.android.synthetic.main.item_bookmark.view.*
 import java.text.DecimalFormat
 
@@ -25,13 +26,13 @@ class BookmarkAdapter (private val context: Context, private var bookmarkEntity:
     }
 
     inner class ModuleHolder (view: View) : RecyclerView.ViewHolder(view) {
-        val bookmarkIcon = view.ib_icon
-        val bookmarkName = view.ib_name
-        val bookmarkUrl = view.ib_url
+        val bookmarkIcon = view.album_cover
+        val bookmarkName = view.album_title
+        val bookmarkUrl = view.album_url
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ModuleHolder {
-        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_bookmark, parent, false)
+        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_album, parent, false)
         return ModuleHolder(itemView)
     }
 
@@ -47,7 +48,7 @@ class BookmarkAdapter (private val context: Context, private var bookmarkEntity:
             item.name.contains("Twitter") -> holder.bookmarkIcon.setImageDrawable(context.getDrawable(R.drawable.book_twitter))
             item.name.contains("Daily Motion") -> holder.bookmarkIcon.setImageDrawable(context.getDrawable(R.drawable.book_dailymotion))
             item.name.contains("Vimeo") -> holder.bookmarkIcon.setImageDrawable(context.getDrawable(R.drawable.book_vimeo))
-            item.name.contains("Tubidy") -> holder.bookmarkIcon.setImageDrawable(context.getDrawable(R.drawable.book_vimeo))
+            item.name.contains("Tubidy") -> holder.bookmarkIcon.setImageDrawable(context.getDrawable(R.drawable.book_tubidy))
         }
 
     }

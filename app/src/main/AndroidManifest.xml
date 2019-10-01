@@ -20,6 +20,7 @@
             tools:ignore="AllowBackup,GoogleAppIndexingWarning"
             tools:replace="android:appComponentFactory"
             android:appComponentFactory="whateverString">
+
         <activity android:name=".ui.MainActivity" android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -27,13 +28,10 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".ui.DownloadsActivity" android:theme="@style/AppTheme.NoActionBar"/>
-        <service android:name=".utility.service.InstaService" android:exported="false">
-            <intent-filter>
-                <action android:name="com.download.manager.video.whatsapp.action.STOP"/>
-                <action android:name="com.download.manager.video.whatsapp.action.START"/>
-            </intent-filter>
-        </service>
+
+        <activity android:name=".ui.DownloadsActivity" android:theme="@style/AppTheme.NoActionBar"
+            />
+
         <provider
                 android:name="android.support.v4.content.FileProvider"
                 android:authorities="${applicationId}.admprovider"
@@ -43,7 +41,15 @@
                     android:name="android.support.FILE_PROVIDER_PATHS"
                     android:resource="@xml/file_provider_paths"/>
         </provider>
-        <service android:name=".utility.service.ClipDataService" android:permission="android.permission.BIND_JOB_SERVICE" >
+
+        <service android:name=".utility.service.InstaService" android:permission="android.permission.BIND_JOB_SERVICE" android:enabled="true" >
+            <intent-filter>
+                <action android:name="com.download.manager.video.whatsapp.action.STOP"/>
+                <action android:name="com.download.manager.video.whatsapp.action.START"/>
+            </intent-filter>
+        </service>
+
+        <service android:name=".utility.service.ClipDataService" android:permission="android.permission.BIND_JOB_SERVICE" android:exported="true" >
             <intent-filter>
                 <action android:name="com.download.manager.video.whatsapp.action.STOP"/>
                 <action android:name="com.download.manager.video.whatsapp.action.START"/>
