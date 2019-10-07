@@ -104,7 +104,6 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
                 if (whatsEntities.isNotEmpty()){
                     whats_history.visibility = View.VISIBLE
                     whats_empty.visibility = View.GONE
-                    Log.e("files count observer", whatsEntities.size.toString())
                     whatsEntity.clear()
                     for (d in 0 until whatsEntities.size){
                         val whats = WhatsEntity(whatsEntities[d].id, whatsEntities[d].name, whatsEntities[d].liveUrl, whatsEntities[d].liveUrl, whatsEntities[d].localUrl,
@@ -112,7 +111,6 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
                         this.whatsEntity.add(whats)
                     }
 
-                    Log.e("files count set", whatsEntity.size.toString())
                     whatsAdapter.setWhats(whatsEntity)
                 }else{
                     whats_history.visibility = View.GONE
@@ -130,7 +128,7 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
         if (savedFiles != null) {
             for (s in savedFiles.indices) {
                 val type = if (Uri.fromFile(savedFiles[s]).toString().endsWith(".mp4")) { "Video" } else { "Image" }
-                val whats = WhatsEntity(0, savedFiles[s].name, savedFiles[s].absolutePath, Uri.fromFile(savedFiles[s]).toString(), savedFiles[s].absolutePath, "downloaded", type, savedFiles[s].length().toString(), SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(Date(savedFiles[s].lastModified())), SimpleDateFormat("dd-MM-yyyy").format(Date(savedFiles[s].lastModified())))
+                val whats = WhatsEntity(0, savedFiles[s].name, savedFiles[s].absolutePath, Uri.fromFile(savedFiles[s]).toString(), savedFiles[s].absolutePath, "downloaded", type, savedFiles[s].length().toString(), savedFiles[s].lastModified().toString(), SimpleDateFormat("dd-MM-yyyy").format(Date(savedFiles[s].lastModified())))
 
                 if (downloadsViewModel.countWhatsListByName(Uri.fromFile(savedFiles[s]).toString()) == 0) {
                     this.whatsEntity.add(whats)
@@ -142,7 +140,7 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
         if (files != null) {
             for (i in files.indices) {
                 val type = if (Uri.fromFile(files[i]).toString().endsWith(".mp4")) { "Video" } else { "Image" }
-                val whats = WhatsEntity(0, files[i].name, files[i].absolutePath, Uri.fromFile(files[i]).toString(), "", "live", type, files[i].length().toString(), SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(Date(files[i].lastModified())), SimpleDateFormat("dd-MM-yyyy").format(Date(files[i].lastModified())))
+                val whats = WhatsEntity(0, files[i].name, files[i].absolutePath, Uri.fromFile(files[i]).toString(), "", "live", type, files[i].length().toString(), files[i].lastModified().toString(), SimpleDateFormat("dd-MM-yyyy").format(Date(files[i].lastModified())))
 
                 if (downloadsViewModel.countWhatsListByName(Uri.fromFile(files[i]).toString()) == 0) {
                     this.whatsEntity.add(whats)

@@ -29,8 +29,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.DownloadsActivity" android:theme="@style/AppTheme.NoActionBar"
-            />
+        <activity android:name=".ui.DownloadsActivity" android:theme="@style/AppTheme.NoActionBar"/>
 
         <provider
                 android:name="android.support.v4.content.FileProvider"
