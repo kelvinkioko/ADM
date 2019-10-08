@@ -109,15 +109,15 @@ class InstaService : IntentService("InstaService") {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        this.action = intent!!.action
-        if (this.action.equals(ACTION_START)) {
-            processNotificationShowRequest()
-            Constants().isService = true
-        } else if (this.action.equals(ACTION_STOP)) {
-            stopService(intent)
-            stopForeground(true)
-            Constants().isService = false
-        }
+//        this.action = intent!!.action
+//        if (this.action.equals(ACTION_START)) {
+//            processNotificationShowRequest()
+//            Constants().isService = true
+//        } else if (this.action.equals(ACTION_STOP)) {
+//            stopService(intent)
+//            stopForeground(true)
+//            Constants().isService = false
+//        }
         return Service.START_STICKY
     }
 

@@ -39,6 +39,7 @@ import com.download.manager.video.whatsapp.ui.DownloadsActivity
 import com.download.manager.video.whatsapp.ui.MainActivity
 import com.download.manager.video.whatsapp.utility.VideoContentSearch
 import com.download.manager.video.whatsapp.widgets.web.ScriptUtil
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.dialog_links.*
 import kotlinx.android.synthetic.main.dialog_save_download.*
 import kotlinx.android.synthetic.main.item_album.view.*
@@ -49,8 +50,7 @@ import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLSocketFactory
 import kotlin.collections.ArrayList
 
-class Browser : Fragment(){
-
+class Browser : Fragment(), MainActivity.OnBackPressedListener{
     private lateinit var dialog: Dialog
     private lateinit var saveDialog: Dialog
     private var defaultSSLSF: SSLSocketFactory? = null
@@ -131,7 +131,8 @@ class Browser : Fragment(){
         }
 
         iv_downloads.setOnClickListener {
-            startActivity(Intent(activity, DownloadsActivity::class.java))
+            activity!!.main_page.visibility = View.GONE
+            activity!!.downloads_page.visibility = View.VISIBLE
         }
 
         downloads_parent.setOnClickListener {
@@ -328,6 +329,11 @@ class Browser : Fragment(){
                 }
             }
         })
+    }
+
+    override fun onBackPressed(): Boolean {
+        Toast.makeText(activity as MainActivity, "Browser", Toast.LENGTH_LONG).show()
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
 }

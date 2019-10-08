@@ -1,6 +1,7 @@
 package com.download.manager.video.whatsapp.database.adapter
 
 import android.content.Context
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -43,12 +44,12 @@ class BookmarkAdapter (private val context: Context, private var bookmarkEntity:
         holder.bookmarkUrl.text = item.url
 
         when {
-            item.name.contains("Google") -> holder.bookmarkIcon.setImageDrawable(context.getDrawable(R.drawable.book_search))
-            item.name.contains("Facebook") -> holder.bookmarkIcon.setImageDrawable(context.getDrawable(R.drawable.book_facebook))
-            item.name.contains("Twitter") -> holder.bookmarkIcon.setImageDrawable(context.getDrawable(R.drawable.book_twitter))
-            item.name.contains("Daily Motion") -> holder.bookmarkIcon.setImageDrawable(context.getDrawable(R.drawable.book_dailymotion))
-            item.name.contains("Vimeo") -> holder.bookmarkIcon.setImageDrawable(context.getDrawable(R.drawable.book_vimeo))
-            item.name.contains("Tubidy") -> holder.bookmarkIcon.setImageDrawable(context.getDrawable(R.drawable.book_tubidy))
+            item.name.contains("Google") -> holder.bookmarkIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.book_search))
+            item.name.contains("Facebook") -> holder.bookmarkIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.book_facebook))
+            item.name.contains("Twitter") -> holder.bookmarkIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.book_twitter))
+            item.name.contains("Daily Motion") -> holder.bookmarkIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.book_dailymotion))
+            item.name.contains("Vimeo") -> holder.bookmarkIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.book_vimeo))
+            item.name.contains("Tubidy") -> holder.bookmarkIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.book_tubidy))
         }
 
     }
