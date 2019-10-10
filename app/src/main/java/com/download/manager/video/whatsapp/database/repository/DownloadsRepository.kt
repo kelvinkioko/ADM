@@ -28,6 +28,10 @@ class DownloadsRepository(application: Application) {
         downloadsDao.updateDownloads(downloaded, size, id)
     }
 
+    fun countDownloads(): Int{
+        return downloadsDao.countDownloads()
+    }
+
     fun deleteDownloads(){
         downloadsDao.deleteDownloads()
     }

@@ -5,7 +5,6 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.net.Uri
-import android.os.AsyncTask
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
@@ -14,29 +13,26 @@ import android.support.v4.content.FileProvider
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.app.AppCompatDelegate
 import android.support.v7.widget.DefaultItemAnimator
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import com.download.manager.video.whatsapp.BuildConfig
 import com.download.manager.video.whatsapp.R
 import com.download.manager.video.whatsapp.database.adapter.WhatsAdapter
 import com.download.manager.video.whatsapp.database.entity.WhatsEntity
 import com.download.manager.video.whatsapp.database.viewmodel.DownloadsViewModel
 import com.download.manager.video.whatsapp.engine.Constants
-import com.download.manager.video.whatsapp.engine.Legion
 import com.download.manager.video.whatsapp.engine.PermissionListener
 import com.download.manager.video.whatsapp.ui.MainActivity
 import com.download.manager.video.whatsapp.widgets.StickyHeaderGridLayoutManager
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.MobileAds
 import kotlinx.android.synthetic.main.main_whatsapp.*
 import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
-
-
 
 class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
 
@@ -73,6 +69,17 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
 
         PermissionListener(activity as MainActivity).loadPermissions()
         downloadsViewModel = ViewModelProviders.of(this).get(DownloadsViewModel::class.java)
+
+        // Initialize the Mobile Ads SDK with an AdMob App ID.
+        MobileAds.initialize(activity as MainActivity)
+
+        // Create an ad request. If you're running this on a physical device, check your logcat to
+        // learn how to enable test ads for it. Look for a line like this one:
+        // "Use AdRequest.Builder.addTestDevice("ABCDEF012345") to get test ads on this device."
+        val adRequest = AdRequest.Builder().build()
+
+        // Start loading the ad in the background.
+        ad_view.loadAd(adRequest)
 
         /**
          * Initializing adapter and layout manager for recyclerView

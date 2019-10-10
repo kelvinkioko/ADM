@@ -30,6 +30,10 @@ class DownloadsViewModel(application: Application) : AndroidViewModel(applicatio
         downloadsRepo.updateDownloads(downloaded, size, id)
     }
 
+    fun countDownloads(): Int{
+        return downloadsRepo.countDownloads()
+    }
+
     fun deleteDownloads(){
         downloadsRepo.deleteDownloads()
     }

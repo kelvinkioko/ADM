@@ -21,7 +21,6 @@ import com.download.manager.video.whatsapp.database.adapter.InstaAdapter
 import com.download.manager.video.whatsapp.database.entity.InstaEntity
 import com.download.manager.video.whatsapp.database.viewmodel.DownloadsViewModel
 import com.download.manager.video.whatsapp.engine.Legion
-import kotlinx.android.synthetic.main.main_gram.*
 import com.download.manager.video.whatsapp.widgets.StickyHeaderGridLayoutManager
 import kotlinx.android.synthetic.main.dialog_add_url.*
 import org.jsoup.Jsoup
@@ -31,12 +30,17 @@ import kotlin.collections.ArrayList
 import android.support.v4.content.FileProvider
 import com.download.manager.video.whatsapp.BuildConfig
 import com.download.manager.video.whatsapp.R
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.MobileAds
+import kotlinx.android.synthetic.main.dialog_how_to_instagram.*
+import kotlinx.android.synthetic.main.main_gram.*
 import java.io.File
 
 
 class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
 
     lateinit var dialog: Dialog
+    lateinit var saveDialog: Dialog
     private var parentUrl: String = ""
     private var postedBy: String = ""
     private var image: String = ""
@@ -72,6 +76,8 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
+
+
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -82,6 +88,17 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
         (activity as MainActivity).supportActionBar!!.title = "Home | Insta"
 
         downloadsViewModel = ViewModelProviders.of(this).get(DownloadsViewModel::class.java)
+
+        // Initialize the Mobile Ads SDK with an AdMob App ID.
+        MobileAds.initialize(activity as MainActivity)
+
+        // Create an ad request. If you're running this on a physical device, check your logcat to
+        // learn how to enable test ads for it. Look for a line like this one:
+        // "Use AdRequest.Builder.addTestDevice("ABCDEF012345") to get test ads on this device."
+        val adRequest = AdRequest.Builder().build()
+
+        // Start loading the ad in the background.
+        ad_view.loadAd(adRequest)
 
         /**
          * Initializing adapter and layout manager for recyclerView
@@ -147,6 +164,21 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
                     else -> Toast.makeText(activity, "Please enter a valid instagram url", Toast.LENGTH_LONG).show()
                 }
             }
+        }
+
+        insta_help.setOnClickListener {
+            saveDialog = Dialog(activity)
+            saveDialog.setCanceledOnTouchOutside(false)
+            saveDialog.setCancelable(true)
+            saveDialog.setContentView(R.layout.dialog_how_to_instagram)
+            Objects.requireNonNull<Window>(saveDialog.window).setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            saveDialog.window!!.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            saveDialog.window!!.setGravity(Gravity.BOTTOM)
+            saveDialog.show()
+
+            val dismiss = saveDialog.dc_dismiss
+
+            dismiss.setOnClickListener { saveDialog.dismiss() }
         }
     }
 

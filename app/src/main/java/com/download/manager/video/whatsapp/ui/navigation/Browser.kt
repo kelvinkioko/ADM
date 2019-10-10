@@ -40,6 +40,7 @@ import com.download.manager.video.whatsapp.ui.MainActivity
 import com.download.manager.video.whatsapp.utility.VideoContentSearch
 import com.download.manager.video.whatsapp.widgets.web.ScriptUtil
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.dialog_how_to_browser.*
 import kotlinx.android.synthetic.main.dialog_links.*
 import kotlinx.android.synthetic.main.dialog_save_download.*
 import kotlinx.android.synthetic.main.item_album.view.*
@@ -117,6 +118,8 @@ class Browser : Fragment(), MainActivity.OnBackPressedListener{
                     }else{
                         webview.loadUrl("https://www.google.com/search?q=$query")
                     }
+                    web_history.visibility = View.GONE
+                    webview.visibility = View.VISIBLE
                 }
             }
 
@@ -170,6 +173,20 @@ class Browser : Fragment(), MainActivity.OnBackPressedListener{
             _dismiss.setOnClickListener { dialog.dismiss() }
         }
 
+        downloads_help.setOnClickListener {
+            saveDialog = Dialog(activity)
+            saveDialog.setCanceledOnTouchOutside(false)
+            saveDialog.setCancelable(true)
+            saveDialog.setContentView(R.layout.dialog_how_to_browser)
+            Objects.requireNonNull<Window>(saveDialog.window).setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            saveDialog.window!!.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            saveDialog.window!!.setGravity(Gravity.BOTTOM)
+            saveDialog.show()
+
+            val dismiss = saveDialog.dc_dismiss
+
+            dismiss.setOnClickListener { saveDialog.dismiss() }
+        }
     }
 
     lateinit var _primary: LinearLayout
@@ -252,52 +269,54 @@ class Browser : Fragment(), MainActivity.OnBackPressedListener{
 
             val page = view.url
             val title = view.title
-            object : VideoContentSearch(activity, url, page, title) {
-                override fun onStartInspectingURL() {
-                    Handler(Looper.getMainLooper()).post {
-                        /**
-                         * Display loader to show searching for video link
-                         */
-                        downloads_loader.visibility = View.VISIBLE
-                    }
-                }
-
-                override fun onFinishedInspectingURL(finishedAll: Boolean) {
-                    HttpsURLConnection.setDefaultSSLSocketFactory(defaultSSLSF)
-                    if (finishedAll) {
+            if (!url.toString().startsWith("https://www.youtube.com/") || !url.toString().startsWith("https://m.youtube.com/")) {
+                object : VideoContentSearch(activity, url, page, title) {
+                    override fun onStartInspectingURL() {
                         Handler(Looper.getMainLooper()).post {
                             /**
-                             * Hide loader to show searching for video link
+                             * Display loader to show searching for video link
                              */
-                            downloads_loader.visibility = View.GONE
+                            downloads_loader.visibility = View.VISIBLE
+                        }
+                    }
+
+                    override fun onFinishedInspectingURL(finishedAll: Boolean) {
+                        HttpsURLConnection.setDefaultSSLSocketFactory(defaultSSLSF)
+                        if (finishedAll) {
+                            Handler(Looper.getMainLooper()).post {
+                                /**
+                                 * Hide loader to show searching for video link
+                                 */
+                                downloads_loader.visibility = View.GONE
+                                downloads_counter.text = downloadsEntity.size.toString()
+                            }
+                        }
+                    }
+
+                    override fun onVideoFound(
+                        size: String,
+                        type: String,
+                        link: String,
+                        name: String,
+                        page: String,
+                        chunked: Boolean,
+                        website: String
+                    ) {
+                        if (!size.equals("0")) {
+                            val download = DownloadsEntity(0, name, link, "", "1", size, "")
+                            if (!downloadsEntity.contains(download)) {
+                                downloadsEntity.add(download)
+                            }
+                        }
+                        Handler(Looper.getMainLooper()).post {
+                            /**
+                             * update counter
+                             */
                             downloads_counter.text = downloadsEntity.size.toString()
                         }
                     }
-                }
-
-                override fun onVideoFound(size: String, type: String, link: String, name: String, page: String, chunked: Boolean, website: String) {
-                    if (!size.equals("0")) {
-                        val download = DownloadsEntity(0, name, link, "", "1", size, "")
-                        if(!downloadsEntity.contains(download)) {
-                            downloadsEntity.add(download)
-                        }
-                    }
-                    Handler(Looper.getMainLooper()).post {
-                        /**
-                         * update counter
-                         */
-                        downloads_counter.text = downloadsEntity.size.toString()
-                    }
-
-                    Log.e("Size", size)
-                    Log.e("type", type)
-                    Log.e("link", link)
-                    Log.e("name", name)
-                    Log.e("page", page)
-                    Log.e("chunked", chunked.toString())
-                    Log.e("website", website)
-                }
-            }.start()
+                }.start()
+            }
         }
 
         override fun onPageFinished(view: WebView, url: String) {

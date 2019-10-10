@@ -32,17 +32,24 @@ import com.download.manager.video.whatsapp.database.entity.DownloadsEntity
 import com.download.manager.video.whatsapp.database.viewmodel.DownloadsViewModel
 import com.download.manager.video.whatsapp.utility.service.ClipDataService
 import com.download.manager.video.whatsapp.utility.service.InstaService
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.InterstitialAd
+import com.google.android.gms.ads.MobileAds
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.download_empty
 import kotlinx.android.synthetic.main.activity_main.download_history
 import kotlinx.android.synthetic.main.activity_main.toolbar
 import java.io.File
 
+const val AD_UNIT_ID = "ca-app-pub-3940256099942544/1033173712"
+
 class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  {
 
     /**
      * DownloaderView actions
      */
+    private lateinit var mainIntrAd: InterstitialAd
 
     private lateinit var downloadsViewModel: DownloadsViewModel
     private var downloadsEntity: MutableList<DownloadsEntity> = ArrayList()
@@ -69,6 +76,38 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
 
         PermissionListener(this).loadPermissions()
         downloadsViewModel = ViewModelProviders.of(this).get(DownloadsViewModel::class.java)
+
+        // Initialize the Mobile Ads SDK with an AdMob App ID.
+        MobileAds.initialize(this)
+
+        // Create an ad request.
+        val adRequest = AdRequest.Builder().build()
+        val adRequestBottom = AdRequest.Builder().build()
+
+        // Start loading the ad in the background.
+        ad_view.loadAd(adRequest)
+        ad_view_bottom.loadAd(adRequestBottom)
+
+        // Create the InterstitialAd and set it up.
+        mainIntrAd = InterstitialAd(this).apply {
+            adUnitId = AD_UNIT_ID
+            adListener = (object : AdListener() {
+                override fun onAdLoaded() {
+                    Toast.makeText(this@MainActivity, "onAdLoaded()", Toast.LENGTH_SHORT).show()
+                    showInterstitial()
+                }
+                override fun onAdFailedToLoad(errorCode: Int) {
+                    Toast.makeText(this@MainActivity, "onAdLoadFailed()", Toast.LENGTH_SHORT).show()
+                }
+                override fun onAdClosed() {
+                    Toast.makeText(this@MainActivity, "onAdLoadClosed()", Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
+
+        intrAdLoader()
+
+        showInterstitial()
 
         /**
          * Initializing adapter and layout manager for recyclerView
@@ -113,6 +152,7 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
             override fun onItemSelected(index: Int) {
                 when (index) {
                     0 -> {
+                        count = 0
                         // Get the text fragment instance
                         val whatsappFragment = Whatsapp()
                         // Get the support fragment manager instance
@@ -125,6 +165,7 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
                         mFragmentTransaction.replace(R.id.download_container, whatsappFragment).commit()
                     }
                     1 -> {
+                        count = 0
                         // Get the text fragment instance
                         val instagramFragment = Instagram()
                         // Get the support fragment manager instance
@@ -137,6 +178,7 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
                         mFragmentTransaction.replace(R.id.download_container, instagramFragment).commit()
                     }
                     else -> {
+                        count = 0
                         // Get the text fragment instance
                         val tripFragment = Browser()
                         // Get the support fragment manager instance
@@ -171,20 +213,31 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
                 super.onBackPressed()
                 finish()
             } else {
+                showInterstitial()
                 Toast.makeText(this, "Press Back again to quit.", Toast.LENGTH_SHORT).show()
                 count++
             }
-//            val fragment = supportFragmentManager.findFragmentById(R.id.download_container)
-//            if (fragment !is OnBackPressedListener || !(fragment as OnBackPressedListener).onBackPressed()) {
-//                super.onBackPressed()
-//            }
-//
-//            super.onBackPressed()
         }
     }
 
     interface OnBackPressedListener {
         fun onBackPressed(): Boolean
+    }
+
+    private fun showInterstitial() {
+        if (mainIntrAd.isLoaded) {
+            mainIntrAd.show()
+        }else{
+            if (!mainIntrAd.isLoading && !mainIntrAd.isLoaded) {
+                intrAdLoader()
+            }
+        }
+    }
+
+    private fun intrAdLoader(){
+        // Create an ad request.
+        val adRequestIntr = AdRequest.Builder().build()
+        mainIntrAd.loadAd(adRequestIntr)
     }
 
     /**
@@ -216,26 +269,34 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
     }
 
     private fun populateDownloads(){
-        downloadsViewModel.getDownloads().observe(this, Observer<List<DownloadsEntity>>{ downloadsEntities ->
-            if (downloadsEntities != null){
-                if (downloadsEntities.isNotEmpty()){
-                    download_history.visibility = View.VISIBLE
-                    download_empty.visibility = View.GONE
-                    Log.e("files count observer", downloadsEntities.size.toString())
-                    downloadsEntity.clear()
-                    for (d in 0 until downloadsEntities.size){
-                        val download = DownloadsEntity(downloadsEntities[d].id, downloadsEntities[d].name, downloadsEntities[d].url, downloadsEntities[d].localurl,
-                            downloadsEntities[d].downloaded, downloadsEntities[d].size, downloadsEntities[d].datecreated)
-                        this.downloadsEntity.add(download)
-                    }
+        if (downloadsEntity.size < downloadsViewModel.countDownloads()) {
+            downloadsViewModel.getDownloads().observe(this, Observer<List<DownloadsEntity>> { downloadsEntities ->
+                if (downloadsEntities != null) {
+                    if (downloadsEntities.isNotEmpty()) {
+                        download_history.visibility = View.VISIBLE
+                        download_empty.visibility = View.GONE
+                        downloadsEntity.clear()
+                        for (d in 0 until downloadsEntities.size) {
+                            val download = DownloadsEntity(
+                                downloadsEntities[d].id,
+                                downloadsEntities[d].name,
+                                downloadsEntities[d].url,
+                                downloadsEntities[d].localurl,
+                                downloadsEntities[d].downloaded,
+                                downloadsEntities[d].size,
+                                downloadsEntities[d].datecreated
+                            )
+                            this.downloadsEntity.add(download)
+                        }
 
-                    downloadsAdapter.setDownloads(downloadsEntity)
-                }else{
-                    download_history.visibility = View.GONE
-                    download_empty.visibility = View.VISIBLE
+                        downloadsAdapter.setDownloads(downloadsEntity)
+                    } else {
+                        download_history.visibility = View.GONE
+                        download_empty.visibility = View.VISIBLE
+                    }
                 }
-            }
-        })
+            })
+        }
     }
 
 }

@@ -32,7 +32,7 @@
             app:layout_constraintTop_toBottomOf="@+id/toolbar" android:layout_marginTop="0dp"
             app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="0dp"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="0dp"
-            app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="0dp" />
+            app:layout_constraintBottom_toTopOf="@+id/ad_view" android:layout_marginBottom="0dp" />
 
     <LinearLayout android:id="@+id/whats_empty"
                   android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -40,7 +40,7 @@
                   app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"
                   app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
                   app:layout_constraintTop_toBottomOf="@+id/toolbar" android:layout_marginTop="8dp"
-                  app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="8dp">
+                  app:layout_constraintBottom_toTopOf="@+id/ad_view" android:layout_marginBottom="8dp">
 
         <ImageView
                 android:layout_width="wrap_content"
@@ -70,5 +70,18 @@
                 android:textColor="@color/secondary_text" />
 
     </LinearLayout>
+
+    <com.google.android.gms.ads.AdView
+            android:id="@+id/ad_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="0dp"
+            android:layout_marginEnd="0dp"
+            android:layout_marginStart="0dp"
+            app:adSize="BANNER"
+            app:adUnitId="ca-app-pub-3940256099942544/6300978111"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

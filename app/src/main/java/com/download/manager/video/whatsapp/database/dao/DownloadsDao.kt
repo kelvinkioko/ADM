@@ -28,6 +28,9 @@ interface DownloadsDao {
     @Query("SELECT COUNT(id) FROM downloadsEntity WHERE url =:url")
     fun countDownload(url: String): Int
 
+    @Query("SELECT COUNT(id) FROM downloadsEntity")
+    fun countDownloads(): Int
+
     @Query("SELECT * FROM downloadsEntity WHERE url =:url")
     fun getDownloadByUrl(url: String): DownloadsEntity
 

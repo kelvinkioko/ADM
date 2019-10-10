@@ -1,8 +1,27 @@
 <resources>
     <string name="app_name">Android Download Manager</string>
 
+    <string name="appd_name">ca-app-pub-9298459920756022~5801233275</string>
+    <string name="banr_name">ca-app-pub-9298459920756022/7601400103</string>
+    <string name="intr_name">ca-app-pub-9298459920756022/1056813685</string>
+    <string name="natv_name">ca-app-pub-9298459920756022/6262120471</string>
+
     <string name="downloads">Browser</string>
     <string name="whatsapp">WA</string>
     <string name="insta">IG</string>
     <string name="face">FB</string>
+
+    <string name="internet_warning">You need to have <u><b>Mobile Data</b></u> or <u><b>Wi-Fi</b></u> to use the application. \n\nPress <u>dismiss</u> to exit or <u>Settings</u> to turn on your internet</string>
+
+    <string name="restriction_warning">Due to <u><b>legal restrictions</b></u>, YouTube content cannot be downloaded. \n\nPlease download from other websites.</string>
+    <string name="how_to_download_from_instagram">How to download from Instagram</string>
+    <string name="insta_step_one">Open the <u><b>Android Download Manager</b></u> app to start the Instagram service. Minimize the app and <u><b>open your Instagram</b></u> app.</string>
+    <string name="insta_step_two">Choose the photo you want to download and <u><b>tap the three dots</b></u> on the right side of the username</string>
+    <string name="insta_step_three">On the popup menu, Tap on <u><b>copy link</b></u> to autodownload the image, video or stories</string>
+
+    <string name="browser_step_one">Open the <u><b>Android Download Manager</b></u> app and navigate to <u><b>browser</b></u>. Choose one of the <u><b>bookmarked options</b></u> or <u><b>tap the search bar</b></u> and type your <u><b>preferred URL</b></u>.</string>
+    <string name="browser_step_two">Play your video of choice. Tap the <u><b>button on the bottom right</b></u> to see download options</string>
+    <string name="browser_step_three">Set your preferred name for your file and tap on <u><b>queue download</b></u></string>
+    <string name="browser_step_four">On the browser page tap the download button next to the search bar</string>
+
 </resources>
