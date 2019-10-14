@@ -30,6 +30,7 @@ import com.download.manager.video.whatsapp.BuildConfig
 import com.download.manager.video.whatsapp.database.adapter.DownloadsAdapter
 import com.download.manager.video.whatsapp.database.entity.DownloadsEntity
 import com.download.manager.video.whatsapp.database.viewmodel.DownloadsViewModel
+import com.download.manager.video.whatsapp.engine.AdPreferrenceHandler
 import com.download.manager.video.whatsapp.utility.service.ClipDataService
 import com.download.manager.video.whatsapp.utility.service.InstaService
 import com.google.android.gms.ads.AdListener
@@ -62,6 +63,8 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
     lateinit var mFragmentTransaction: FragmentTransaction
     var count = 0
 
+    lateinit var adPreferrenceHandler: AdPreferrenceHandler
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -76,6 +79,7 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
 
         PermissionListener(this).loadPermissions()
         downloadsViewModel = ViewModelProviders.of(this).get(DownloadsViewModel::class.java)
+        adPreferrenceHandler = AdPreferrenceHandler(this@MainActivity)
 
         // Initialize the Mobile Ads SDK with an AdMob App ID.
         MobileAds.initialize(this)
@@ -90,18 +94,18 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
 
         // Create the InterstitialAd and set it up.
         mainIntrAd = InterstitialAd(this).apply {
-            adUnitId = AD_UNIT_ID
+            adUnitId = resources.getString(R.string.intr_name)
             adListener = (object : AdListener() {
                 override fun onAdLoaded() {
-                    Toast.makeText(this@MainActivity, "onAdLoaded()", Toast.LENGTH_SHORT).show()
-                    showInterstitial()
+                    if (adPreferrenceHandler.getViewSessionCount() >= 5) {
+                        showInterstitial()
+                        adPreferrenceHandler.setViewSessionCount(0)
+                    }else{
+                        adPreferrenceHandler.setViewSessionCount(adPreferrenceHandler.getViewSessionCount() + 1)
+                    }
                 }
-                override fun onAdFailedToLoad(errorCode: Int) {
-                    Toast.makeText(this@MainActivity, "onAdLoadFailed()", Toast.LENGTH_SHORT).show()
-                }
-                override fun onAdClosed() {
-                    Toast.makeText(this@MainActivity, "onAdLoadClosed()", Toast.LENGTH_SHORT).show()
-                }
+                override fun onAdFailedToLoad(errorCode: Int) {}
+                override fun onAdClosed() {}
             })
         }
 
@@ -211,7 +215,6 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
             if(count == 1) {
                 count = 0
                 super.onBackPressed()
-                finish()
             } else {
                 showInterstitial()
                 Toast.makeText(this, "Press Back again to quit.", Toast.LENGTH_SHORT).show()
@@ -224,28 +227,12 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
         fun onBackPressed(): Boolean
     }
 
-    private fun showInterstitial() {
-        if (mainIntrAd.isLoaded) {
-            mainIntrAd.show()
-        }else{
-            if (!mainIntrAd.isLoading && !mainIntrAd.isLoaded) {
-                intrAdLoader()
-            }
-        }
-    }
-
-    private fun intrAdLoader(){
-        // Create an ad request.
-        val adRequestIntr = AdRequest.Builder().build()
-        mainIntrAd.loadAd(adRequestIntr)
-    }
-
     /**
      * DownloaderView actions
      */
 
     override fun parentClick(localUrl: String) {
-        Log.e("Click notifier", localUrl)
+        adCountHandler()
         val videoFile = File(localUrl)
         val fileUri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID +".admprovider", videoFile)
         grantUriPermission("com.download.manager.video.whatsapp", fileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -296,6 +283,31 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
                     }
                 }
             })
+        }
+    }
+
+    private fun showInterstitial() {
+        if (mainIntrAd.isLoaded) {
+            mainIntrAd.show()
+        }else{
+            if (!mainIntrAd.isLoading && !mainIntrAd.isLoaded) {
+                intrAdLoader()
+            }
+        }
+    }
+
+    private fun intrAdLoader(){
+        // Create an ad request.
+        val adRequestIntr = AdRequest.Builder().build()
+        mainIntrAd.loadAd(adRequestIntr)
+    }
+
+    private fun adCountHandler(){
+        if (adPreferrenceHandler.getViewSessionCount() >= 5) {
+            showInterstitial()
+            adPreferrenceHandler.setViewSessionCount(0)
+        }else{
+            adPreferrenceHandler.setViewSessionCount(adPreferrenceHandler.getViewSessionCount() + 1)
         }
     }
 

@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "561646834220",
+    "firebase_url": "https://adm-download-manager-9ebd1.firebaseio.com",
+    "project_id": "adm-download-manager-9ebd1",
+    "storage_bucket": "adm-download-manager-9ebd1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:561646834220:android:cbc84258c61ddb89d37789",
+        "android_client_info": {
+          "package_name": "com.download.manager.whatsapp.instagram.videodownloader"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "561646834220-gdf4vsokiujrp0amm9emi3nasrgq799f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.download.manager.whatsapp.instagram.videodownloader",
+            "certificate_hash": "04fe737315a6a2927a93c33e234c5a858cffbf8d"
+          }
+        },
+        {
+          "client_id": "561646834220-4rrub77qu28kpo369jkcklvol3kv4o58.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDS9z4dQ1_jJlCijlEjjSSDnNjXVb_QNWM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "561646834220-4rrub77qu28kpo369jkcklvol3kv4o58.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

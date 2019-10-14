@@ -2,18 +2,22 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'io.fabric'
+
 
 android {
     compileSdkVersion 28
     buildToolsVersion "29.0.2"
     defaultConfig {
-        applicationId "com.download.manager.video.whatsapp"
+        applicationId "com.download.manager.whatsapp.instagram.videodownloader"
         minSdkVersion 19
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+
+        multiDexEnabled true
     }
     aaptOptions {
         cruncherEnabled = false
@@ -26,7 +30,7 @@ android {
             signingConfig getSigningConfig()
             applicationVariants.all { variant ->
                 variant.outputs.all { output ->
-                    def appName = "Android Download Manager"
+                    def appName = "Android Downloader Manager"
                     def outputFileName = output.outputFileName
                     if (outputFileName != null && outputFileName.endsWith('.apk')) {
                         def fileName = appName + " " + defaultConfig.versionName + ".apk"
@@ -96,7 +100,18 @@ dependencies {
     //Add Kotlin-Coroutines-Android//
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:0.27.0-eap13"
 
-    implementation 'commons-io:commons-io:2.5'
+    implementation 'commons-io:commons-io:2.6'
 
     implementation 'com.google.android.gms:play-services-ads:17.1.0'
+
+    //External libs
+    implementation 'com.facebook.android:facebook-android-sdk:[5,6)'
+
+    // (Recommended) Add Analytics
+    implementation 'com.google.firebase:firebase-analytics:16.4.0'
+
+    // Add dependency
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
 }
+
+apply plugin: 'com.google.gms.google-services'

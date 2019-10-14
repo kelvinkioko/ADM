@@ -35,7 +35,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/colorNegative"
-                    android:text="No Internet Connection"
+                    android:text="Warning: Restricted"
                     android:textSize="17sp"
                     android:textStyle="bold"
                     android:textColor="@color/white"
@@ -70,7 +70,7 @@
                     android:gravity="right">
 
                 <TextView
-                        android:id="@+id/dc_dismiss"
+                        android:id="@+id/dr_dismiss"
                         android:layout_width="wrap_content"
                         android:layout_height="36dp"
                         android:gravity="center"

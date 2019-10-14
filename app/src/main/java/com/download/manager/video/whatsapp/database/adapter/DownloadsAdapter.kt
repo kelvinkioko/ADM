@@ -1,14 +1,17 @@
 package com.download.manager.video.whatsapp.database.adapter
 
 import android.annotation.SuppressLint
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.os.Environment
 import android.os.Handler
+import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.download.manager.video.whatsapp.R
 import com.download.manager.video.whatsapp.database.DatabaseApp
@@ -24,6 +27,13 @@ import java.io.FileOutputStream
 import java.nio.channels.FileChannel
 import java.text.DecimalFormat
 import java.util.*
+import android.app.PendingIntent
+import android.graphics.BitmapFactory
+import com.download.manager.video.whatsapp.ui.MainActivity
+import android.content.Intent
+import android.os.Build
+import android.support.v4.app.NotificationCompat
+import android.support.v4.content.ContextCompat.getSystemService
 
 class DownloadsAdapter (private val context: Context, private var downloadsEntity: List<DownloadsEntity>) : SectioningAdapter() {
 
@@ -103,7 +113,7 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
                         val density = context.resources.displayMetrics.density
                         val paddingPixel = (8 * density).toInt()
                         holder.idImageClear.setPadding(0,paddingPixel,0,paddingPixel)
-                        holder.idImageClear.setImageDrawable(context.getDrawable(R.drawable.icon_file_mp3))
+                        holder.idImageClear.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.icon_file_mp3))
                     }
                 }
 
@@ -286,6 +296,7 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
 
             override fun onCompleted(file: File?) {
                 Log.e("Download status", "Complete")
+                notifyDownloadComplete()
                 handler.post {
                     holder.idPause.visibility = View.GONE
                     holder.idPlay.visibility = View.GONE
@@ -350,6 +361,32 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
                 }
             }
         }).build()
+    }
+
+    private fun notifyDownloadComplete(){
+        val intent = Intent(context, MainActivity::class.java)
+        intent.putExtra("status", "1")
+        val title = "Download complete!"
+        val text = "Your download is complete. Tap to view"
+
+        val builder = NotificationCompat.Builder(context, "DownloadManager1292")
+            .setDefaults(Notification.DEFAULT_ALL)
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentTitle(title)
+            .setContentText(text)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT))
+            .setAutoCancel(true)
+        notify(builder.build())
+    }
+
+    private fun notify(notification :Notification){
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel("DownloadManager1292", "Download complete!", NotificationManager.IMPORTANCE_DEFAULT);
+            notificationManager.createNotificationChannel(channel)
+        }
+        notificationManager.notify("Download Manager", 0, notification)
     }
 
 }

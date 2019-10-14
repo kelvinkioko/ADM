@@ -1,17 +1,20 @@
 package com.download.manager.video.whatsapp.utility.service
 
-import android.annotation.SuppressLint
-import android.annotation.TargetApi
 import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.job.JobParameters
 import android.app.job.JobService
 import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
+import android.content.Intent.ACTION_VIEW
+import android.net.Uri
 import android.os.AsyncTask
+import android.os.Build
 import android.os.Environment
-import android.util.Log
-import android.view.View
+import android.support.v4.app.NotificationCompat
 import com.download.manager.video.whatsapp.R
 import com.download.manager.video.whatsapp.database.DatabaseApp
 import com.download.manager.video.whatsapp.database.entity.InstaEntity
@@ -153,6 +156,7 @@ class ClipDataService : JobService(){
                 }
 
                 DatabaseApp().getInstaDao(applicationContext).updateLocalURL(final.toString(), item.id)
+                notifyDownloadComplete()
             }
 
             override fun onFailure(reason: String?) {}
@@ -160,5 +164,35 @@ class ClipDataService : JobService(){
             override fun onCancel() {}
         }).build()
         downloader.download()
+    }
+
+    private fun notifyDownloadComplete(){
+        val intent = Intent(applicationContext, MainActivity::class.java)
+        intent.putExtra("status", "1")
+        val title = "Android Download Manager"
+        val text = "Your IG download is complete. Tap to view"
+
+        val rateIntent = Intent(ACTION_VIEW, Uri.parse("market://details?id=$packageName"))
+        val ratePendingIntent = PendingIntent.getBroadcast(this, 0, rateIntent, 0);
+
+        val builder = NotificationCompat.Builder(applicationContext, "DownloadManager1292")
+            .setDefaults(Notification.DEFAULT_ALL)
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentTitle(title)
+            .setContentText(text)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(PendingIntent.getActivity(applicationContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT))
+            .setAutoCancel(true)
+            .addAction(R.drawable.ic_settings_rate, "Rate", ratePendingIntent)
+        notify(builder.build())
+    }
+
+    private fun notify(notification :Notification){
+        val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel("DownloadManager1292", "Download complete!", NotificationManager.IMPORTANCE_DEFAULT);
+            notificationManager.createNotificationChannel(channel)
+        }
+        notificationManager.notify("Download Manager", 0, notification)
     }
 }

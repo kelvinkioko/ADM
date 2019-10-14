@@ -19,3 +19,8 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keep class org.joda.time.** { *; }
+-dontwarn org.joda.time.**
+-keep class com.shockwave.**
+-ignorewarnings

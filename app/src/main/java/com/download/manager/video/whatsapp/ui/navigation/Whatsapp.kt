@@ -21,11 +21,14 @@ import com.download.manager.video.whatsapp.R
 import com.download.manager.video.whatsapp.database.adapter.WhatsAdapter
 import com.download.manager.video.whatsapp.database.entity.WhatsEntity
 import com.download.manager.video.whatsapp.database.viewmodel.DownloadsViewModel
+import com.download.manager.video.whatsapp.engine.AdPreferrenceHandler
 import com.download.manager.video.whatsapp.engine.Constants
 import com.download.manager.video.whatsapp.engine.PermissionListener
 import com.download.manager.video.whatsapp.ui.MainActivity
 import com.download.manager.video.whatsapp.widgets.StickyHeaderGridLayoutManager
+import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.InterstitialAd
 import com.google.android.gms.ads.MobileAds
 import kotlinx.android.synthetic.main.main_whatsapp.*
 import kotlinx.coroutines.runBlocking
@@ -36,19 +39,11 @@ import kotlin.collections.ArrayList
 
 class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
 
-    override fun parentClick(localUrl: String) {
-        val videoFile = File(localUrl)
-        val fileUri = FileProvider.getUriForFile(context!!, BuildConfig.APPLICATION_ID +".admprovider", videoFile)
-        (activity as MainActivity).grantUriPermission("com.download.manager.video.whatsapp", fileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        val intent = Intent(Intent.ACTION_VIEW)
-        if (localUrl.endsWith(".jpg")){
-            intent.setDataAndType(fileUri, "image/*")
-        }else{
-            intent.setDataAndType(fileUri, "video/*")
-        }
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)//DO NOT FORGET THIS EVER
-        startActivity(intent)
-    }
+    /**
+     * Ad related variables
+     */
+    private lateinit var mainIntrAd: InterstitialAd
+    lateinit var adPreferrenceHandler: AdPreferrenceHandler
 
     private lateinit var downloadsViewModel: DownloadsViewModel
     private var whatsEntity: MutableList<WhatsEntity> = ArrayList()
@@ -69,17 +64,37 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
 
         PermissionListener(activity as MainActivity).loadPermissions()
         downloadsViewModel = ViewModelProviders.of(this).get(DownloadsViewModel::class.java)
+        adPreferrenceHandler = AdPreferrenceHandler(activity as MainActivity)
 
         // Initialize the Mobile Ads SDK with an AdMob App ID.
         MobileAds.initialize(activity as MainActivity)
 
-        // Create an ad request. If you're running this on a physical device, check your logcat to
-        // learn how to enable test ads for it. Look for a line like this one:
-        // "Use AdRequest.Builder.addTestDevice("ABCDEF012345") to get test ads on this device."
+        // Create an ad request.
         val adRequest = AdRequest.Builder().build()
 
         // Start loading the ad in the background.
         ad_view.loadAd(adRequest)
+
+        // Create the InterstitialAd and set it up.
+        mainIntrAd = InterstitialAd(activity as MainActivity).apply {
+            adUnitId = resources.getString(R.string.intr_name)
+            adListener = (object : AdListener() {
+                override fun onAdLoaded() {
+                    if (adPreferrenceHandler.getViewSessionCount() >= 5) {
+                        showInterstitial()
+                        adPreferrenceHandler.setViewSessionCount(0)
+                    }else{
+                        adPreferrenceHandler.setViewSessionCount(adPreferrenceHandler.getViewSessionCount() + 1)
+                    }
+                }
+                override fun onAdFailedToLoad(errorCode: Int) {}
+                override fun onAdClosed() {}
+            })
+        }
+
+        intrAdLoader()
+
+        showInterstitial()
 
         /**
          * Initializing adapter and layout manager for recyclerView
@@ -159,7 +174,46 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
                 }
             }
         }
+    }
 
+    override fun parentClick(localUrl: String) {
+        adCountHandler()
+        val videoFile = File(localUrl)
+        val fileUri = FileProvider.getUriForFile(context!!, BuildConfig.APPLICATION_ID +".admprovider", videoFile)
+        (activity as MainActivity).grantUriPermission("com.download.manager.video.whatsapp", fileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        val intent = Intent(Intent.ACTION_VIEW)
+        if (localUrl.endsWith(".jpg")){
+            intent.setDataAndType(fileUri, "image/*")
+        }else{
+            intent.setDataAndType(fileUri, "video/*")
+        }
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)//DO NOT FORGET THIS EVER
+        startActivity(intent)
+    }
+
+    private fun showInterstitial() {
+        if (mainIntrAd.isLoaded) {
+            mainIntrAd.show()
+        }else{
+            if (!mainIntrAd.isLoading && !mainIntrAd.isLoaded) {
+                intrAdLoader()
+            }
+        }
+    }
+
+    private fun intrAdLoader(){
+        // Create an ad request.
+        val adRequestIntr = AdRequest.Builder().build()
+        mainIntrAd.loadAd(adRequestIntr)
+    }
+
+    private fun adCountHandler(){
+        if (adPreferrenceHandler.getViewSessionCount() >= 5) {
+            showInterstitial()
+            adPreferrenceHandler.setViewSessionCount(0)
+        }else{
+            adPreferrenceHandler.setViewSessionCount(adPreferrenceHandler.getViewSessionCount() + 1)
+        }
     }
 
 }

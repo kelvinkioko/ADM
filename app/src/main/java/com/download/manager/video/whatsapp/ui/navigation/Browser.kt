@@ -42,6 +42,7 @@ import com.download.manager.video.whatsapp.widgets.web.ScriptUtil
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.dialog_how_to_browser.*
 import kotlinx.android.synthetic.main.dialog_links.*
+import kotlinx.android.synthetic.main.dialog_restriction.*
 import kotlinx.android.synthetic.main.dialog_save_download.*
 import kotlinx.android.synthetic.main.item_album.view.*
 import kotlinx.android.synthetic.main.main_browser.*
@@ -139,38 +140,58 @@ class Browser : Fragment(), MainActivity.OnBackPressedListener{
         }
 
         downloads_parent.setOnClickListener {
-            dialog = Dialog(activity)
-            dialog.setCanceledOnTouchOutside(false)
-            dialog.setCancelable(true)
-            dialog.setContentView(R.layout.dialog_links)
-            Objects.requireNonNull<Window>(dialog.window).setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            dialog.window!!.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            dialog.window!!.setGravity(Gravity.BOTTOM)
-            dialog.show()
+            if (search_box.text.toString().trim().contains("youtube.com")){
+                dialog = Dialog(activity)
+                dialog.setCanceledOnTouchOutside(false)
+                dialog.setCancelable(true)
+                dialog.setContentView(R.layout.dialog_restriction)
+                Objects.requireNonNull<Window>(dialog.window).setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                dialog.window!!.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                dialog.window!!.setGravity(Gravity.BOTTOM)
+                dialog.show()
 
-            val _links: RecyclerView = dialog.download_links
-            val _dismiss: TextView = dialog.dl_dismiss
+                val _dismiss: TextView = dialog.dr_dismiss
 
-            val downloadsListAdapter = DownloadListAdapter(activity as MainActivity, downloadsEntity)
-            val linksManager = LinearLayoutManager(activity as MainActivity, LinearLayoutManager.VERTICAL, false)
-            _links.layoutManager = linksManager
-            _links.itemAnimator = DefaultItemAnimator()
-            _links.adapter = downloadsListAdapter
+                _dismiss.setOnClickListener { dialog.dismiss() }
+            }else {
+                dialog = Dialog(activity)
+                dialog.setCanceledOnTouchOutside(false)
+                dialog.setCancelable(true)
+                dialog.setContentView(R.layout.dialog_links)
+                Objects.requireNonNull<Window>(dialog.window).setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                dialog.window!!.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                dialog.window!!.setGravity(Gravity.BOTTOM)
+                dialog.show()
 
-            downloadsListAdapter.setList(downloadsEntity)
+                val _links: RecyclerView = dialog.download_links
+                val _dismiss: TextView = dialog.dl_dismiss
 
-            _links.addOnItemTouchListener(RecyclerTouchListener(this.requireActivity(), _links, object : RecyclerTouchListener.OnItemClickListener {
-                override fun onItemClick(viewClick: View, position: Int) {
-                    queueDownload(downloadsEntity[position])
-                }
+                val downloadsListAdapter = DownloadListAdapter(activity as MainActivity, downloadsEntity)
+                val linksManager = LinearLayoutManager(activity as MainActivity, LinearLayoutManager.VERTICAL, false)
+                _links.layoutManager = linksManager
+                _links.itemAnimator = DefaultItemAnimator()
+                _links.adapter = downloadsListAdapter
 
-                override fun onItemLongClick(view: View?, position: Int) {
-                    Toast.makeText(activity, "do nothing", Toast.LENGTH_LONG).show()
-                    TODO("do nothing")
-                }
-            }))
+                downloadsListAdapter.setList(downloadsEntity)
 
-            _dismiss.setOnClickListener { dialog.dismiss() }
+                _links.addOnItemTouchListener(
+                    RecyclerTouchListener(
+                        this.requireActivity(),
+                        _links,
+                        object : RecyclerTouchListener.OnItemClickListener {
+                            override fun onItemClick(viewClick: View, position: Int) {
+                                queueDownload(downloadsEntity[position])
+                            }
+
+                            override fun onItemLongClick(view: View?, position: Int) {
+                                Toast.makeText(activity, "do nothing", Toast.LENGTH_LONG).show()
+                                TODO("do nothing")
+                            }
+                        })
+                )
+
+                _dismiss.setOnClickListener { dialog.dismiss() }
+            }
         }
 
         downloads_help.setOnClickListener {
@@ -259,13 +280,13 @@ class Browser : Fragment(), MainActivity.OnBackPressedListener{
 
         override fun onLoadResource(view: WebView, url: String?) {
             super.onLoadResource(view, url)
-            try {
-                if (url.toString().contains("facebook.com")) {
-                    view.loadUrl(ScriptUtil.FACEBOOK_SCRIPT)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+//            try {
+//                if (url.toString().contains("facebook.com")) {
+//                    view.loadUrl(ScriptUtil.FACEBOOK_SCRIPT)
+//                }
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//            }
 
             val page = view.url
             val title = view.title

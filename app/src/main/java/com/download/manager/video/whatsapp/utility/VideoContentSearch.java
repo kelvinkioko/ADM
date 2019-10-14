@@ -71,8 +71,6 @@ public abstract class VideoContentSearch extends Thread {
                         addVideoToList(uCon, page, title, contentType);
                     } else if (contentType.equals("application/x-mpegurl") || contentType.equals("application/vnd.apple.mpegurl")) {
                         addVideosToListFromM3U8(uCon, page, title, contentType);
-                    } else if (contentType.contains("image")) {
-                        addVideoToList(uCon, page, title, contentType);
                     } else Log.e(TAG, "Not a video. Content type = " + contentType);
                 } else {
                     Log.e(TAG, "no content type");
