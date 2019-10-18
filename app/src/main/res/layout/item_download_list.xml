@@ -14,8 +14,8 @@
 
         <ImageView
                 android:id="@+id/list_image_clear"
-                android:layout_width="100dp"
-                android:layout_height="86dp"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
                 android:scaleType="centerInside"/>
 
         <LinearLayout android:id="@+id/list_parent"

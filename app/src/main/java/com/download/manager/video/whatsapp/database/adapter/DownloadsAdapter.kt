@@ -31,6 +31,7 @@ import android.app.PendingIntent
 import android.graphics.BitmapFactory
 import com.download.manager.video.whatsapp.ui.MainActivity
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.support.v4.app.NotificationCompat
 import android.support.v4.content.ContextCompat.getSystemService
@@ -117,19 +118,19 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
                     }
                 }
 
-                val fileChecker = File(item.localurl)
-                if (fileChecker.exists()) {
-                    holder.idPause.visibility = View.GONE
-                    holder.idPlay.visibility = View.GONE
-                    holder.idCancel.visibility = View.VISIBLE
-                    holder.idDownload.visibility = View.GONE
-                    holder.idError.visibility = View.GONE
-                    holder.idSuccess.visibility = View.GONE
-                    holder.idProgress.progress = 100.toFloat()
-                }
+                holder.idPause.visibility = View.GONE
+                holder.idPlay.visibility = View.GONE
+                holder.idCancel.visibility = View.VISIBLE
+                holder.idDownload.visibility = View.GONE
+                holder.idError.visibility = View.GONE
+                holder.idSuccess.visibility = View.GONE
+                holder.idProgress.progress = 100.toFloat()
+
+                holder.idDetails.text = item.datecreated + ", " + getFileSize(fileLoc.length())
+            }else {
+                holder.idDetails.text = item.datecreated
             }
         }else {
-
             holder.idProgress.max = 100.toFloat()
             if (item.downloaded.toInt() != 0 && item.size.toInt() != 0) {
                 holder.idDetails.text = getFileSize(item.downloaded.toLong()) + "/" + getFileSize(item.size.toLong())
@@ -155,7 +156,7 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
             }
         }
 
-        val outputfile = File(Environment.getExternalStorageDirectory().toString() + File.separator + "Download Manager")
+        val outputfile = File(Environment.getExternalStorageDirectory().toString() + File.separator + "Android Download Manager")
         if (!outputfile.exists()) { outputfile.mkdirs() }
 
         holder.idDownload.setOnClickListener {
@@ -245,10 +246,8 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
 
     private fun downloadFile(viewHolder: SectioningAdapter.ItemViewHolder, item: DownloadsEntity){
         val holder = viewHolder as ItemViewHolder
-        Log.e("Download url", item.url)
         downloader = Downloader.Builder(context, item.url, item.name).downloadListener(object : OnDownloadListener {
             override fun onStart() {
-                Log.e("Download status", "Started")
                 handler.post {
                     holder.idPause.visibility = View.VISIBLE
                     holder.idPlay.visibility = View.GONE
@@ -295,7 +294,6 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
             }
 
             override fun onCompleted(file: File?) {
-                Log.e("Download status", "Complete")
                 notifyDownloadComplete()
                 handler.post {
                     holder.idPause.visibility = View.GONE
@@ -304,9 +302,8 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
                     holder.idDownload.visibility = View.GONE
                     holder.idError.visibility = View.GONE
                     holder.idSuccess.visibility = View.VISIBLE
-                    Log.e("TAG COMPLETE", "onCompleted: file --> $file")
                 }
-                val final = File((Environment.getExternalStorageDirectory()).toString() + File.separator + "Download Manager" + File.separator + file?.name)
+                val final = File((Environment.getExternalStorageDirectory()).toString() + File.separator + "Android Download Manager" + File.separator + file?.name)
 
                 if (!final.parentFile.exists()) { final.parentFile.mkdirs() }
                 if (!final.exists()) { final.createNewFile() }
@@ -333,6 +330,10 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
                 }
                 downloadsEntity = DatabaseApp().getDownloadsDao(context).getDownloadsList()
                 notifyDataSetChanged()
+
+                val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
+                mediaScanIntent.data = Uri.fromFile(final)
+                context.sendBroadcast(mediaScanIntent)
             }
 
             override fun onFailure(reason: String?) {
@@ -369,6 +370,17 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
         val title = "Download complete!"
         val text = "Your download is complete. Tap to view"
 
+        val google_play_url = "https://play.google.com/store/apps/details?id="
+
+        val msg = context.resources.getString(R.string.share_message) + " "
+        val shareIntent = Intent()
+        shareIntent.action = Intent.ACTION_SEND
+        shareIntent.putExtra(Intent.EXTRA_TEXT, msg + google_play_url + context.packageName)
+        shareIntent.type = "text/plain"
+
+        val rateIntent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + context.packageName))
+        val ratePendingIntent = PendingIntent.getActivity(context, 0, rateIntent, 0)
+
         val builder = NotificationCompat.Builder(context, "DownloadManager1292")
             .setDefaults(Notification.DEFAULT_ALL)
             .setSmallIcon(R.mipmap.ic_launcher)
@@ -377,6 +389,8 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT))
             .setAutoCancel(true)
+            .addAction(R.drawable.ic_settings_rate, "Rate", ratePendingIntent)
+            .addAction(R.drawable.ic_settings_rate, "Share", PendingIntent.getActivity(context, 0, Intent.createChooser(shareIntent, "Share..."), PendingIntent.FLAG_UPDATE_CURRENT))
         notify(builder.build())
     }
 

@@ -17,6 +17,7 @@ import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.util.Patterns
 import android.view.*
+import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.inputmethod.EditorInfo
 import android.webkit.WebChromeClient
@@ -32,6 +33,7 @@ import com.download.manager.video.whatsapp.database.adapter.DownloadListAdapter
 import com.download.manager.video.whatsapp.database.entity.BookmarkEntity
 import com.download.manager.video.whatsapp.database.entity.DownloadsEntity
 import com.download.manager.video.whatsapp.database.viewmodel.DownloadsViewModel
+import com.download.manager.video.whatsapp.engine.AdPreferrenceHandler
 import com.download.manager.video.whatsapp.engine.Legion
 import com.download.manager.video.whatsapp.engine.PermissionListener
 import com.download.manager.video.whatsapp.engine.RecyclerTouchListener
@@ -39,6 +41,8 @@ import com.download.manager.video.whatsapp.ui.DownloadsActivity
 import com.download.manager.video.whatsapp.ui.MainActivity
 import com.download.manager.video.whatsapp.utility.VideoContentSearch
 import com.download.manager.video.whatsapp.widgets.web.ScriptUtil
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.InterstitialAd
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.dialog_how_to_browser.*
 import kotlinx.android.synthetic.main.dialog_links.*
@@ -53,6 +57,9 @@ import javax.net.ssl.SSLSocketFactory
 import kotlin.collections.ArrayList
 
 class Browser : Fragment(), MainActivity.OnBackPressedListener{
+    private lateinit var mainIntrAd: InterstitialAd
+    lateinit var adPreferrenceHandler: AdPreferrenceHandler
+
     private lateinit var dialog: Dialog
     private lateinit var saveDialog: Dialog
     private var defaultSSLSF: SSLSocketFactory? = null
@@ -71,6 +78,8 @@ class Browser : Fragment(), MainActivity.OnBackPressedListener{
 
         PermissionListener(activity as MainActivity).loadPermissions()
         downloadsViewModel = ViewModelProviders.of(this).get(DownloadsViewModel::class.java)
+
+        adPreferrenceHandler = AdPreferrenceHandler(activity as MainActivity)
 
         bookmarkAdapter = BookmarkAdapter(activity as MainActivity, bookmarkEntity)
         val linksManager = GridLayoutManager(activity as MainActivity, 3, GridLayoutManager.VERTICAL, false)
@@ -137,6 +146,16 @@ class Browser : Fragment(), MainActivity.OnBackPressedListener{
         iv_downloads.setOnClickListener {
             activity!!.main_page.visibility = View.GONE
             activity!!.downloads_page.visibility = View.VISIBLE
+//            if (downloadsEntity.size < downloadsViewModel.countDownloads()) {
+//
+//            }
+            (activity as MainActivity).populateDownloads()
+        }
+
+        iv_home.setOnClickListener{
+            web_history.visibility = View.VISIBLE
+            webview.visibility = View.GONE
+            search_box.setText("")
         }
 
         downloads_parent.setOnClickListener {
@@ -180,13 +199,11 @@ class Browser : Fragment(), MainActivity.OnBackPressedListener{
                         _links,
                         object : RecyclerTouchListener.OnItemClickListener {
                             override fun onItemClick(viewClick: View, position: Int) {
+                                adCountHandler()
                                 queueDownload(downloadsEntity[position])
                             }
 
-                            override fun onItemLongClick(view: View?, position: Int) {
-                                Toast.makeText(activity, "do nothing", Toast.LENGTH_LONG).show()
-                                TODO("do nothing")
-                            }
+                            override fun onItemLongClick(view: View?, position: Int) {}
                         })
                 )
 
@@ -249,6 +266,10 @@ class Browser : Fragment(), MainActivity.OnBackPressedListener{
             }else {
                 val downlod = DownloadsEntity(0, name.text.toString().trim(), download.url, "", "0", download.size, Legion().getCurrentDate())
                 DatabaseApp().getDownloadsDao(activity as MainActivity).insertDownloads(downlod)
+
+                val pulse = AnimationUtils.loadAnimation(activity as MainActivity, R.anim.pulse_fade_in)
+                pulse.repeatCount = Animation.INFINITE
+                iv_downloads.animation = pulse
             }
         }
     }
@@ -260,14 +281,16 @@ class Browser : Fragment(), MainActivity.OnBackPressedListener{
     private var webChromeClient: WebChromeClient = object : WebChromeClient() {
         override fun onProgressChanged(view: WebView, newProgress: Int) {
             iv_refresh.startAnimation(AnimationUtils.loadAnimation(activity as MainActivity, R.anim.rotation))
-            if (newProgress == 100){ downloadsEntity.clear(); iv_refresh.clearAnimation()}
+            if (newProgress.toString().isNotEmpty()){ if (newProgress == 100){ downloadsEntity.clear(); iv_refresh.clearAnimation()} }
             super.onProgressChanged(view, newProgress)
         }
     }
 
     private var webViewClient: WebViewClient = object : WebViewClient() {
         override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
-            search_box.setText(url)
+            if (url.isNotEmpty()) {
+                search_box.setText(url)
+            }
             super.onPageStarted(view, url, favicon)
         }
 
@@ -290,8 +313,8 @@ class Browser : Fragment(), MainActivity.OnBackPressedListener{
 
             val page = view.url
             val title = view.title
-            if (!url.toString().startsWith("https://www.youtube.com/") || !url.toString().startsWith("https://m.youtube.com/")) {
-                object : VideoContentSearch(activity, url, page, title) {
+            if ((!url.toString().startsWith("https://www.youtube.com/") || !url.toString().startsWith("https://m.youtube.com/")) && url!!.isNotEmpty()) {
+                object : VideoContentSearch(activity as MainActivity, url, page, title) {
                     override fun onStartInspectingURL() {
                         Handler(Looper.getMainLooper()).post {
                             /**
@@ -308,7 +331,7 @@ class Browser : Fragment(), MainActivity.OnBackPressedListener{
                                 /**
                                  * Hide loader to show searching for video link
                                  */
-                                downloads_loader.visibility = View.GONE
+                                downloads_loader?.visibility = View.GONE
                                 downloads_counter.text = downloadsEntity.size.toString()
                             }
                         }
@@ -341,7 +364,6 @@ class Browser : Fragment(), MainActivity.OnBackPressedListener{
         }
 
         override fun onPageFinished(view: WebView, url: String) {
-            Log.e("progress", "finished")
             iv_refresh.clearAnimation()
             super.onPageFinished(view, url)
         }
@@ -369,6 +391,31 @@ class Browser : Fragment(), MainActivity.OnBackPressedListener{
                 }
             }
         })
+    }
+
+    private fun showInterstitial() {
+        if (mainIntrAd.isLoaded) {
+            mainIntrAd.show()
+        }else{
+            if (!mainIntrAd.isLoading && !mainIntrAd.isLoaded) {
+                intrAdLoader()
+            }
+        }
+    }
+
+    private fun intrAdLoader(){
+        // Create an ad request.
+        val adRequestIntr = AdRequest.Builder().build()
+        mainIntrAd.loadAd(adRequestIntr)
+    }
+
+    private fun adCountHandler(){
+        if (adPreferrenceHandler.getViewSessionCount() >= 5) {
+            showInterstitial()
+            adPreferrenceHandler.setViewSessionCount(0)
+        }else{
+            adPreferrenceHandler.setViewSessionCount(adPreferrenceHandler.getViewSessionCount() + 1)
+        }
     }
 
     override fun onBackPressed(): Boolean {

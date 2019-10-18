@@ -10,6 +10,7 @@ import com.download.manager.video.whatsapp.ui.MainActivity
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.net.Uri
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.DefaultItemAnimator
@@ -28,6 +29,7 @@ import java.io.IOException
 import java.util.*
 import kotlin.collections.ArrayList
 import android.support.v4.content.FileProvider
+import android.widget.TextView
 import com.download.manager.video.whatsapp.BuildConfig
 import com.download.manager.video.whatsapp.R
 import com.download.manager.video.whatsapp.engine.AdPreferrenceHandler
@@ -47,6 +49,8 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
      */
     private lateinit var mainIntrAd: InterstitialAd
     lateinit var adPreferrenceHandler: AdPreferrenceHandler
+
+    private lateinit var dialog: Dialog
 
     lateinit var saveDialog: Dialog
 
@@ -201,4 +205,46 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
         }
     }
 
+//    //setting menu in action bar
+//    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+//        inflater!!.inflate(R.menu.main,menu)
+//        super.onCreateOptionsMenu(menu, inflater)
+//    }
+//
+//    // actions on click menu items
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        when (item.itemId){
+//            R.id.action_rate -> { reviewDialog() }
+//            R.id.action_share ->{ reviewDialog() }
+//        }
+//        return super.onOptionsItemSelected(item)
+//    }
+//
+//    fun reviewDialog(){
+//        dialog = Dialog(activity as MainActivity)
+//        dialog.setCanceledOnTouchOutside(false)
+//        dialog.setCancelable(true)
+//        dialog.setContentView(R.layout.dialog_review_rating)
+//        Objects.requireNonNull<Window>(dialog.window).setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+//        dialog.window!!.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+//        dialog.window!!.setGravity(Gravity.BOTTOM)
+//        dialog.show()
+//
+//        val _share : TextView = dialog.findViewById(R.id.drr_share)
+//        val _rate : TextView = dialog.findViewById(R.id.drr_rate)
+//        val googlePlayUrl = "https://play.google.com/store/apps/details?id="
+//        val msg = resources.getString(R.string.share_message) + " "
+//
+//        _share.setOnClickListener {
+//            val shareIntent = Intent()
+//            shareIntent.action = Intent.ACTION_SEND
+//            shareIntent.putExtra(Intent.EXTRA_TEXT, msg + googlePlayUrl + context!!.packageName)
+//            shareIntent.type = "text/plain"
+//            startActivity(Intent.createChooser(shareIntent, "Share..."))
+//        }
+//
+//        _rate.setOnClickListener{
+//            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + context!!.packageName)))
+//        }
+//    }
 }

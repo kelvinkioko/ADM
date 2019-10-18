@@ -40,16 +40,20 @@ class ClipDataService : JobService(){
     val ACTION_START = "com.download.manager.video.whatsapp.action.START"
     private val ACTION_STOP = "com.download.manager.video.whatsapp.action.STOP"
 
-    private var ClipboardListener: ClipboardManager.OnPrimaryClipChangedListener =
-        ClipboardManager.OnPrimaryClipChangedListener {
-            val parentUrl = (getSystemService("clipboard") as ClipboardManager).primaryClip.getItemAt(0).text.toString()
+    private var ClipboardListener: ClipboardManager.OnPrimaryClipChangedListener = ClipboardManager.OnPrimaryClipChangedListener {
+        if ((getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).primaryClip != null) {
+            val parentUrl = (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).primaryClip?.getItemAt(0)?.text.toString()
 
-            if (parentUrl.startsWith("https://www.instagram.com/") && DatabaseApp().getInstaDao(applicationContext).countInstaListByParent(parentUrl) == 0) {
+            if (parentUrl.isNotEmpty() && parentUrl.startsWith("https://www.instagram.com/") && DatabaseApp().getInstaDao(
+                    applicationContext
+                ).countInstaListByParent(parentUrl) == 0
+            ) {
                 val instant = InstaEntity(0, "", "", parentUrl, "", "", "", "0", "0", Legion().getCurrentDate())
                 DatabaseApp().getInstaDao(applicationContext).insertInsta(instant)
                 getInstagramUrl().execute(parentUrl)
             }
         }
+    }
 
     override fun onStartJob(params: JobParameters?): Boolean {
         return false
@@ -82,7 +86,7 @@ class ClipDataService : JobService(){
             .setOngoing(true)
             .addAction(R.mipmap.ic_launcher, "Stop", PendingIntent.getService(this, 0, stopIntent, 0))
 
-        (getSystemService("clipboard") as ClipboardManager).addPrimaryClipChangedListener(this.ClipboardListener)
+        (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).addPrimaryClipChangedListener(this.ClipboardListener)
     }
 
     inner class getInstagramUrl : AsyncTask<String, String, String>() {
@@ -133,11 +137,7 @@ class ClipDataService : JobService(){
             override fun onProgressUpdate(percent: Int, downloadedSize: Int, totalSize: Int) {}
 
             override fun onCompleted(file: File?) {
-                val final = if (item.type.equals("video", true)){
-                    File(Environment.getExternalStorageDirectory().toString() + File.separator + "Download Manager" + File.separator + "instaVideos" + File.separator + file?.name)
-                }else{
-                    File(Environment.getExternalStorageDirectory().toString() + File.separator + "Download Manager" + File.separator + "instaImages" + File.separator + file?.name)
-                }
+                val final = File(Environment.getExternalStorageDirectory().toString() + File.separator + "Android Download Manager" + File.separator + "Instagram ADM" + File.separator + file?.name)
 
                 if (!final.parentFile.exists()) { final.parentFile.mkdirs() }
                 if (!final.exists()) { final.createNewFile() }
@@ -157,6 +157,10 @@ class ClipDataService : JobService(){
 
                 DatabaseApp().getInstaDao(applicationContext).updateLocalURL(final.toString(), item.id)
                 notifyDownloadComplete()
+
+                val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
+                mediaScanIntent.data = Uri.fromFile(final)
+                sendBroadcast(mediaScanIntent)
             }
 
             override fun onFailure(reason: String?) {}
@@ -172,8 +176,16 @@ class ClipDataService : JobService(){
         val title = "Android Download Manager"
         val text = "Your IG download is complete. Tap to view"
 
+        val google_play_url = "https://play.google.com/store/apps/details?id="
+
+        val msg = resources.getString(R.string.share_message) + " "
+        val shareIntent = Intent()
+        shareIntent.action = Intent.ACTION_SEND
+        shareIntent.putExtra(Intent.EXTRA_TEXT, msg + google_play_url + packageName)
+        shareIntent.type = "text/plain"
+
         val rateIntent = Intent(ACTION_VIEW, Uri.parse("market://details?id=$packageName"))
-        val ratePendingIntent = PendingIntent.getBroadcast(this, 0, rateIntent, 0);
+        val ratePendingIntent = PendingIntent.getActivity(this, 0, rateIntent, 0)
 
         val builder = NotificationCompat.Builder(applicationContext, "DownloadManager1292")
             .setDefaults(Notification.DEFAULT_ALL)
@@ -184,6 +196,7 @@ class ClipDataService : JobService(){
             .setContentIntent(PendingIntent.getActivity(applicationContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT))
             .setAutoCancel(true)
             .addAction(R.drawable.ic_settings_rate, "Rate", ratePendingIntent)
+            .addAction(R.drawable.ic_settings_rate, "Share", PendingIntent.getActivity(applicationContext, 0, Intent.createChooser(shareIntent, "Share..."), PendingIntent.FLAG_UPDATE_CURRENT))
         notify(builder.build())
     }
 

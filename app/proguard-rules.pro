@@ -24,3 +24,6 @@
 -dontwarn org.joda.time.**
 -keep class com.shockwave.**
 -ignorewarnings
+
+-renamesourcefileattribute SourceFile
+-keepattributes SourceFile,LineNumberTable

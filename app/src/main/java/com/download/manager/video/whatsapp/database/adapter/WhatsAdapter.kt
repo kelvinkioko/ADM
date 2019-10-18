@@ -1,6 +1,7 @@
 package com.download.manager.video.whatsapp.database.adapter
 
 import android.content.Context
+import android.content.Intent
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Environment
@@ -103,13 +104,13 @@ class WhatsAdapter (private val context: Context, private var whatsEntity: List<
             holder.whatsType.setImageDrawable(VectorDrawableCompat.create(context.resources, R.drawable.icon_image, null)!!)
         }
 
-        val whatsFile = File(Environment.getExternalStorageDirectory().toString() + File.separator + "Download Manager" + File.separator + "whats")
+        val whatsFile = File(Environment.getExternalStorageDirectory().toString() + File.separator + "Android Download Manager" + File.separator + "Whatsapp ADM")
         if (!whatsFile.exists()) { whatsFile.mkdirs() }
         if (item.status.equals("downloaded", false)){ holder.whatsDownload.visibility = View.GONE }
 
         holder.whatsDownload.setOnClickListener {
             val sourceFile = File(item.liveUrl)
-            val destinationFile = File(Environment.getExternalStorageDirectory().toString() + File.separator + "Download Manager" + File.separator + "whats" + File.separator + item.name)
+            val destinationFile = File(Environment.getExternalStorageDirectory().toString() + File.separator + "Android Download Manager" + File.separator + "Whatsapp ADM" + File.separator + item.name)
 
             if (!destinationFile.parentFile.exists()) { destinationFile.parentFile.mkdirs() }
             if (!destinationFile.exists()) { destinationFile.createNewFile() }
@@ -130,6 +131,9 @@ class WhatsAdapter (private val context: Context, private var whatsEntity: List<
             item.status = "downloaded"
 
             holder.whatsDownload.visibility = View.GONE
+            val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
+            mediaScanIntent.data = Uri.fromFile(destinationFile)
+            context.sendBroadcast(mediaScanIntent)
         }
 
         holder.imageClear.setOnClickListener {

@@ -26,6 +26,7 @@
     <string name="browser_step_three">Set your preferred name for your file and tap on <u><b>queue download</b></u></string>
     <string name="browser_step_four">On the browser page tap the download button next to the search bar</string>
 
-    <string name="review_message">Help us continue improving ADM : Download Manager by; \n\n<u><b>Rating and Reviewing</b></u> our app on Google play \n<b>or</b>; \n<u><b>Sharing the app</b></u> to your friends via whatsapp</string>
+    <string name="review_message">Help us continue improving Android Download Manager by; \n\n<u><b>Rating and Reviewing</b></u> our app on Google play \n<b>or</b>; \n<u><b>Sharing the app</b></u> to your friends via whatsapp</string>
 
+    <string name="share_message">Android Download Manager for video, music, statuses and photos from WA, IG and all other sites</string>
 </resources>

@@ -15,7 +15,7 @@ import java.net.URLConnection;
 import java.nio.charset.Charset;
 
 public abstract class VideoContentSearch extends Thread {
-    private Context context;
+    private Context mContext;
     private String url;
     private String page;
     private String title;
@@ -31,7 +31,7 @@ public abstract class VideoContentSearch extends Thread {
                                       String page, boolean chunked, String website);
 
     public VideoContentSearch(Context context, String url, String page, String title) {
-        this.context = context;
+        this.mContext = context;
         this.url = url;
         this.page = page;
         this.title = title;
@@ -41,7 +41,7 @@ public abstract class VideoContentSearch extends Thread {
     @Override
     public void run() {
         String urlLowerCase = url.toLowerCase();
-        String[] filters = context.getResources().getStringArray(R.array.videourl_filters);
+        String[] filters = mContext.getResources().getStringArray(R.array.videourl_filters);
         boolean urlMightBeVideo = false;
         for (String filter : filters) {
             if (urlLowerCase.contains(filter)) {
@@ -52,7 +52,6 @@ public abstract class VideoContentSearch extends Thread {
         if (urlMightBeVideo) {
             numLinksInspected++;
             onStartInspectingURL();
-            Log.i(TAG, "retreiving headers from " + url);
 
             URLConnection uCon = null;
             try {

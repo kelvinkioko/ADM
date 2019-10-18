@@ -1,5 +1,6 @@
 package com.download.manager.video.whatsapp.ui
 
+import android.app.Dialog
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -19,12 +20,17 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.net.Uri
 import android.os.Handler
 import android.support.v4.content.FileProvider
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
-import android.view.View
+import android.view.*
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import com.download.manager.video.whatsapp.BuildConfig
 import com.download.manager.video.whatsapp.database.adapter.DownloadsAdapter
@@ -37,13 +43,14 @@ import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.InterstitialAd
 import com.google.android.gms.ads.MobileAds
+import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.download_empty
 import kotlinx.android.synthetic.main.activity_main.download_history
 import kotlinx.android.synthetic.main.activity_main.toolbar
 import java.io.File
-
-const val AD_UNIT_ID = "ca-app-pub-3940256099942544/1033173712"
+import java.util.*
+import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  {
 
@@ -51,6 +58,8 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
      * DownloaderView actions
      */
     private lateinit var mainIntrAd: InterstitialAd
+
+    private lateinit var dialog: Dialog
 
     private lateinit var downloadsViewModel: DownloadsViewModel
     private var downloadsEntity: MutableList<DownloadsEntity> = ArrayList()
@@ -64,6 +73,8 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
     var count = 0
 
     lateinit var adPreferrenceHandler: AdPreferrenceHandler
+
+    private lateinit var mFirebaseAnalytics: FirebaseAnalytics
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,6 +91,11 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
         PermissionListener(this).loadPermissions()
         downloadsViewModel = ViewModelProviders.of(this).get(DownloadsViewModel::class.java)
         adPreferrenceHandler = AdPreferrenceHandler(this@MainActivity)
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this@MainActivity)
+
+        val bundle = Bundle()
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "App opened")
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.APP_OPEN, bundle)
 
         // Initialize the Mobile Ads SDK with an AdMob App ID.
         MobileAds.initialize(this)
@@ -255,8 +271,7 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
         Handler().postDelayed({ populateDownloads() }, 200)
     }
 
-    private fun populateDownloads(){
-        if (downloadsEntity.size < downloadsViewModel.countDownloads()) {
+    fun populateDownloads(){
             downloadsViewModel.getDownloads().observe(this, Observer<List<DownloadsEntity>> { downloadsEntities ->
                 if (downloadsEntities != null) {
                     if (downloadsEntities.isNotEmpty()) {
@@ -283,7 +298,6 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
                     }
                 }
             })
-        }
     }
 
     private fun showInterstitial() {
@@ -308,6 +322,67 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
             adPreferrenceHandler.setViewSessionCount(0)
         }else{
             adPreferrenceHandler.setViewSessionCount(adPreferrenceHandler.getViewSessionCount() + 1)
+        }
+    }
+
+    //setting menu in action bar
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main,menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    // actions on click menu items
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.action_rate -> {
+            val bundle = Bundle()
+            bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "App rated")
+            mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE, bundle)
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName")))
+            true
+        }
+        R.id.action_share ->{
+            reviewDialog()
+            true
+        }
+
+        else -> {
+            // If we got here, the user's action was not recognized.
+            // Invoke the superclass to handle it.
+            super.onOptionsItemSelected(item)
+        }
+    }
+
+    fun reviewDialog(){
+        dialog = Dialog(this@MainActivity)
+        dialog.setCanceledOnTouchOutside(false)
+        dialog.setCancelable(true)
+        dialog.setContentView(R.layout.dialog_review_rating)
+        Objects.requireNonNull<Window>(dialog.window).setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.window!!.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        dialog.window!!.setGravity(Gravity.BOTTOM)
+        dialog.show()
+
+        val _share : TextView = dialog.findViewById(R.id.drr_share)
+        val _rate : TextView = dialog.findViewById(R.id.drr_rate)
+        val googlePlayUrl = "https://play.google.com/store/apps/details?id="
+        val msg = resources.getString(R.string.share_message) + " "
+
+        _share.setOnClickListener {
+            val bundle = Bundle()
+            bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "App shared")
+            mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE, bundle)
+            val shareIntent = Intent()
+            shareIntent.action = Intent.ACTION_SEND
+            shareIntent.putExtra(Intent.EXTRA_TEXT, msg + googlePlayUrl + packageName)
+            shareIntent.type = "text/plain"
+            startActivity(Intent.createChooser(shareIntent, "Share..."))
+        }
+
+        _rate.setOnClickListener{
+            val bundle = Bundle()
+            bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "App rated")
+            mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE, bundle)
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName")))
         }
     }
 

@@ -1,9 +1,17 @@
 package com.download.manager.video.whatsapp.database.adapter
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.os.Handler
 import android.support.graphics.drawable.VectorDrawableCompat
+import android.support.v4.app.NotificationCompat
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +25,7 @@ import kotlinx.android.synthetic.main.item_insta.view.*
 import kotlinx.android.synthetic.main.item_header.view.*
 import com.bumptech.glide.Glide
 import com.download.manager.video.whatsapp.database.DatabaseApp
+import com.download.manager.video.whatsapp.ui.MainActivity
 import com.download.manager.video.whatsapp.utility.download.core.OnDownloadListener
 import java.io.File
 import java.io.FileInputStream
@@ -106,10 +115,8 @@ class InstaAdapter (private val context: Context, private var instaEntity: List<
             holder.instaPending.visibility = View.GONE
         }
 
-        val videofile = File(Environment.getExternalStorageDirectory().toString() + File.separator + "Download Manager" + File.separator + "insta" + File.separator + "videos")
-        val imagefile = File(Environment.getExternalStorageDirectory().toString() + File.separator + "Download Manager" + File.separator + "insta" + File.separator + "images")
-        if (!videofile.exists()) { videofile.mkdirs() }
-        if (!imagefile.exists()) { imagefile.mkdirs() }
+        val fileLocation = File(Environment.getExternalStorageDirectory().toString() + File.separator + "Android Download Manager" + File.separator + "Instagram ADM")
+        if (!fileLocation.exists()) { fileLocation.mkdirs() }
 
         holder.instaProgress.max = 100.toFloat()
         if (item.downloaded.toInt() != 0 && item.size.toInt() != 0){
@@ -217,11 +224,8 @@ class InstaAdapter (private val context: Context, private var instaEntity: List<
                     holder.instaSuccess.visibility = View.VISIBLE
                 }
 
-                val final = if (item.type.equals("video", true)){
-                    File(Environment.getExternalStorageDirectory().toString() + File.separator + "Download Manager" + File.separator + "insta" + File.separator + "videos" + File.separator + file?.name)
-                }else{
-                    File(Environment.getExternalStorageDirectory().toString() + File.separator + "Download Manager" + File.separator + "insta" + File.separator + "images" + File.separator + file?.name)
-                }
+                val final = File(Environment.getExternalStorageDirectory().toString() + File.separator + "Android Download Manager" + File.separator + "Instagram ADM" + File.separator + file?.name)
+
 
                 if (!final.parentFile.exists()) { final.parentFile.mkdirs() }
                 if (!final.exists()) { final.createNewFile() }
@@ -248,7 +252,11 @@ class InstaAdapter (private val context: Context, private var instaEntity: List<
                 }
 
                 instaEntity = DatabaseApp().getInstaDao(context).getInstaList()
+                notifyDownloadComplete()
                 notifyDataSetChanged()
+                val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
+                mediaScanIntent.data = Uri.fromFile(final)
+                context.sendBroadcast(mediaScanIntent)
             }
 
             override fun onFailure(reason: String?) {
@@ -319,6 +327,45 @@ class InstaAdapter (private val context: Context, private var instaEntity: List<
 
     override fun getSectionItemCount(sectionIndex: Int): Int {
         return sections[sectionIndex].instaEntity.size
+    }
+
+    private fun notifyDownloadComplete(){
+        val intent = Intent(context, MainActivity::class.java)
+        intent.putExtra("status", "1")
+        val title = "Download complete!"
+        val text = "Your IG download is complete. Tap to view"
+
+        val google_play_url = "https://play.google.com/store/apps/details?id="
+
+        val msg = context.resources.getString(R.string.share_message) + " "
+        val shareIntent = Intent()
+        shareIntent.action = Intent.ACTION_SEND
+        shareIntent.putExtra(Intent.EXTRA_TEXT, msg + google_play_url + context.packageName)
+        shareIntent.type = "text/plain"
+
+        val rateIntent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + context.packageName))
+        val ratePendingIntent = PendingIntent.getActivity(context, 0, rateIntent, 0)
+
+        val builder = NotificationCompat.Builder(context, "DownloadManager1292")
+            .setDefaults(Notification.DEFAULT_ALL)
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentTitle(title)
+            .setContentText(text)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT))
+            .setAutoCancel(true)
+            .addAction(R.drawable.ic_settings_rate, "Rate", ratePendingIntent)
+            .addAction(R.drawable.ic_settings_rate, "Share", PendingIntent.getActivity(context, 0, Intent.createChooser(shareIntent, "Share..."), PendingIntent.FLAG_UPDATE_CURRENT))
+        notify(builder.build())
+    }
+
+    private fun notify(notification : Notification){
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel("DownloadManager1292", "Download complete!", NotificationManager.IMPORTANCE_DEFAULT);
+            notificationManager.createNotificationChannel(channel)
+        }
+        notificationManager.notify("Download Manager", 0, notification)
     }
 
 }
