@@ -103,8 +103,6 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
 
         intrAdLoader()
 
-        showInterstitial()
-
         /**
          * Initializing adapter and layout manager for recyclerView
          */

@@ -3,7 +3,6 @@ package com.download.manager.video.whatsapp.ui.navigation
 import android.app.Dialog
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -14,7 +13,6 @@ import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.util.Patterns
 import android.view.*
 import android.view.animation.Animation
@@ -37,12 +35,12 @@ import com.download.manager.video.whatsapp.engine.AdPreferrenceHandler
 import com.download.manager.video.whatsapp.engine.Legion
 import com.download.manager.video.whatsapp.engine.PermissionListener
 import com.download.manager.video.whatsapp.engine.RecyclerTouchListener
-import com.download.manager.video.whatsapp.ui.DownloadsActivity
 import com.download.manager.video.whatsapp.ui.MainActivity
 import com.download.manager.video.whatsapp.utility.VideoContentSearch
-import com.download.manager.video.whatsapp.widgets.web.ScriptUtil
+import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.InterstitialAd
+import com.google.android.gms.ads.MobileAds
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.dialog_how_to_browser.*
 import kotlinx.android.synthetic.main.dialog_links.*
@@ -50,6 +48,7 @@ import kotlinx.android.synthetic.main.dialog_restriction.*
 import kotlinx.android.synthetic.main.dialog_save_download.*
 import kotlinx.android.synthetic.main.item_album.view.*
 import kotlinx.android.synthetic.main.main_browser.*
+import kotlinx.android.synthetic.main.main_browser.view.*
 import java.util.*
 
 import javax.net.ssl.HttpsURLConnection
@@ -68,6 +67,8 @@ class Browser : Fragment(), MainActivity.OnBackPressedListener{
     private var downloadsEntity: MutableList<DownloadsEntity> = ArrayList()
     private var bookmarkEntity: MutableList<BookmarkEntity> = ArrayList()
 
+    private var root: View? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
@@ -80,6 +81,28 @@ class Browser : Fragment(), MainActivity.OnBackPressedListener{
         downloadsViewModel = ViewModelProviders.of(this).get(DownloadsViewModel::class.java)
 
         adPreferrenceHandler = AdPreferrenceHandler(activity as MainActivity)
+
+        // Initialize the Mobile Ads SDK with an AdMob App ID.
+        MobileAds.initialize(activity as MainActivity)
+
+        // Create the InterstitialAd and set it up.
+        mainIntrAd = InterstitialAd(activity as MainActivity).apply {
+            adUnitId = resources.getString(R.string.intr_name)
+            adListener = (object : AdListener() {
+                override fun onAdLoaded() {
+                    if (adPreferrenceHandler.getViewSessionCount() >= 5) {
+                        showInterstitial()
+                        adPreferrenceHandler.setViewSessionCount(0)
+                    }else{
+                        adPreferrenceHandler.setViewSessionCount(adPreferrenceHandler.getViewSessionCount() + 1)
+                    }
+                }
+                override fun onAdFailedToLoad(errorCode: Int) {}
+                override fun onAdClosed() {}
+            })
+        }
+
+        intrAdLoader()
 
         bookmarkAdapter = BookmarkAdapter(activity as MainActivity, bookmarkEntity)
         val linksManager = GridLayoutManager(activity as MainActivity, 3, GridLayoutManager.VERTICAL, false)
@@ -275,28 +298,29 @@ class Browser : Fragment(), MainActivity.OnBackPressedListener{
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.main_browser, container, false)
+        root = inflater.inflate(R.layout.main_browser, container, false)  // initialize it here
+        return root
     }
 
     private var webChromeClient: WebChromeClient = object : WebChromeClient() {
         override fun onProgressChanged(view: WebView, newProgress: Int) {
-            iv_refresh.startAnimation(AnimationUtils.loadAnimation(activity as MainActivity, R.anim.rotation))
-            if (newProgress.toString().isNotEmpty()){ if (newProgress == 100){ downloadsEntity.clear(); iv_refresh.clearAnimation()} }
+            root!!.iv_refresh.startAnimation(AnimationUtils.loadAnimation(activity as MainActivity, R.anim.rotation))
+            if (newProgress.toString().isNotEmpty()){ if (newProgress == 100){ downloadsEntity.clear(); root!!.iv_refresh.clearAnimation()} }
             super.onProgressChanged(view, newProgress)
         }
     }
 
     private var webViewClient: WebViewClient = object : WebViewClient() {
-        override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
-            if (url.isNotEmpty()) {
-                search_box.setText(url)
+        override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
+            if (url.toString().isNotEmpty()) {
+                root!!.search_box.setText(url)
             }
             super.onPageStarted(view, url, favicon)
         }
 
 
         override fun shouldOverrideUrlLoading(view: WebView, url: String?): Boolean {
-            search_box.setText(url.toString())
+            root!!.search_box.setText(url.toString())
             view.loadUrl(url)
             return super.shouldOverrideUrlLoading(view, url)
         }
@@ -320,7 +344,7 @@ class Browser : Fragment(), MainActivity.OnBackPressedListener{
                             /**
                              * Display loader to show searching for video link
                              */
-                            downloads_loader.visibility = View.VISIBLE
+                            root!!.downloads_loader.visibility = View.VISIBLE
                         }
                     }
 
@@ -331,8 +355,8 @@ class Browser : Fragment(), MainActivity.OnBackPressedListener{
                                 /**
                                  * Hide loader to show searching for video link
                                  */
-                                downloads_loader?.visibility = View.GONE
-                                downloads_counter.text = downloadsEntity.size.toString()
+                                root!!.downloads_loader.visibility = View.GONE
+                                root!!.downloads_counter.text = downloadsEntity.size.toString()
                             }
                         }
                     }

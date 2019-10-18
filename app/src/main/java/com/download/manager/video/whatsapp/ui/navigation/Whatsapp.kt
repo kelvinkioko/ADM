@@ -94,8 +94,6 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
 
         intrAdLoader()
 
-        showInterstitial()
-
         /**
          * Initializing adapter and layout manager for recyclerView
          */
