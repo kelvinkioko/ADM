@@ -56,7 +56,5 @@
         </service>
 
         <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="@string/appd_name"/>
-
-        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/face_name"/>
     </application>
 </manifest>

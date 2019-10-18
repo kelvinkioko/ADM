@@ -41,7 +41,8 @@ public abstract class VideoContentSearch extends Thread {
     @Override
     public void run() {
         String urlLowerCase = url.toLowerCase();
-        String[] filters = mContext.getResources().getStringArray(R.array.videourl_filters);
+        String allFilters = "mp3,mp4,gif,video,googleusercontent,embed";
+        String[] filters = allFilters.split(",");
         boolean urlMightBeVideo = false;
         for (String filter : filters) {
             if (urlLowerCase.contains(filter)) {

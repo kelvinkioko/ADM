@@ -7,7 +7,6 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.Environment
 import android.os.Handler
-import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -28,13 +27,12 @@ import java.nio.channels.FileChannel
 import java.text.DecimalFormat
 import java.util.*
 import android.app.PendingIntent
-import android.graphics.BitmapFactory
 import com.download.manager.video.whatsapp.ui.MainActivity
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.support.graphics.drawable.VectorDrawableCompat
 import android.support.v4.app.NotificationCompat
-import android.support.v4.content.ContextCompat.getSystemService
 
 class DownloadsAdapter (private val context: Context, private var downloadsEntity: List<DownloadsEntity>) : SectioningAdapter() {
 
@@ -107,14 +105,29 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
             val fileLoc = File(item.localurl)
             if (fileLoc.exists()) {
                 when {
-                    item.localurl.contains(".mp4") -> Glide.with(context).load(item.localurl).into(holder.idImageClear)
-                    item.localurl.contains(".jpeg") -> Glide.with(context).load(item.localurl).into(holder.idImageClear)
-                    item.localurl.contains(".jpg") -> Glide.with(context).load(item.localurl).into(holder.idImageClear)
+                    item.localurl.contains(".mp4") -> {
+                        val density = context.resources.displayMetrics.density
+                        val paddingPixel = (8 * density).toInt()
+                        holder.idImageClear.setPadding(0, paddingPixel, 0, paddingPixel)
+                        holder.idImageClear.setImageDrawable(VectorDrawableCompat.create(context.resources, R.drawable.icon_file_mp4,null ))
+                    }
+                    item.localurl.contains(".jpeg") -> {
+                        val density = context.resources.displayMetrics.density
+                        val paddingPixel = (8 * density).toInt()
+                        holder.idImageClear.setPadding(0, paddingPixel, 0, paddingPixel)
+                        holder.idImageClear.setImageDrawable(VectorDrawableCompat.create(context.resources, R.drawable.icon_file_jpeg,null ))
+                    }
+                    item.localurl.contains(".jpg") -> {
+                        val density = context.resources.displayMetrics.density
+                        val paddingPixel = (8 * density).toInt()
+                        holder.idImageClear.setPadding(0, paddingPixel, 0, paddingPixel)
+                        holder.idImageClear.setImageDrawable(VectorDrawableCompat.create(context.resources, R.drawable.icon_file_jpeg,null ))
+                    }
                     item.localurl.contains(".mp3") -> {
                         val density = context.resources.displayMetrics.density
                         val paddingPixel = (8 * density).toInt()
-                        holder.idImageClear.setPadding(0,paddingPixel,0,paddingPixel)
-                        holder.idImageClear.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.icon_file_mp3))
+                        holder.idImageClear.setPadding(0, paddingPixel, 0, paddingPixel)
+                        holder.idImageClear.setImageDrawable(VectorDrawableCompat.create(context.resources, R.drawable.icon_file_mp3,null ))
                     }
                 }
 
@@ -131,6 +144,33 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
                 holder.idDetails.text = item.datecreated
             }
         }else {
+            when {
+                item.url.contains(".mp4") -> {
+                    val density = context.resources.displayMetrics.density
+                    val paddingPixel = (8 * density).toInt()
+                    holder.idImageClear.setPadding(0, paddingPixel, 0, paddingPixel)
+                    holder.idImageClear.setImageDrawable(VectorDrawableCompat.create(context.resources, R.drawable.icon_file_mp4,null ))
+                }
+                item.url.contains(".jpeg") -> {
+                    val density = context.resources.displayMetrics.density
+                    val paddingPixel = (8 * density).toInt()
+                    holder.idImageClear.setPadding(0, paddingPixel, 0, paddingPixel)
+                    holder.idImageClear.setImageDrawable(VectorDrawableCompat.create(context.resources, R.drawable.icon_file_jpeg,null ))
+                }
+                item.url.contains(".jpg") -> {
+                    val density = context.resources.displayMetrics.density
+                    val paddingPixel = (8 * density).toInt()
+                    holder.idImageClear.setPadding(0, paddingPixel, 0, paddingPixel)
+                    holder.idImageClear.setImageDrawable(VectorDrawableCompat.create(context.resources, R.drawable.icon_file_jpeg,null ))
+                }
+                item.url.contains(".mp3") -> {
+                    val density = context.resources.displayMetrics.density
+                    val paddingPixel = (8 * density).toInt()
+                    holder.idImageClear.setPadding(0, paddingPixel, 0, paddingPixel)
+                    holder.idImageClear.setImageDrawable(VectorDrawableCompat.create(context.resources, R.drawable.icon_file_mp3,null ))
+                }
+            }
+
             holder.idProgress.max = 100.toFloat()
             if (item.downloaded.toInt() != 0 && item.size.toInt() != 0) {
                 holder.idDetails.text = getFileSize(item.downloaded.toLong()) + "/" + getFileSize(item.size.toLong())
