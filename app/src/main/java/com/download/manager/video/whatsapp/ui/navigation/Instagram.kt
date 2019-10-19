@@ -203,46 +203,4 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
         }
     }
 
-//    //setting menu in action bar
-//    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-//        inflater!!.inflate(R.menu.main,menu)
-//        super.onCreateOptionsMenu(menu, inflater)
-//    }
-//
-//    // actions on click menu items
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        when (item.itemId){
-//            R.id.action_rate -> { reviewDialog() }
-//            R.id.action_share ->{ reviewDialog() }
-//        }
-//        return super.onOptionsItemSelected(item)
-//    }
-//
-//    fun reviewDialog(){
-//        dialog = Dialog(activity as MainActivity)
-//        dialog.setCanceledOnTouchOutside(false)
-//        dialog.setCancelable(true)
-//        dialog.setContentView(R.layout.dialog_review_rating)
-//        Objects.requireNonNull<Window>(dialog.window).setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-//        dialog.window!!.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-//        dialog.window!!.setGravity(Gravity.BOTTOM)
-//        dialog.show()
-//
-//        val _share : TextView = dialog.findViewById(R.id.drr_share)
-//        val _rate : TextView = dialog.findViewById(R.id.drr_rate)
-//        val googlePlayUrl = "https://play.google.com/store/apps/details?id="
-//        val msg = resources.getString(R.string.share_message) + " "
-//
-//        _share.setOnClickListener {
-//            val shareIntent = Intent()
-//            shareIntent.action = Intent.ACTION_SEND
-//            shareIntent.putExtra(Intent.EXTRA_TEXT, msg + googlePlayUrl + context!!.packageName)
-//            shareIntent.type = "text/plain"
-//            startActivity(Intent.createChooser(shareIntent, "Share..."))
-//        }
-//
-//        _rate.setOnClickListener{
-//            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + context!!.packageName)))
-//        }
-//    }
 }

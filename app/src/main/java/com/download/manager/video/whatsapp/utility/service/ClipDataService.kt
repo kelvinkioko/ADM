@@ -1,5 +1,6 @@
 package com.download.manager.video.whatsapp.utility.service
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -14,7 +15,9 @@ import android.net.Uri
 import android.os.AsyncTask
 import android.os.Build
 import android.os.Environment
+import android.support.annotation.Keep
 import android.support.v4.app.NotificationCompat
+import android.util.Log
 import com.download.manager.video.whatsapp.R
 import com.download.manager.video.whatsapp.database.DatabaseApp
 import com.download.manager.video.whatsapp.database.entity.InstaEntity
@@ -29,6 +32,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.channels.FileChannel
 import java.util.*
+import java.util.concurrent.ExecutionException
 
 class ClipDataService : JobService(){
 
@@ -44,13 +48,10 @@ class ClipDataService : JobService(){
         if ((getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).primaryClip != null) {
             val parentUrl = (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).primaryClip?.getItemAt(0)?.text.toString()
 
-            if (parentUrl.isNotEmpty() && parentUrl.startsWith("https://www.instagram.com/") && DatabaseApp().getInstaDao(
-                    applicationContext
-                ).countInstaListByParent(parentUrl) == 0
-            ) {
+            if (parentUrl.isNotEmpty() && parentUrl.startsWith("https://www.instagram.com/") && DatabaseApp().getInstaDao(applicationContext).countInstaListByParent(parentUrl) == 0) {
                 val instant = InstaEntity(0, "", "", parentUrl, "", "", "", "0", "0", Legion().getCurrentDate())
                 DatabaseApp().getInstaDao(applicationContext).insertInsta(instant)
-                getInstagramUrl().execute(parentUrl)
+                getInstagramUrl().execute(parentUrl).get()
             }
         }
     }
@@ -89,10 +90,8 @@ class ClipDataService : JobService(){
         (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).addPrimaryClipChangedListener(this.ClipboardListener)
     }
 
-    inner class getInstagramUrl : AsyncTask<String, String, String>() {
-
-        /* access modifiers changed from: protected */
-        public override fun onPreExecute() { super.onPreExecute() }
+    @SuppressLint("StaticFieldLeak")
+    private inner class getInstagramUrl : AsyncTask<String, String, String>() {
 
         /* access modifiers changed from: protected */
         public override fun doInBackground(vararg strings: String): String? {
@@ -103,6 +102,7 @@ class ClipDataService : JobService(){
                 video = doc.select("meta[property=og:video:secure_url]").attr("content")
                 postedBy = doc.select("meta[property=og:description]").attr("content").split("@")[1].split("•")[0].trim()
                 name = (Random().nextInt(899999999)).toString()
+
                 isVideo = video.isNotEmpty()
             } catch (e: IOException) {
                 isError = true

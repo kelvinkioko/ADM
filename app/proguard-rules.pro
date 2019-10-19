@@ -23,6 +23,8 @@
 -keep class org.joda.time.** { *; }
 -dontwarn org.joda.time.**
 -keep class com.shockwave.**
+
+-keeppackagenames org.jsoup.nodes
 -ignorewarnings
 
 -renamesourcefileattribute SourceFile

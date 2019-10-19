@@ -67,7 +67,6 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
 
     private val menu by lazy { findViewById<ReadableBottomBar>(R.id.main_navigation) }
 
-    lateinit var onBackPress: OnBackPressedListener
     lateinit var mFragmentManager: FragmentManager
     lateinit var mFragmentTransaction: FragmentTransaction
     var count = 0
@@ -86,6 +85,8 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
         toolbar.setNavigationOnClickListener {
             main_page.visibility = View.VISIBLE
             downloads_page.visibility = View.GONE
+            ad_view.pause()
+            ad_view_bottom.pause()
         }
 
         PermissionListener(this).loadPermissions()
@@ -99,14 +100,6 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
 
         // Initialize the Mobile Ads SDK with an AdMob App ID.
         MobileAds.initialize(this)
-
-        // Create an ad request.
-        val adRequest = AdRequest.Builder().build()
-        val adRequestBottom = AdRequest.Builder().build()
-
-        // Start loading the ad in the background.
-        ad_view.loadAd(adRequest)
-        ad_view_bottom.loadAd(adRequestBottom)
 
         // Create the InterstitialAd and set it up.
         mainIntrAd = InterstitialAd(this).apply {
@@ -227,9 +220,14 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
         if (downloads_page.visibility == View.VISIBLE){
             main_page.visibility = View.VISIBLE
             downloads_page.visibility = View.GONE
+
+            ad_view.pause()
+            ad_view_bottom.pause()
         }else {
             if(count == 1) {
                 count = 0
+                ad_view.destroy()
+                ad_view_bottom.destroy()
                 super.onBackPressed()
             } else {
                 showInterstitial()
@@ -239,13 +237,19 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
         }
     }
 
-    interface OnBackPressedListener {
-        fun onBackPressed(): Boolean
-    }
-
     /**
      * DownloaderView actions
      */
+
+    fun adViewDisplay(){
+        // Create an ad request.
+        val adRequest = AdRequest.Builder().build()
+        val adRequestBottom = AdRequest.Builder().build()
+
+        // Start loading the ad in the background.
+        ad_view.loadAd(adRequest)
+        ad_view_bottom.loadAd(adRequestBottom)
+    }
 
     override fun parentClick(localUrl: String) {
         adCountHandler()
@@ -253,16 +257,14 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
         val fileUri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID +".admprovider", videoFile)
         grantUriPermission("com.download.manager.video.whatsapp", fileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
         val intent = Intent(Intent.ACTION_VIEW)
-        if (localUrl.endsWith(".mp4", true)){
-            intent.setDataAndType(fileUri, "video/*")
-        }else if (localUrl.endsWith(".jpg", true)){
-            intent.setDataAndType(fileUri, "image/*")
-        }else if (localUrl.endsWith(".jpeg", true)){
-            intent.setDataAndType(fileUri, "image/*")
-        }else if (localUrl.endsWith(".mp3", true)){
-            intent.setDataAndType(fileUri, "audio/*")
+        when {
+            localUrl.endsWith(".mp4", true) -> intent.setDataAndType(fileUri, "video/*")
+            localUrl.endsWith(".jpg", true) -> intent.setDataAndType(fileUri, "image/*")
+            localUrl.endsWith(".jpeg", true) -> intent.setDataAndType(fileUri, "image/*")
+            localUrl.endsWith(".mp3", true) -> intent.setDataAndType(fileUri, "audio/*")
         }
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)//DO NOT FORGET THIS EVER
+        //DO NOT FORGET THIS EVER
         startActivity(intent)
     }
 
@@ -272,32 +274,32 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
     }
 
     fun populateDownloads(){
-            downloadsViewModel.getDownloads().observe(this, Observer<List<DownloadsEntity>> { downloadsEntities ->
-                if (downloadsEntities != null) {
-                    if (downloadsEntities.isNotEmpty()) {
-                        download_history.visibility = View.VISIBLE
-                        download_empty.visibility = View.GONE
-                        downloadsEntity.clear()
-                        for (d in 0 until downloadsEntities.size) {
-                            val download = DownloadsEntity(
-                                downloadsEntities[d].id,
-                                downloadsEntities[d].name,
-                                downloadsEntities[d].url,
-                                downloadsEntities[d].localurl,
-                                downloadsEntities[d].downloaded,
-                                downloadsEntities[d].size,
-                                downloadsEntities[d].datecreated
-                            )
-                            this.downloadsEntity.add(download)
-                        }
-
-                        downloadsAdapter.setDownloads(downloadsEntity)
-                    } else {
-                        download_history.visibility = View.GONE
-                        download_empty.visibility = View.VISIBLE
+        downloadsViewModel.getDownloads().observe(this, Observer<List<DownloadsEntity>> { downloadsEntities ->
+            if (downloadsEntities != null) {
+                if (downloadsEntities.isNotEmpty()) {
+                    download_history.visibility = View.VISIBLE
+                    download_empty.visibility = View.GONE
+                    downloadsEntity.clear()
+                    for (d in 0 until downloadsEntities.size) {
+                        val download = DownloadsEntity(
+                            downloadsEntities[d].id,
+                            downloadsEntities[d].name,
+                            downloadsEntities[d].url,
+                            downloadsEntities[d].localurl,
+                            downloadsEntities[d].downloaded,
+                            downloadsEntities[d].size,
+                            downloadsEntities[d].datecreated
+                        )
+                        this.downloadsEntity.add(download)
                     }
+
+                    downloadsAdapter.setDownloads(downloadsEntity)
+                } else {
+                    download_history.visibility = View.GONE
+                    download_empty.visibility = View.VISIBLE
                 }
-            })
+            }
+        })
     }
 
     private fun showInterstitial() {
@@ -344,7 +346,6 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
             reviewDialog()
             true
         }
-
         else -> {
             // If we got here, the user's action was not recognized.
             // Invoke the superclass to handle it.
@@ -384,6 +385,13 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
             mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE, bundle)
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName")))
         }
+    }
+
+    // Called before the activity is destroyed
+    public override fun onDestroy() {
+        ad_view.destroy()
+        ad_view_bottom.destroy()
+        super.onDestroy()
     }
 
 }

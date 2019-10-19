@@ -55,7 +55,7 @@ import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLSocketFactory
 import kotlin.collections.ArrayList
 
-class Browser : Fragment(), MainActivity.OnBackPressedListener{
+class Browser : Fragment(){
     private lateinit var mainIntrAd: InterstitialAd
     lateinit var adPreferrenceHandler: AdPreferrenceHandler
 
@@ -123,10 +123,7 @@ class Browser : Fragment(), MainActivity.OnBackPressedListener{
                 webview.loadUrl(bookmarkUrl.text.toString())
             }
 
-            override fun onItemLongClick(view: View?, position: Int) {
-                Toast.makeText(activity, "do nothing", Toast.LENGTH_LONG).show()
-                TODO("do nothing")
-            }
+            override fun onItemLongClick(view: View?, position: Int) {}
         }))
 
         defaultSSLSF = HttpsURLConnection.getDefaultSSLSocketFactory()
@@ -169,9 +166,8 @@ class Browser : Fragment(), MainActivity.OnBackPressedListener{
         iv_downloads.setOnClickListener {
             activity!!.main_page.visibility = View.GONE
             activity!!.downloads_page.visibility = View.VISIBLE
-//            if (downloadsEntity.size < downloadsViewModel.countDownloads()) {
-//
-//            }
+            showInterstitial()
+            (activity as MainActivity).adViewDisplay()
             (activity as MainActivity).populateDownloads()
         }
 
@@ -302,6 +298,12 @@ class Browser : Fragment(), MainActivity.OnBackPressedListener{
         return root
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        // attempting to save the webview state for later
+        root!!.webview.saveState(outState)
+        super.onSaveInstanceState(outState)
+    }
+
     private var webChromeClient: WebChromeClient = object : WebChromeClient() {
         override fun onProgressChanged(view: WebView, newProgress: Int) {
             root!!.iv_refresh.startAnimation(AnimationUtils.loadAnimation(activity as MainActivity, R.anim.rotation))
@@ -361,15 +363,8 @@ class Browser : Fragment(), MainActivity.OnBackPressedListener{
                         }
                     }
 
-                    override fun onVideoFound(
-                        size: String,
-                        type: String,
-                        link: String,
-                        name: String,
-                        page: String,
-                        chunked: Boolean,
-                        website: String
-                    ) {
+                    override fun onVideoFound(size: String, type: String, link: String,
+                        name: String, page: String, chunked: Boolean, website: String) {
                         if (!size.equals("0")) {
                             val download = DownloadsEntity(0, name, link, "", "1", size, "")
                             if (!downloadsEntity.contains(download)) {
@@ -380,7 +375,7 @@ class Browser : Fragment(), MainActivity.OnBackPressedListener{
                             /**
                              * update counter
                              */
-                            downloads_counter.text = downloadsEntity.size.toString()
+                            root!!.downloads_counter.text = downloadsEntity.size.toString()
                         }
                     }
                 }.start()
@@ -388,7 +383,7 @@ class Browser : Fragment(), MainActivity.OnBackPressedListener{
         }
 
         override fun onPageFinished(view: WebView, url: String) {
-            iv_refresh.clearAnimation()
+            root!!.iv_refresh.clearAnimation()
             super.onPageFinished(view, url)
         }
     }
@@ -440,11 +435,6 @@ class Browser : Fragment(), MainActivity.OnBackPressedListener{
         }else{
             adPreferrenceHandler.setViewSessionCount(adPreferrenceHandler.getViewSessionCount() + 1)
         }
-    }
-
-    override fun onBackPressed(): Boolean {
-        Toast.makeText(activity as MainActivity, "Browser", Toast.LENGTH_LONG).show()
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
 }
