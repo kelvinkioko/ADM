@@ -38,6 +38,7 @@ import com.download.manager.video.whatsapp.database.entity.DownloadsEntity
 import com.download.manager.video.whatsapp.database.viewmodel.DownloadsViewModel
 import com.download.manager.video.whatsapp.engine.AdPreferrenceHandler
 import com.download.manager.video.whatsapp.utility.service.ClipDataService
+import com.download.manager.video.whatsapp.utility.service.EngagementService
 import com.download.manager.video.whatsapp.utility.service.InstaService
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
@@ -120,8 +121,6 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
 
         intrAdLoader()
 
-        showInterstitial()
-
         /**
          * Initializing adapter and layout manager for recyclerView
          */
@@ -134,9 +133,7 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             val jobScheduler = applicationContext.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
-
-            val componentName = ComponentName(this, ClipDataService::class.java!!)
-
+            val componentName = ComponentName(this, ClipDataService::class.java)
             val jobInfo = JobInfo.Builder(1, componentName)
                 .setRequiresCharging(false)
                 .setRequiresDeviceIdle(false)
@@ -144,6 +141,16 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                 .setPersisted(true).build()
             jobScheduler.schedule(jobInfo)
+
+            val engageScheduler = applicationContext.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+            val engageName = ComponentName(this, EngagementService::class.java)
+            val engageInfo = JobInfo.Builder(2, engageName)
+                .setRequiresCharging(false)
+                .setRequiresDeviceIdle(true)
+                .setPeriodic(7200000)
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                .setPersisted(true).build()
+            engageScheduler.schedule(engageInfo)
         }else {
             startService(Intent(this, InstaService::class.java).setAction(InstaService().ACTION_START))
         }
@@ -319,7 +326,7 @@ class MainActivity : AppCompatActivity(), DownloadsAdapter.OnItemClickListener  
     }
 
     private fun adCountHandler(){
-        if (adPreferrenceHandler.getViewSessionCount() >= 5) {
+        if (adPreferrenceHandler.getViewSessionCount() >= 4) {
             showInterstitial()
             adPreferrenceHandler.setViewSessionCount(0)
         }else{

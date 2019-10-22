@@ -39,6 +39,7 @@ import com.google.android.gms.ads.InterstitialAd
 import com.google.android.gms.ads.MobileAds
 import kotlinx.android.synthetic.main.dialog_how_to_instagram.*
 import kotlinx.android.synthetic.main.main_gram.*
+import kotlinx.android.synthetic.main.main_gram.view.*
 import java.io.File
 
 
@@ -47,6 +48,7 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
     /**
      * Ad related variables
      */
+    private var root: View? = null
     private lateinit var mainIntrAd: InterstitialAd
     lateinit var adPreferrenceHandler: AdPreferrenceHandler
 
@@ -82,7 +84,7 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
         val adRequest = AdRequest.Builder().build()
 
         // Start loading the ad in the background.
-        ad_view.loadAd(adRequest)
+        root!!.ad_view.loadAd(adRequest)
 
         // Create the InterstitialAd and set it up.
         mainIntrAd = InterstitialAd(activity as MainActivity).apply {
@@ -101,8 +103,6 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
             })
         }
 
-        intrAdLoader()
-
         /**
          * Initializing adapter and layout manager for recyclerView
          */
@@ -111,11 +111,11 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
         val instaManager = StickyHeaderGridLayoutManager(2)
         instaManager.setHeaderBottomOverlapMargin(resources.getDimensionPixelSize(R.dimen.header_shadow_size))
 
-        insta_history.layoutManager = instaManager
-        insta_history.itemAnimator = DefaultItemAnimator()
-        insta_history.adapter = instaAdapter
+        root!!.insta_history.layoutManager = instaManager
+        root!!.insta_history.itemAnimator = DefaultItemAnimator()
+        root!!.insta_history.adapter = instaAdapter
 
-        insta_help.setOnClickListener {
+        root!!.insta_help.setOnClickListener {
             saveDialog = Dialog(activity)
             saveDialog.setCanceledOnTouchOutside(false)
             saveDialog.setCancelable(true)
@@ -132,12 +132,27 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.main_gram, container, false)
+        root = inflater.inflate(R.layout.main_gram, container, false)  // initialize it here
+        return root
     }
 
+    /** Called when leaving the activity  */
+    override fun onPause() {
+        root!!.ad_view.pause()
+        super.onPause()
+    }
+
+    /** Called when returning to the activity  */
     override fun onResume() {
-        super.onResume()
         populateDownloads()
+        root!!.ad_view.resume()
+        super.onResume()
+    }
+
+    /** Called before the activity is destroyed  */
+    override fun onDestroy() {
+        root!!.ad_view.destroy()
+        super.onDestroy()
     }
 
     private fun populateDownloads(){
@@ -179,6 +194,7 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
     }
 
     private fun showInterstitial() {
+        intrAdLoader()
         if (mainIntrAd.isLoaded) {
             mainIntrAd.show()
         }else{

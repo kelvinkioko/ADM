@@ -31,6 +31,8 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.InterstitialAd
 import com.google.android.gms.ads.MobileAds
 import kotlinx.android.synthetic.main.main_whatsapp.*
+import kotlinx.android.synthetic.main.main_whatsapp.toolbar
+import kotlinx.android.synthetic.main.main_whatsapp.view.*
 import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.text.SimpleDateFormat
@@ -42,6 +44,7 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
     /**
      * Ad related variables
      */
+    private var root: View? = null
     private lateinit var mainIntrAd: InterstitialAd
     lateinit var adPreferrenceHandler: AdPreferrenceHandler
 
@@ -73,7 +76,7 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
         val adRequest = AdRequest.Builder().build()
 
         // Start loading the ad in the background.
-        ad_view.loadAd(adRequest)
+        root!!.ad_view.loadAd(adRequest)
 
         // Create the InterstitialAd and set it up.
         mainIntrAd = InterstitialAd(activity as MainActivity).apply {
@@ -92,8 +95,6 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
             })
         }
 
-        intrAdLoader()
-
         /**
          * Initializing adapter and layout manager for recyclerView
          */
@@ -102,19 +103,34 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
         val whatsManager = StickyHeaderGridLayoutManager(2)
         whatsManager.setHeaderBottomOverlapMargin(resources.getDimensionPixelSize(R.dimen.header_shadow_size))
 
-        whats_history.layoutManager = whatsManager
-        whats_history.itemAnimator = DefaultItemAnimator()
-        whats_history.adapter = whatsAdapter
+        root!!.whats_history.layoutManager = whatsManager
+        root!!.whats_history.itemAnimator = DefaultItemAnimator()
+        root!!.whats_history.adapter = whatsAdapter
 
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedWhatsnceState: Bundle?): View? {
-        return inflater.inflate(R.layout.main_whatsapp, container, false)
+        root = inflater.inflate(R.layout.main_whatsapp, container, false)  // initialize it here
+        return root
     }
 
+    /** Called when leaving the activity  */
+    override fun onPause() {
+        root!!.ad_view.pause()
+        super.onPause()
+    }
+
+    /** Called when returning to the activity  */
     override fun onResume() {
-        super.onResume()
         Handler().postDelayed({ populateDownloads() }, 200)
+        root!!.ad_view.resume()
+        super.onResume()
+    }
+
+    /** Called before the activity is destroyed  */
+    override fun onDestroy() {
+        root!!.ad_view.destroy()
+        super.onDestroy()
     }
 
     private fun populateDownloads(){
@@ -133,8 +149,8 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
 
                     whatsAdapter.setWhats(whatsEntity)
                 }else{
-                    whats_history.visibility = View.GONE
-                    whats_empty.visibility = View.VISIBLE
+                    root!!.whats_history.visibility = View.GONE
+                    root!!.whats_empty.visibility = View.VISIBLE
                 }
             }
         })
@@ -190,6 +206,7 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
     }
 
     private fun showInterstitial() {
+        intrAdLoader()
         if (mainIntrAd.isLoaded) {
             mainIntrAd.show()
         }else{

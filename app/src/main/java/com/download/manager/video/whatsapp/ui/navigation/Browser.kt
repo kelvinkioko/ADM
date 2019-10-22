@@ -31,16 +31,11 @@ import com.download.manager.video.whatsapp.database.adapter.DownloadListAdapter
 import com.download.manager.video.whatsapp.database.entity.BookmarkEntity
 import com.download.manager.video.whatsapp.database.entity.DownloadsEntity
 import com.download.manager.video.whatsapp.database.viewmodel.DownloadsViewModel
-import com.download.manager.video.whatsapp.engine.AdPreferrenceHandler
 import com.download.manager.video.whatsapp.engine.Legion
 import com.download.manager.video.whatsapp.engine.PermissionListener
 import com.download.manager.video.whatsapp.engine.RecyclerTouchListener
 import com.download.manager.video.whatsapp.ui.MainActivity
 import com.download.manager.video.whatsapp.utility.VideoContentSearch
-import com.google.android.gms.ads.AdListener
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.InterstitialAd
-import com.google.android.gms.ads.MobileAds
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.dialog_how_to_browser.*
 import kotlinx.android.synthetic.main.dialog_links.*
@@ -56,8 +51,6 @@ import javax.net.ssl.SSLSocketFactory
 import kotlin.collections.ArrayList
 
 class Browser : Fragment(){
-    private lateinit var mainIntrAd: InterstitialAd
-    lateinit var adPreferrenceHandler: AdPreferrenceHandler
 
     private lateinit var dialog: Dialog
     private lateinit var saveDialog: Dialog
@@ -79,30 +72,6 @@ class Browser : Fragment(){
 
         PermissionListener(activity as MainActivity).loadPermissions()
         downloadsViewModel = ViewModelProviders.of(this).get(DownloadsViewModel::class.java)
-
-        adPreferrenceHandler = AdPreferrenceHandler(activity as MainActivity)
-
-        // Initialize the Mobile Ads SDK with an AdMob App ID.
-        MobileAds.initialize(activity as MainActivity)
-
-        // Create the InterstitialAd and set it up.
-        mainIntrAd = InterstitialAd(activity as MainActivity).apply {
-            adUnitId = resources.getString(R.string.intr_name)
-            adListener = (object : AdListener() {
-                override fun onAdLoaded() {
-                    if (adPreferrenceHandler.getViewSessionCount() >= 5) {
-                        showInterstitial()
-                        adPreferrenceHandler.setViewSessionCount(0)
-                    }else{
-                        adPreferrenceHandler.setViewSessionCount(adPreferrenceHandler.getViewSessionCount() + 1)
-                    }
-                }
-                override fun onAdFailedToLoad(errorCode: Int) {}
-                override fun onAdClosed() {}
-            })
-        }
-
-        intrAdLoader()
 
         bookmarkAdapter = BookmarkAdapter(activity as MainActivity, bookmarkEntity)
         val linksManager = GridLayoutManager(activity as MainActivity, 3, GridLayoutManager.VERTICAL, false)
@@ -166,7 +135,6 @@ class Browser : Fragment(){
         iv_downloads.setOnClickListener {
             activity!!.main_page.visibility = View.GONE
             activity!!.downloads_page.visibility = View.VISIBLE
-            showInterstitial()
             (activity as MainActivity).adViewDisplay()
             (activity as MainActivity).populateDownloads()
         }
@@ -218,7 +186,6 @@ class Browser : Fragment(){
                         _links,
                         object : RecyclerTouchListener.OnItemClickListener {
                             override fun onItemClick(viewClick: View, position: Int) {
-                                adCountHandler()
                                 queueDownload(downloadsEntity[position])
                             }
 
@@ -304,6 +271,16 @@ class Browser : Fragment(){
         super.onSaveInstanceState(outState)
     }
 
+    override fun onPause() {
+        root!!.webview.onPause()
+        super.onPause()
+    }
+
+    override fun onResume() {
+        root!!.webview.onResume()
+        super.onResume()
+    }
+
     private var webChromeClient: WebChromeClient = object : WebChromeClient() {
         override fun onProgressChanged(view: WebView, newProgress: Int) {
             root!!.iv_refresh.startAnimation(AnimationUtils.loadAnimation(activity as MainActivity, R.anim.rotation))
@@ -319,7 +296,6 @@ class Browser : Fragment(){
             }
             super.onPageStarted(view, url, favicon)
         }
-
 
         override fun shouldOverrideUrlLoading(view: WebView, url: String?): Boolean {
             root!!.search_box.setText(url.toString())
@@ -410,31 +386,6 @@ class Browser : Fragment(){
                 }
             }
         })
-    }
-
-    private fun showInterstitial() {
-        if (mainIntrAd.isLoaded) {
-            mainIntrAd.show()
-        }else{
-            if (!mainIntrAd.isLoading && !mainIntrAd.isLoaded) {
-                intrAdLoader()
-            }
-        }
-    }
-
-    private fun intrAdLoader(){
-        // Create an ad request.
-        val adRequestIntr = AdRequest.Builder().build()
-        mainIntrAd.loadAd(adRequestIntr)
-    }
-
-    private fun adCountHandler(){
-        if (adPreferrenceHandler.getViewSessionCount() >= 5) {
-            showInterstitial()
-            adPreferrenceHandler.setViewSessionCount(0)
-        }else{
-            adPreferrenceHandler.setViewSessionCount(adPreferrenceHandler.getViewSessionCount() + 1)
-        }
     }
 
 }
