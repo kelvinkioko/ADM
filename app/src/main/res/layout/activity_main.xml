@@ -8,147 +8,36 @@
         android:background="#f2f3f4"
         tools:context=".ui.MainActivity">
 
-    <android.support.constraint.ConstraintLayout
-            android:id="@+id/main_page"
-            android:layout_width="match_parent" android:layout_height="match_parent"
-            android:background="#f2f3f4" tools:context=".ui.MainActivity"
-            app:layout_constraintTop_toTopOf="parent" android:layout_marginTop="0dp"
+    <FrameLayout
+            android:id="@+id/download_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:background="#f2f3f4"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/main_navigation"
             app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="0dp"
-            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="0dp"
-            app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="0dp">
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="0dp"/>
 
-        <FrameLayout
-                android:id="@+id/download_container"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:background="#f2f3f4"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toTopOf="@+id/main_navigation"
-                app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="0dp"
-                app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="0dp"/>
+    <View android:id="@+id/main_bottomview" android:alpha="0.6"
+          android:layout_width="match_parent" android:layout_height="4dp"
+          android:background="@drawable/toolbar_reverse"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintBottom_toTopOf="@+id/main_navigation"/>
 
-        <View android:id="@+id/main_bottomview" android:alpha="0.6"
-              android:layout_width="match_parent" android:layout_height="4dp"
-              android:background="@drawable/toolbar_reverse"
-              app:layout_constraintEnd_toEndOf="parent"
-              app:layout_constraintStart_toStartOf="parent"
-              app:layout_constraintBottom_toTopOf="@+id/main_navigation"/>
-
-        <com.download.manager.video.whatsapp.widgets.ReadableBottomBar
-                android:id="@+id/main_navigation"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:rbb_indicatorColor="@color/colorPrimary"
-                app:rbb_textColor="@color/colorPrimary"
-                app:rbb_indicatorHeight="3dp"
-                app:rbb_activeItemType="icon"
-                app:rbb_tabs="@xml/tabs"/>
-
-    </android.support.constraint.ConstraintLayout>
-
-    <android.support.constraint.ConstraintLayout
-            android:id="@+id/downloads_page" android:visibility="gone"
-            android:layout_width="match_parent" android:layout_height="match_parent"
-            app:layout_constraintTop_toTopOf="parent" android:layout_marginTop="0dp"
-            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="0dp"
-            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="0dp"
-            app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="0dp">
-
-        <android.support.v7.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="@drawable/background_gradient"
-                android:theme="@style/ToolbarTheme"
-                app:titleTextColor="@color/white"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" android:layout_marginTop="0dp"/>
-
-        <com.google.android.gms.ads.AdView
-                android:id="@+id/ad_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:adSize="BANNER"
-                app:adUnitId="@string/banr_name"
-                app:layout_constraintTop_toBottomOf="@+id/toolbar"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-
-        <View android:id="@+id/main_topview"
-              android:layout_width="match_parent"
-              android:alpha="0.6"
-              android:layout_height="4dp"
-              android:background="@drawable/toolbar_shadow"
-              app:layout_constraintEnd_toEndOf="parent"
-              app:layout_constraintStart_toStartOf="parent"
-              app:layout_constraintTop_toBottomOf="@+id/toolbar"/>
-
-        <android.support.v7.widget.RecyclerView
-                android:id="@+id/download_history"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                app:layout_constraintTop_toBottomOf="@+id/ad_view" android:layout_marginTop="0dp"
-                app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="0dp"
-                app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="0dp"
-                app:layout_constraintBottom_toTopOf="@+id/ad_view_bottom" android:layout_marginBottom="0dp" />
-
-        <LinearLayout android:id="@+id/download_empty"
-                      android:layout_width="match_parent" android:layout_height="wrap_content"
-                      android:orientation="vertical" android:gravity="center_horizontal"
-                      app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"
-                      app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
-                      app:layout_constraintTop_toBottomOf="@+id/ad_view" android:layout_marginTop="8dp"
-                      app:layout_constraintBottom_toTopOf="@+id/ad_view_bottom" android:layout_marginBottom="8dp">
-
-            <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:scaleType="centerCrop"
-                    app:srcCompat="@drawable/icon_empty"
-                    tools:ignore="ContentDescription"/>
-
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Empty list"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/primary_text"
-                    android:layout_marginBottom="8dp"/>
-
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="32dp"
-                    android:layout_marginEnd="32dp"
-                    android:gravity="center"
-                    android:textSize="17sp"
-                    android:text="You have no downloads to show."
-                    android:textColor="@color/secondary_text"/>
-
-        </LinearLayout>
-
-        <com.google.android.gms.ads.AdView
-                android:id="@+id/ad_view_bottom"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="0dp"
-                android:layout_marginEnd="0dp"
-                android:layout_marginStart="0dp"
-                app:adSize="BANNER"
-                app:adUnitId="@string/banr_name"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-
-    </android.support.constraint.ConstraintLayout>
+    <com.download.manager.video.whatsapp.widgets.ReadableBottomBar
+            android:id="@+id/main_navigation"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:rbb_indicatorColor="@color/colorPrimary"
+            app:rbb_textColor="@color/colorPrimary"
+            app:rbb_indicatorHeight="3dp"
+            app:rbb_activeItemType="icon"
+            app:rbb_tabs="@xml/tabs"/>
 
 </android.support.constraint.ConstraintLayout>

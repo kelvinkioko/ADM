@@ -1,17 +1,20 @@
 <resources>
     <string name="app_name">Android Download Manager</string>
 
-    <string name="face_name">408053223212311</string>
+    <string name="appd_name">ca-app-pub-3940256099942544~3347511713</string>
+    <string name="banr_name">ca-app-pub-3940256099942544/9214589741</string>
+    <string name="intr_name">ca-app-pub-3940256099942544/1033173712</string>
+    <!--<string name="natv_name">ca-app-pub-9298459920756022/6262120471</string>-->
 
-    <string name="appd_name">ca-app-pub-9298459920756022~5801233275</string>
-    <string name="banr_name">ca-app-pub-9298459920756022/7601400103</string>
-    <string name="intr_name">ca-app-pub-9298459920756022/1056813685</string>
-    <string name="natv_name">ca-app-pub-9298459920756022/6262120471</string>
+    <!--<string name="appd_name">ca-app-pub-9298459920756022~5801233275</string>-->
+    <!--<string name="banr_name">ca-app-pub-9298459920756022/7601400103</string>-->
+    <!--<string name="intr_name">ca-app-pub-9298459920756022/1056813685</string>-->
+    <!--<string name="natv_name">ca-app-pub-9298459920756022/6262120471</string>-->
 
-    <string name="downloads">Browser</string>
+    <string name="browser">Browser</string>
     <string name="whatsapp">WA</string>
     <string name="insta">IG</string>
-    <string name="face">FB</string>
+    <string name="downloads">Downloads</string>
 
     <string name="internet_warning">You need to have <u><b>Mobile Data</b></u> or <u><b>Wi-Fi</b></u> to use the application. \n\nPress <u>dismiss</u> to exit or <u>Settings</u> to turn on your internet</string>
 

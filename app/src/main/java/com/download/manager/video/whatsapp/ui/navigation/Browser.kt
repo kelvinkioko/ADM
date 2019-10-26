@@ -132,13 +132,6 @@ class Browser : Fragment(){
             }
         }
 
-        iv_downloads.setOnClickListener {
-            activity!!.main_page.visibility = View.GONE
-            activity!!.downloads_page.visibility = View.VISIBLE
-            (activity as MainActivity).adViewDisplay()
-            (activity as MainActivity).populateDownloads()
-        }
-
         iv_home.setOnClickListener{
             web_history.visibility = View.VISIBLE
             webview.visibility = View.GONE
@@ -255,7 +248,7 @@ class Browser : Fragment(){
 
                 val pulse = AnimationUtils.loadAnimation(activity as MainActivity, R.anim.pulse_fade_in)
                 pulse.repeatCount = Animation.INFINITE
-                iv_downloads.animation = pulse
+//                iv_downloads.animation = pulse
             }
         }
     }

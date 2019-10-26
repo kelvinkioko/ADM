@@ -63,8 +63,6 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
-
-
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -72,7 +70,7 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
         if(activity is AppCompatActivity){
             (activity as AppCompatActivity).setSupportActionBar(toolbar)
         }
-        (activity as MainActivity).supportActionBar!!.title = "Home | Insta"
+        (activity as MainActivity).supportActionBar!!.title = "Home | Instagram"
 
         downloadsViewModel = ViewModelProviders.of(this).get(DownloadsViewModel::class.java)
         adPreferrenceHandler = AdPreferrenceHandler(activity as MainActivity)
@@ -84,7 +82,7 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
         val adRequest = AdRequest.Builder().build()
 
         // Start loading the ad in the background.
-        root!!.ad_view.loadAd(adRequest)
+        root!!.gram_view.loadAd(adRequest)
 
         // Create the InterstitialAd and set it up.
         mainIntrAd = InterstitialAd(activity as MainActivity).apply {
@@ -138,20 +136,20 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
 
     /** Called when leaving the activity  */
     override fun onPause() {
-        root!!.ad_view.pause()
+        root!!.gram_view.pause()
         super.onPause()
     }
 
     /** Called when returning to the activity  */
     override fun onResume() {
         populateDownloads()
-        root!!.ad_view.resume()
+        root!!.gram_view.resume()
         super.onResume()
     }
 
     /** Called before the activity is destroyed  */
     override fun onDestroy() {
-        root!!.ad_view.destroy()
+        root!!.gram_view.destroy()
         super.onDestroy()
     }
 

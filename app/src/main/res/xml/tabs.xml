@@ -10,6 +10,10 @@
 
     <tab
             drawable="@drawable/ic_browser_black_24dp"
+            text="@string/browser" />
+
+    <tab
+            drawable="@drawable/ic_downloads_black_24dp"
             text="@string/downloads" />
 
 </tabs>

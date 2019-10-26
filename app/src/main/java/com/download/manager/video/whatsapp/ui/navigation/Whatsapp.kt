@@ -76,7 +76,7 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
         val adRequest = AdRequest.Builder().build()
 
         // Start loading the ad in the background.
-        root!!.ad_view.loadAd(adRequest)
+        root!!.whatsapp_view.loadAd(adRequest)
 
         // Create the InterstitialAd and set it up.
         mainIntrAd = InterstitialAd(activity as MainActivity).apply {
@@ -116,20 +116,20 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
 
     /** Called when leaving the activity  */
     override fun onPause() {
-        root!!.ad_view.pause()
+        root!!.whatsapp_view.pause()
         super.onPause()
     }
 
     /** Called when returning to the activity  */
     override fun onResume() {
         Handler().postDelayed({ populateDownloads() }, 200)
-        root!!.ad_view.resume()
+        root!!.whatsapp_view.resume()
         super.onResume()
     }
 
     /** Called before the activity is destroyed  */
     override fun onDestroy() {
-        root!!.ad_view.destroy()
+        root!!.whatsapp_view.destroy()
         super.onDestroy()
     }
 
