@@ -300,7 +300,6 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
             }
 
             override fun onPause() {
-                Log.e("Download status", "Paused")
                 handler.post {
                     holder.idPause.visibility = View.GONE
                     holder.idPlay.visibility = View.VISIBLE
@@ -313,7 +312,6 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
             }
 
             override fun onResume() {
-                Log.e("Download status", "Resumed")
                 handler.post {
                     holder.idPause.visibility = View.VISIBLE
                     holder.idPlay.visibility = View.GONE
@@ -364,6 +362,8 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
                 DatabaseApp().getDownloadsDao(context).updateDownloads(final.length().toString(), final.length().toString(), item.id)
                 DatabaseApp().getDownloadsDao(context).updateLocalURL(final.toString(), item.id)
 
+                item.localurl = final.toString()
+
                 if (item.downloaded.toInt() != 0 && item.size.toInt() != 0){
                     holder.idDetails.text = "Download Complete " + getFileSize(item.downloaded.toLong()) + "/" + getFileSize(item.size.toLong())
                     holder.idProgress.progress = ((item.downloaded.toInt()/item.size.toInt()) * 100).toFloat()
@@ -377,9 +377,6 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
             }
 
             override fun onFailure(reason: String?) {
-                Log.e("Download status", "Failed")
-                Log.e("Download status", reason)
-                // Log.d(TAG, "onFailure: reason --> $reason")
                 handler.post {
                     holder.idPause.visibility = View.GONE
                     holder.idPlay.visibility = View.GONE
@@ -391,7 +388,6 @@ class DownloadsAdapter (private val context: Context, private var downloadsEntit
             }
 
             override fun onCancel() {
-                Log.e("Download status", "Cancelled")
                 handler.post {
                     holder.idPause.visibility = View.GONE
                     holder.idPlay.visibility = View.GONE

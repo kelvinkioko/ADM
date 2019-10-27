@@ -83,11 +83,12 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
             adUnitId = resources.getString(R.string.intr_name)
             adListener = (object : AdListener() {
                 override fun onAdLoaded() {
-                    if (adPreferrenceHandler.getViewSessionCount() >= 5) {
+                    if (adPreferrenceHandler.getViewSessionCount() >= 3) {
                         showInterstitial()
                         adPreferrenceHandler.setViewSessionCount(0)
                     }else{
                         adPreferrenceHandler.setViewSessionCount(adPreferrenceHandler.getViewSessionCount() + 1)
+                        if (adPreferrenceHandler.getViewSessionCount() == 2){ intrAdLoader() }
                     }
                 }
                 override fun onAdFailedToLoad(errorCode: Int) {}
@@ -107,6 +108,7 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
         root!!.whats_history.itemAnimator = DefaultItemAnimator()
         root!!.whats_history.adapter = whatsAdapter
 
+        if (adPreferrenceHandler.getViewSessionCount() == 2){ intrAdLoader() }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedWhatsnceState: Bundle?): View? {
@@ -146,7 +148,6 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
                             whatsEntities[d].status, whatsEntities[d].type, whatsEntities[d].size, whatsEntities[d].timestamp, whatsEntities[d].datecreated)
                         this.whatsEntity.add(whats)
                     }
-
                     whatsAdapter.setWhats(whatsEntity)
                 }else{
                     root!!.whats_history.visibility = View.GONE
@@ -223,11 +224,12 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
     }
 
     private fun adCountHandler(){
-        if (adPreferrenceHandler.getViewSessionCount() >= 5) {
+        if (adPreferrenceHandler.getViewSessionCount() >= 3) {
             showInterstitial()
             adPreferrenceHandler.setViewSessionCount(0)
         }else{
             adPreferrenceHandler.setViewSessionCount(adPreferrenceHandler.getViewSessionCount() + 1)
+            if (adPreferrenceHandler.getViewSessionCount() == 2){ intrAdLoader() }
         }
     }
 

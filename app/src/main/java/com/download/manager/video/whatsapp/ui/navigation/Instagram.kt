@@ -89,11 +89,12 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
             adUnitId = resources.getString(R.string.intr_name)
             adListener = (object : AdListener() {
                 override fun onAdLoaded() {
-                    if (adPreferrenceHandler.getViewSessionCount() >= 5) {
+                    if (adPreferrenceHandler.getViewSessionCount() >= 3) {
                         showInterstitial()
                         adPreferrenceHandler.setViewSessionCount(0)
                     }else{
                         adPreferrenceHandler.setViewSessionCount(adPreferrenceHandler.getViewSessionCount() + 1)
+                        if (adPreferrenceHandler.getViewSessionCount() == 2){ intrAdLoader() }
                     }
                 }
                 override fun onAdFailedToLoad(errorCode: Int) {}
@@ -127,6 +128,10 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
 
             dismiss.setOnClickListener { saveDialog.dismiss() }
         }
+
+        if (adPreferrenceHandler.getViewSessionCount() == 2){
+            intrAdLoader()
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -157,8 +162,8 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
         downloadsViewModel.getInsta().observe(this, Observer<List<InstaEntity>>{ instaEntities ->
             if (instaEntities != null){
                 if (instaEntities.isNotEmpty()){
-                    insta_history.visibility = View.VISIBLE
-                    insta_empty.visibility = View.GONE
+                    root!!.insta_history.visibility = View.VISIBLE
+                    root!!.insta_empty.visibility = View.GONE
 
                     instaEntity.clear()
                     for (d in 0 until instaEntities.size){
@@ -169,8 +174,8 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
                     }
                     instaAdapter.setInsta(instaEntity)
                 }else{
-                    insta_history.visibility = View.GONE
-                    insta_empty.visibility = View.VISIBLE
+                    root!!.insta_history.visibility = View.GONE
+                    root!!.insta_empty.visibility = View.VISIBLE
                 }
             }
         })
@@ -192,7 +197,6 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
     }
 
     private fun showInterstitial() {
-        intrAdLoader()
         if (mainIntrAd.isLoaded) {
             mainIntrAd.show()
         }else{
@@ -209,11 +213,12 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
     }
 
     private fun adCountHandler(){
-        if (adPreferrenceHandler.getViewSessionCount() >= 5) {
+        if (adPreferrenceHandler.getViewSessionCount() >= 3) {
             showInterstitial()
             adPreferrenceHandler.setViewSessionCount(0)
         }else{
             adPreferrenceHandler.setViewSessionCount(adPreferrenceHandler.getViewSessionCount() + 1)
+            if (adPreferrenceHandler.getViewSessionCount() == 2){ intrAdLoader() }
         }
     }
 

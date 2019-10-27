@@ -68,6 +68,7 @@ class Downloader : Fragment(), DownloadsAdapter.OnItemClickListener {
     }
 
     override fun parentClick(localUrl: String) {
+        adCountHandler()
         val videoFile = File(localUrl)
         val fileUri = FileProvider.getUriForFile(context!!, BuildConfig.APPLICATION_ID +".admprovider", videoFile)
         (activity as MainActivity).grantUriPermission("com.download.manager.video.whatsapp", fileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -79,7 +80,6 @@ class Downloader : Fragment(), DownloadsAdapter.OnItemClickListener {
             localUrl.endsWith(".mp3", true) -> intent.setDataAndType(fileUri, "audio/*")
         }
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)//DO NOT FORGET THIS EVER
-        //DO NOT FORGET THIS EVER
         startActivity(intent)
     }
 
@@ -90,6 +90,7 @@ class Downloader : Fragment(), DownloadsAdapter.OnItemClickListener {
         }
         (activity as MainActivity).supportActionBar!!.title = "Downloads"
 
+        PermissionListener(activity as MainActivity).loadPermissions()
         downloadsViewModel = ViewModelProviders.of(this).get(DownloadsViewModel::class.java)
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(activity as MainActivity)
         adPreferrenceHandler = AdPreferrenceHandler(activity as MainActivity)
@@ -108,11 +109,12 @@ class Downloader : Fragment(), DownloadsAdapter.OnItemClickListener {
             adUnitId = resources.getString(R.string.intr_name)
             adListener = (object : AdListener() {
                 override fun onAdLoaded() {
-                    if (adPreferrenceHandler.getViewSessionCount() >= 5) {
+                    if (adPreferrenceHandler.getViewSessionCount() >= 3) {
                         showInterstitial()
                         adPreferrenceHandler.setViewSessionCount(0)
                     }else{
                         adPreferrenceHandler.setViewSessionCount(adPreferrenceHandler.getViewSessionCount() + 1)
+                        if (adPreferrenceHandler.getViewSessionCount() == 2){ intrAdLoader() }
                     }
                 }
                 override fun onAdFailedToLoad(errorCode: Int) {}
@@ -120,19 +122,17 @@ class Downloader : Fragment(), DownloadsAdapter.OnItemClickListener {
             })
         }
 
-        PermissionListener(activity as MainActivity).loadPermissions()
-        downloadsViewModel = ViewModelProviders.of(this).get(DownloadsViewModel::class.java)
-
         /**
          * Initializing adapter and layout manager for recyclerView
          */
         downloadsAdapter = DownloadsAdapter(activity as MainActivity, downloadsEntity)
         downloadsAdapter.setOnItemClickListener(this)
         val whatsManager = LinearLayoutManager(activity as MainActivity, LinearLayoutManager.VERTICAL, false)
-        download_history.layoutManager = whatsManager
-        download_history.itemAnimator = DefaultItemAnimator()
-        download_history.adapter = downloadsAdapter
+        root!!.download_history.layoutManager = whatsManager
+        root!!.download_history.itemAnimator = DefaultItemAnimator()
+        root!!.download_history.adapter = downloadsAdapter
 
+        if (adPreferrenceHandler.getViewSessionCount() == 2){ intrAdLoader() }
     }
 
     /** Called when leaving the activity  */
@@ -154,27 +154,36 @@ class Downloader : Fragment(), DownloadsAdapter.OnItemClickListener {
         super.onDestroy()
     }
 
-    private fun populateDownloads(){
-        downloadsViewModel.getDownloads().observe(this, Observer<List<DownloadsEntity>>{ downloadsEntities ->
-            if (downloadsEntities != null){
-                if (downloadsEntities.isNotEmpty()){
-                    download_history.visibility = View.VISIBLE
-                    download_empty.visibility = View.GONE
+    fun populateDownloads(){
+        if (downloadsEntity.size < downloadsViewModel.countDownloads()) {
+            downloadsViewModel.getDownloads().observe(this, Observer<List<DownloadsEntity>> { downloadsEntities ->
+                if (downloadsEntities != null) {
+                    if (downloadsEntities.isNotEmpty()) {
+                        root!!.download_history.visibility = View.VISIBLE
+                        root!!.download_empty.visibility = View.GONE
 
-                    downloadsEntity.clear()
-                    for (d in 0 until downloadsEntities.size){
-                        val download = DownloadsEntity(downloadsEntities[d].id, downloadsEntities[d].name, downloadsEntities[d].url, downloadsEntities[d].localurl,
-                            downloadsEntities[d].downloaded, downloadsEntities[d].size, downloadsEntities[d].datecreated)
-                        this.downloadsEntity.add(download)
+                        downloadsEntity.clear()
+                        for (d in 0 until downloadsEntities.size) {
+                            val download = DownloadsEntity(
+                                downloadsEntities[d].id,
+                                downloadsEntities[d].name,
+                                downloadsEntities[d].url,
+                                downloadsEntities[d].localurl,
+                                downloadsEntities[d].downloaded,
+                                downloadsEntities[d].size,
+                                downloadsEntities[d].datecreated
+                            )
+                            this.downloadsEntity.add(download)
+                        }
+                        downloadsAdapter.setDownloads(downloadsEntity)
+
+                    } else {
+                        root!!.download_history.visibility = View.GONE
+                        root!!.download_empty.visibility = View.VISIBLE
                     }
-
-                    downloadsAdapter.setDownloads(downloadsEntity)
-                }else{
-                    download_history.visibility = View.GONE
-                    download_empty.visibility = View.VISIBLE
                 }
-            }
-        })
+            })
+        }
     }
 
     private fun showInterstitial() {
@@ -194,11 +203,12 @@ class Downloader : Fragment(), DownloadsAdapter.OnItemClickListener {
     }
 
     private fun adCountHandler(){
-        if (adPreferrenceHandler.getViewSessionCount() >= 5) {
+        if (adPreferrenceHandler.getViewSessionCount() >= 3) {
             showInterstitial()
             adPreferrenceHandler.setViewSessionCount(0)
         }else{
             adPreferrenceHandler.setViewSessionCount(adPreferrenceHandler.getViewSessionCount() + 1)
+            if (adPreferrenceHandler.getViewSessionCount() == 2){ intrAdLoader() }
         }
     }
 

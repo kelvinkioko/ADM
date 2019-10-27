@@ -133,8 +133,6 @@ class MainActivity : AppCompatActivity()  {
             .hide(browserFragment)
             .hide(downloaderFragment)
             .commit()
-        // Replace the fragment on container and finish the transition
-//        mFragmentTransaction.replace(R.id.download_container, whatsappFragment).commit()
 
         menu.selectItem(0)
 
@@ -160,6 +158,7 @@ class MainActivity : AppCompatActivity()  {
                         // Begin the fragment transition using support fragment manager
                         mFragmentTransaction = mFragmentManager.beginTransaction()
                         mFragmentTransaction.hide(whatsappFragment).hide(instagramFragment).hide(browserFragment).show(downloaderFragment).commit()
+                        downloaderFragment.populateDownloads()
                     }
                 }
             }
