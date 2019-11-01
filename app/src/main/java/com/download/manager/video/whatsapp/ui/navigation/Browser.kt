@@ -75,21 +75,21 @@ class Browser : Fragment(){
 
         bookmarkAdapter = BookmarkAdapter(activity as MainActivity, bookmarkEntity)
         val linksManager = GridLayoutManager(activity as MainActivity, 3, GridLayoutManager.VERTICAL, false)
-        web_history.layoutManager = linksManager
-        web_history.itemAnimator = DefaultItemAnimator()
-        web_history.adapter = bookmarkAdapter
+        root!!.web_history.layoutManager = linksManager
+        root!!.web_history.itemAnimator = DefaultItemAnimator()
+        root!!.web_history.adapter = bookmarkAdapter
 
         populateBookmarks()
 
-        web_history.addOnItemTouchListener(RecyclerTouchListener(this.requireActivity(), web_history, object : RecyclerTouchListener.OnItemClickListener {
+        root!!.web_history.addOnItemTouchListener(RecyclerTouchListener(this.requireActivity(), root!!.web_history, object : RecyclerTouchListener.OnItemClickListener {
             override fun onItemClick(viewClick: View, position: Int) {
                 val bookmarkIcon = viewClick.album_cover
                 val bookmarkName = viewClick.album_title
                 val bookmarkUrl = viewClick.album_url
 
-                web_history.visibility = View.GONE
-                webview.visibility = View.VISIBLE
-                webview.loadUrl(bookmarkUrl.text.toString())
+                root!!.web_history.visibility = View.GONE
+                root!!.webview.visibility = View.VISIBLE
+                root!!.webview.loadUrl(bookmarkUrl.text.toString())
             }
 
             override fun onItemLongClick(view: View?, position: Int) {}
@@ -97,49 +97,49 @@ class Browser : Fragment(){
 
         defaultSSLSF = HttpsURLConnection.getDefaultSSLSocketFactory()
 
-        webview.settings.javaScriptEnabled = true
-        webview.addJavascriptInterface(this, "browser")
-        webview.webViewClient = webViewClient
-        webview.webChromeClient = webChromeClient
+        root!!.webview.settings.javaScriptEnabled = true
+        root!!.webview.addJavascriptInterface(this, "browser")
+        root!!.webview.webViewClient = webViewClient
+        root!!.webview.webChromeClient = webChromeClient
 
-        search_box.setOnEditorActionListener(TextView.OnEditorActionListener { v, actionId, event ->
+        root!!.search_box.setOnEditorActionListener(TextView.OnEditorActionListener { v, actionId, event ->
 
-            val query = search_box.text.toString().trim()
+            val query = root!!.search_box.text.toString().trim()
             if(actionId== EditorInfo.IME_ACTION_GO) {
                 if (query.isEmpty()) {
                     Toast.makeText(activity, "Please enter a valid url", Toast.LENGTH_LONG).show()
                     return@OnEditorActionListener true
                 }else{
                     val aniRotateClk = AnimationUtils.loadAnimation(activity as MainActivity, R.anim.rotation)
-                    iv_refresh.startAnimation(aniRotateClk)
+                    root!!.iv_refresh.startAnimation(aniRotateClk)
                     if (Patterns.WEB_URL.matcher(query).matches()){
-                        webview.loadUrl(query)
+                        root!!.webview.loadUrl(query)
                     }else{
-                        webview.loadUrl("https://www.google.com/search?q=$query")
+                        root!!.webview.loadUrl("https://www.google.com/search?q=$query")
                     }
-                    web_history.visibility = View.GONE
-                    webview.visibility = View.VISIBLE
+                    root!!.web_history.visibility = View.GONE
+                    root!!.webview.visibility = View.VISIBLE
                 }
             }
 
             false
         })
 
-        iv_back.setOnClickListener {
-            if (webview.canGoBack()){
-                webview.goBack()
+        root!!.iv_back.setOnClickListener {
+            if (root!!.webview.canGoBack()){
+                root!!.webview.goBack()
                 downloadsEntity.clear()
             }
         }
 
-        iv_home.setOnClickListener{
-            web_history.visibility = View.VISIBLE
-            webview.visibility = View.GONE
-            search_box.setText("")
+        root!!.iv_home.setOnClickListener{
+            root!!.web_history.visibility = View.VISIBLE
+            root!!.webview.visibility = View.GONE
+            root!!.search_box.setText("")
         }
 
-        downloads_parent.setOnClickListener {
-            if (search_box.text.toString().trim().contains("youtube.com")){
+        root!!.downloads_parent.setOnClickListener {
+            if (root!!.search_box.text.toString().trim().contains("youtube.com")){
                 dialog = Dialog(activity)
                 dialog.setCanceledOnTouchOutside(false)
                 dialog.setCancelable(true)
@@ -190,7 +190,7 @@ class Browser : Fragment(){
             }
         }
 
-        downloads_help.setOnClickListener {
+        root!!.downloads_help.setOnClickListener {
             saveDialog = Dialog(activity)
             saveDialog.setCanceledOnTouchOutside(false)
             saveDialog.setCancelable(true)
@@ -298,14 +298,6 @@ class Browser : Fragment(){
 
         override fun onLoadResource(view: WebView, url: String?) {
             super.onLoadResource(view, url)
-//            try {
-//                if (url.toString().contains("facebook.com")) {
-//                    view.loadUrl(ScriptUtil.FACEBOOK_SCRIPT)
-//                }
-//            } catch (e: Exception) {
-//                e.printStackTrace()
-//            }
-
             val page = view.url
             val title = view.title
             if ((!url.toString().startsWith("https://www.youtube.com/") || !url.toString().startsWith("https://m.youtube.com/")) && url!!.isNotEmpty()) {

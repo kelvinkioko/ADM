@@ -13,8 +13,8 @@ android {
         applicationId "com.download.manager.whatsapp.instagram.videodownloader"
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 9
-        versionName "1.27.08.2019"
+        versionCode 10
+        versionName "1.01.11.2019"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 
@@ -110,6 +110,8 @@ dependencies {
 
     // Add dependency
     implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
+
+    implementation 'com.google.android.play:core:1.6.4'
 }
 
 apply plugin: 'com.google.gms.google-services'

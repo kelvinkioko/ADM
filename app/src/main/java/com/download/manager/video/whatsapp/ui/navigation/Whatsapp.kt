@@ -16,6 +16,7 @@ import android.support.v7.widget.DefaultItemAnimator
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.download.manager.video.whatsapp.BuildConfig
 import com.download.manager.video.whatsapp.R
 import com.download.manager.video.whatsapp.database.adapter.WhatsAdapter
@@ -61,7 +62,7 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
     override fun onActivityCreated(savedWhatsnceState: Bundle?) {
         super.onActivityCreated(savedWhatsnceState)
         if(activity is AppCompatActivity){
-            (activity as AppCompatActivity).setSupportActionBar(toolbar)
+            (activity as AppCompatActivity).setSupportActionBar(root!!.toolbar)
         }
         (activity as MainActivity).supportActionBar!!.title = "Home | Whatsapp"
 
@@ -70,13 +71,9 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
         adPreferrenceHandler = AdPreferrenceHandler(activity as MainActivity)
 
         // Initialize the Mobile Ads SDK with an AdMob App ID.
-        MobileAds.initialize(activity as MainActivity)
+        MobileAds.initialize(activity as MainActivity, resources.getString(R.string.appd_name))
 
-        // Create an ad request.
-        val adRequest = AdRequest.Builder().build()
-
-        // Start loading the ad in the background.
-        root!!.whatsapp_view.loadAd(adRequest)
+        whatsBannerAdLoader()
 
         // Create the InterstitialAd and set it up.
         mainIntrAd = InterstitialAd(activity as MainActivity).apply {
@@ -140,8 +137,8 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
         downloadsViewModel.getWhats().observe(this, Observer<List<WhatsEntity>>{ whatsEntities ->
             if (whatsEntities != null){
                 if (whatsEntities.isNotEmpty()){
-                    whats_history.visibility = View.VISIBLE
-                    whats_empty.visibility = View.GONE
+                    root!!.whats_history.visibility = View.VISIBLE
+                    root!!.whats_empty.visibility = View.GONE
                     whatsEntity.clear()
                     for (d in 0 until whatsEntities.size){
                         val whats = WhatsEntity(whatsEntities[d].id, whatsEntities[d].name, whatsEntities[d].liveUrl, whatsEntities[d].liveUrl, whatsEntities[d].localUrl,
@@ -215,6 +212,27 @@ class Whatsapp : Fragment(), WhatsAdapter.OnItemClickListener {
                 intrAdLoader()
             }
         }
+    }
+
+    fun whatsBannerAdLoader(){
+        // Create an ad request.
+        val adRequest = AdRequest.Builder().build()
+
+        // Start loading the ad in the background.
+        root!!.whatsapp_view.loadAd(adRequest)
+        // Toast.makeText(activity as MainActivity, "Load whatapp Banner Ad", Toast.LENGTH_SHORT).show()
+    }
+
+    fun pauseBannerAdLoader(){
+        // Start loading the ad in the background.
+        root!!.whatsapp_view.pause()
+        // Toast.makeText(activity as MainActivity, "whatsapp Banner pause", Toast.LENGTH_SHORT).show()
+    }
+
+    fun resumeBannerAdLoader(){
+        // Start loading the ad in the background.
+        root!!.whatsapp_view.resume()
+        // Toast.makeText(activity as MainActivity, "whatsapp Banner resume", Toast.LENGTH_SHORT).show()
     }
 
     private fun intrAdLoader(){

@@ -26,6 +26,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import com.download.manager.video.whatsapp.engine.AdPreferrenceHandler
+import com.download.manager.video.whatsapp.engine.Legion
 import com.download.manager.video.whatsapp.ui.navigation.Downloader
 import com.download.manager.video.whatsapp.utility.service.ClipDataService
 import com.download.manager.video.whatsapp.utility.service.EngagementService
@@ -70,7 +71,7 @@ class MainActivity : AppCompatActivity()  {
         mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.APP_OPEN, bundle)
 
         // Initialize the Mobile Ads SDK with an AdMob App ID.
-        MobileAds.initialize(this)
+        MobileAds.initialize(this, resources.getString(R.string.appd_name))
 
         // Create the InterstitialAd and set it up.
         mainIntrAd = InterstitialAd(this).apply {
@@ -89,7 +90,7 @@ class MainActivity : AppCompatActivity()  {
             })
         }
 
-        intrAdLoader()
+        reviewRequestHandler()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             val jobScheduler = applicationContext.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
@@ -143,22 +144,55 @@ class MainActivity : AppCompatActivity()  {
                         // Begin the fragment transition using support fragment manager
                         mFragmentTransaction = mFragmentManager.beginTransaction()
                         mFragmentTransaction.show(whatsappFragment).hide(instagramFragment).hide(browserFragment).hide(downloaderFragment).commit()
+
+                        /* ************************** *\
+                            Ad Management
+                        \* ************************** */
+                        whatsappFragment.whatsBannerAdLoader()
+                        whatsappFragment.resumeBannerAdLoader()
+
+                        instagramFragment.pauseInstaBannerAdLoader()
+                        downloaderFragment.pauseDownloadBannerAdLoader()
                     }
                     1 -> {
                         // Begin the fragment transition using support fragment manager
                         mFragmentTransaction = mFragmentManager.beginTransaction()
                         mFragmentTransaction.hide(whatsappFragment).show(instagramFragment).hide(browserFragment).hide(downloaderFragment).commit()
+
+                        /* ************************** *\
+                            Ad Management
+                        \* ************************** */
+                        whatsappFragment.pauseBannerAdLoader()
+                        instagramFragment.instaBannerAdLoader()
+                        instagramFragment.resumeInstaBannerAdLoader()
+                        downloaderFragment.pauseDownloadBannerAdLoader()
                     }
                     2 -> {
                         // Begin the fragment transition using support fragment manager
                         mFragmentTransaction = mFragmentManager.beginTransaction()
                         mFragmentTransaction.hide(whatsappFragment).hide(instagramFragment).show(browserFragment).hide(downloaderFragment).commit()
+
+                        /* ************************** *\
+                            Ad Management
+                        \* ************************** */
+                        whatsappFragment.pauseBannerAdLoader()
+                        instagramFragment.pauseInstaBannerAdLoader()
+                        downloaderFragment.pauseDownloadBannerAdLoader()
                     }
                     else -> {
                         // Begin the fragment transition using support fragment manager
                         mFragmentTransaction = mFragmentManager.beginTransaction()
                         mFragmentTransaction.hide(whatsappFragment).hide(instagramFragment).hide(browserFragment).show(downloaderFragment).commit()
                         downloaderFragment.populateDownloads()
+
+                        /* ************************** *\
+                            Ad Management
+                        \* ************************** */
+                        whatsappFragment.resumeBannerAdLoader()
+                        instagramFragment.pauseInstaBannerAdLoader()
+
+                        downloaderFragment.downloadBannerAdLoader()
+                        downloaderFragment.resumeDownloadBannerAdLoader()
                     }
                 }
             }
@@ -244,6 +278,7 @@ class MainActivity : AppCompatActivity()  {
         dialog.window!!.setGravity(Gravity.BOTTOM)
         dialog.show()
 
+        val _dismiss : TextView = dialog.findViewById(R.id.drr_dismiss)
         val _share : TextView = dialog.findViewById(R.id.drr_share)
         val _rate : TextView = dialog.findViewById(R.id.drr_rate)
         val googlePlayUrl = "https://play.google.com/store/apps/details?id="
@@ -258,6 +293,8 @@ class MainActivity : AppCompatActivity()  {
             shareIntent.putExtra(Intent.EXTRA_TEXT, msg + googlePlayUrl + packageName)
             shareIntent.type = "text/plain"
             startActivity(Intent.createChooser(shareIntent, "Share..."))
+
+            adPreferrenceHandler.setWeeklyReviewSessionCount(Legion().getCurrentDate())
         }
 
         _rate.setOnClickListener{
@@ -265,6 +302,28 @@ class MainActivity : AppCompatActivity()  {
             bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "App rated")
             mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE, bundle)
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName")))
+
+            adPreferrenceHandler.setWeeklyReviewSessionCount(Legion().getCurrentDate())
+        }
+
+        _dismiss.setOnClickListener{
+            dialog.dismiss()
+            adPreferrenceHandler.setWeeklyReviewSessionCount(Legion().getCurrentDate())
+        }
+    }
+
+    /** Called when returning to the activity  */
+    override fun onResume() {
+        reviewRequestHandler()
+        super.onResume()
+    }
+
+    private fun reviewRequestHandler(){
+        if(adPreferrenceHandler.getWeeklyReviewSessionCount().isNullOrEmpty() ||
+            adPreferrenceHandler.getWeeklyReviewSessionCount().equals("none")){
+            adPreferrenceHandler.setWeeklyReviewSessionCount(Legion().getCurrentDate())
+        }else if (Legion().getWeeklyReviewRequestDays(adPreferrenceHandler.getWeeklyReviewSessionCount().toString()) >= 7) {
+            reviewDialog()
         }
     }
 

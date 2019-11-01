@@ -13,6 +13,7 @@ class AdPreferrenceHandler(var context: Context) {
 
     private val viewSessionCount = "viewSessionCount"
     private val downloadSessionCount = "downloadSessionCount"
+    private val weeklyReviewSessionCount = "weeklyReviewSessionCount"
 
     fun setViewSessionCount(isViewSessionCount: Int) {
         editor.putInt(viewSessionCount, isViewSessionCount)
@@ -28,5 +29,13 @@ class AdPreferrenceHandler(var context: Context) {
     }
     fun getDownloadSessionCount(): Int {
         return pref.getInt(downloadSessionCount, 0)
+    }
+
+    fun setWeeklyReviewSessionCount(isWeeklyReviewSessionCount: String) {
+        editor.putString(weeklyReviewSessionCount, isWeeklyReviewSessionCount)
+        editor.commit()
+    }
+    fun getWeeklyReviewSessionCount(): String? {
+        return pref.getString(weeklyReviewSessionCount, "none")
     }
 }

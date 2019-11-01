@@ -143,6 +143,16 @@ class Legion {
         return Days.daysBetween(startDate, endDate).days
     }
 
+    fun getWeeklyReviewRequestDays(lastRequestDate: String): Int {
+        val calendar = Calendar.getInstance()
+        @SuppressLint("SimpleDateFormat") val mdformat = SimpleDateFormat("dd-MM-yyyy")
+        val formatter = DateTimeFormat.forPattern("dd-MM-yyyy")
+
+        val strDate = formatter.parseDateTime(lastRequestDate)
+        val strToday = formatter.parseDateTime(mdformat.format(calendar.time))
+        return Days.daysBetween(strDate, strToday).days
+    }
+
     fun startDateDisplay(year: Int, month: Int, day: Int): String {
         return (formatNumber(day, 2) + "-" + formatNumber(month + 1, 2)
                 + "-" + year.toString())

@@ -86,7 +86,7 @@ class Downloader : Fragment(), DownloadsAdapter.OnItemClickListener {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         if(activity is AppCompatActivity){
-            (activity as AppCompatActivity).setSupportActionBar(toolbar)
+            (activity as AppCompatActivity).setSupportActionBar(root!!.toolbar)
         }
         (activity as MainActivity).supportActionBar!!.title = "Downloads"
 
@@ -96,13 +96,7 @@ class Downloader : Fragment(), DownloadsAdapter.OnItemClickListener {
         adPreferrenceHandler = AdPreferrenceHandler(activity as MainActivity)
 
         // Initialize the Mobile Ads SDK with an AdMob App ID.
-        MobileAds.initialize(activity as MainActivity)
-
-        // Create an ad request.
-        val adRequest = AdRequest.Builder().build()
-
-        // Start loading the ad in the background.
-        root!!.download_ad_view.loadAd(adRequest)
+        MobileAds.initialize(activity as MainActivity, resources.getString(R.string.appd_name))
 
         // Create the InterstitialAd and set it up.
         mainIntrAd = InterstitialAd(activity as MainActivity).apply {
@@ -194,6 +188,27 @@ class Downloader : Fragment(), DownloadsAdapter.OnItemClickListener {
                 intrAdLoader()
             }
         }
+    }
+
+    fun downloadBannerAdLoader(){
+        // Create an ad request.
+        val adRequest = AdRequest.Builder().build()
+
+        // Start loading the ad in the background.
+        root!!.download_ad_view.loadAd(adRequest)
+        // Toast.makeText(activity as MainActivity, "Load download Banner Ad", Toast.LENGTH_SHORT).show()
+    }
+
+    fun pauseDownloadBannerAdLoader(){
+        // Start loading the ad in the background.
+        root!!.download_ad_view.pause()
+        // Toast.makeText(activity as MainActivity, "download Banner pause", Toast.LENGTH_SHORT).show()
+    }
+
+    fun resumeDownloadBannerAdLoader(){
+        // Start loading the ad in the background.
+        root!!.download_ad_view.resume()
+        // Toast.makeText(activity as MainActivity, "download Banner resume", Toast.LENGTH_SHORT).show()
     }
 
     private fun intrAdLoader(){

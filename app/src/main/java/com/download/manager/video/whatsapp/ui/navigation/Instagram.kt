@@ -68,7 +68,7 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         if(activity is AppCompatActivity){
-            (activity as AppCompatActivity).setSupportActionBar(toolbar)
+            (activity as AppCompatActivity).setSupportActionBar(root!!.toolbar)
         }
         (activity as MainActivity).supportActionBar!!.title = "Home | Instagram"
 
@@ -76,13 +76,7 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
         adPreferrenceHandler = AdPreferrenceHandler(activity as MainActivity)
 
         // Initialize the Mobile Ads SDK with an AdMob App ID.
-        MobileAds.initialize(activity as MainActivity)
-
-        // Create an ad request.
-        val adRequest = AdRequest.Builder().build()
-
-        // Start loading the ad in the background.
-        root!!.gram_view.loadAd(adRequest)
+        MobileAds.initialize(activity as MainActivity, resources.getString(R.string.appd_name))
 
         // Create the InterstitialAd and set it up.
         mainIntrAd = InterstitialAd(activity as MainActivity).apply {
@@ -204,6 +198,27 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
                 intrAdLoader()
             }
         }
+    }
+
+    fun instaBannerAdLoader(){
+        // Create an ad request.
+        val adRequest = AdRequest.Builder().build()
+
+        // Start loading the ad in the background.
+        root!!.gram_view.loadAd(adRequest)
+        // Toast.makeText(activity as MainActivity, "Load insta banner ad", Toast.LENGTH_SHORT).show()
+    }
+
+    fun pauseInstaBannerAdLoader(){
+        // Start loading the ad in the background.
+        root!!.gram_view.pause()
+        // Toast.makeText(activity as MainActivity, "Insta Banner pause", Toast.LENGTH_SHORT).show()
+    }
+
+    fun resumeInstaBannerAdLoader(){
+        // Start loading the ad in the background.
+        root!!.gram_view.resume()
+        // Toast.makeText(activity as MainActivity, "Insta Banner resume", Toast.LENGTH_SHORT).show()
     }
 
     private fun intrAdLoader(){
