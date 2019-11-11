@@ -90,6 +90,11 @@ class MainActivity : AppCompatActivity()  {
             })
         }
 
+        if (adPreferrenceHandler.getFirstOpenCount()){
+            reviewDialog()
+            adPreferrenceHandler.setFirstOpenCount(false)
+        }
+
         reviewRequestHandler()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -141,6 +146,8 @@ class MainActivity : AppCompatActivity()  {
             override fun onItemSelected(index: Int) {
                 when (index) {
                     0 -> {
+                        adCountHandler()
+
                         // Begin the fragment transition using support fragment manager
                         mFragmentTransaction = mFragmentManager.beginTransaction()
                         mFragmentTransaction.show(whatsappFragment).hide(instagramFragment).hide(browserFragment).hide(downloaderFragment).commit()
@@ -153,8 +160,14 @@ class MainActivity : AppCompatActivity()  {
 
                         instagramFragment.pauseInstaBannerAdLoader()
                         downloaderFragment.pauseDownloadBannerAdLoader()
+
+                        val whatsBundle = Bundle()
+                        whatsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Whatsapp tab opened")
+                        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Param.LOCATION, whatsBundle)
                     }
                     1 -> {
+                        adCountHandler()
+
                         // Begin the fragment transition using support fragment manager
                         mFragmentTransaction = mFragmentManager.beginTransaction()
                         mFragmentTransaction.hide(whatsappFragment).show(instagramFragment).hide(browserFragment).hide(downloaderFragment).commit()
@@ -166,8 +179,14 @@ class MainActivity : AppCompatActivity()  {
                         instagramFragment.instaBannerAdLoader()
                         instagramFragment.resumeInstaBannerAdLoader()
                         downloaderFragment.pauseDownloadBannerAdLoader()
+
+                        val instaBundle = Bundle()
+                        instaBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Insta tab opened")
+                        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Param.LOCATION, instaBundle)
                     }
                     2 -> {
+                        adCountHandler()
+
                         // Begin the fragment transition using support fragment manager
                         mFragmentTransaction = mFragmentManager.beginTransaction()
                         mFragmentTransaction.hide(whatsappFragment).hide(instagramFragment).show(browserFragment).hide(downloaderFragment).commit()
@@ -178,8 +197,14 @@ class MainActivity : AppCompatActivity()  {
                         whatsappFragment.pauseBannerAdLoader()
                         instagramFragment.pauseInstaBannerAdLoader()
                         downloaderFragment.pauseDownloadBannerAdLoader()
+
+                        val browserBundle = Bundle()
+                        browserBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Browser tab opened")
+                        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Param.LOCATION, browserBundle)
                     }
                     else -> {
+                        adCountHandler()
+
                         // Begin the fragment transition using support fragment manager
                         mFragmentTransaction = mFragmentManager.beginTransaction()
                         mFragmentTransaction.hide(whatsappFragment).hide(instagramFragment).hide(browserFragment).show(downloaderFragment).commit()
@@ -193,6 +218,10 @@ class MainActivity : AppCompatActivity()  {
 
                         downloaderFragment.downloadBannerAdLoader()
                         downloaderFragment.resumeDownloadBannerAdLoader()
+
+                        val downloadsBundle = Bundle()
+                        downloadsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Downloads tab opened")
+                        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Param.LOCATION, downloadsBundle)
                     }
                 }
             }
@@ -212,6 +241,7 @@ class MainActivity : AppCompatActivity()  {
             count = 0
             moveTaskToBack(false)
         } else {
+            reviewRequestHandler()
             Toast.makeText(this, "Press Back again to quit.", Toast.LENGTH_SHORT).show()
             count++
         }
@@ -234,11 +264,12 @@ class MainActivity : AppCompatActivity()  {
     }
 
     private fun adCountHandler(){
-        if (adPreferrenceHandler.getViewSessionCount() >= 4) {
+        if (adPreferrenceHandler.getTabViewSessionCount() >= 4) {
             showInterstitial()
-            adPreferrenceHandler.setViewSessionCount(0)
+            adPreferrenceHandler.setTabViewSessionCount(0)
         }else{
-            adPreferrenceHandler.setViewSessionCount(adPreferrenceHandler.getViewSessionCount() + 1)
+            adPreferrenceHandler.setTabViewSessionCount(adPreferrenceHandler.getTabViewSessionCount() + 1)
+            if (adPreferrenceHandler.getTabViewSessionCount() == 3){ intrAdLoader() }
         }
     }
 
@@ -251,9 +282,9 @@ class MainActivity : AppCompatActivity()  {
     // actions on click menu items
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_rate -> {
-            val bundle = Bundle()
-            bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "App rated")
-            mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE, bundle)
+            val rateBundle = Bundle()
+            rateBundle.putString(FirebaseAnalytics.Param.LOCATION, "App rated")
+            mFirebaseAnalytics.logEvent(FirebaseAnalytics.Param.LOCATION, rateBundle)
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName")))
             true
         }
@@ -281,7 +312,13 @@ class MainActivity : AppCompatActivity()  {
         val _dismiss : TextView = dialog.findViewById(R.id.drr_dismiss)
         val _share : TextView = dialog.findViewById(R.id.drr_share)
         val _rate : TextView = dialog.findViewById(R.id.drr_rate)
+        val _message : TextView = dialog.findViewById(R.id.drr_message)
         val googlePlayUrl = "https://play.google.com/store/apps/details?id="
+        _message.text = if (adPreferrenceHandler.getFirstOpenCount()){
+            resources.getString(R.string.first_message) + " "
+        }else{
+            resources.getString(R.string.review_message) + " "
+        }
         val msg = resources.getString(R.string.share_message) + " "
 
         _share.setOnClickListener {
@@ -295,20 +332,22 @@ class MainActivity : AppCompatActivity()  {
             startActivity(Intent.createChooser(shareIntent, "Share..."))
 
             adPreferrenceHandler.setWeeklyReviewSessionCount(Legion().getCurrentDate())
+            dialog.dismiss()
         }
 
         _rate.setOnClickListener{
-            val bundle = Bundle()
-            bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "App rated")
-            mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE, bundle)
+            val rateBundle = Bundle()
+            rateBundle.putString(FirebaseAnalytics.Param.LOCATION, "App rated")
+            mFirebaseAnalytics.logEvent(FirebaseAnalytics.Param.LOCATION, rateBundle)
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName")))
 
             adPreferrenceHandler.setWeeklyReviewSessionCount(Legion().getCurrentDate())
+            dialog.dismiss()
         }
 
         _dismiss.setOnClickListener{
-            dialog.dismiss()
             adPreferrenceHandler.setWeeklyReviewSessionCount(Legion().getCurrentDate())
+            dialog.dismiss()
         }
     }
 
@@ -322,7 +361,7 @@ class MainActivity : AppCompatActivity()  {
         if(adPreferrenceHandler.getWeeklyReviewSessionCount().isNullOrEmpty() ||
             adPreferrenceHandler.getWeeklyReviewSessionCount().equals("none")){
             adPreferrenceHandler.setWeeklyReviewSessionCount(Legion().getCurrentDate())
-        }else if (Legion().getWeeklyReviewRequestDays(adPreferrenceHandler.getWeeklyReviewSessionCount().toString()) >= 7) {
+        }else if (Legion().getWeeklyReviewRequestDays(adPreferrenceHandler.getWeeklyReviewSessionCount().toString()) >= 5) {
             reviewDialog()
         }
     }

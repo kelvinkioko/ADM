@@ -98,6 +98,9 @@ class Browser : Fragment(){
         defaultSSLSF = HttpsURLConnection.getDefaultSSLSocketFactory()
 
         root!!.webview.settings.javaScriptEnabled = true
+        root!!.webview.settings.setAppCacheEnabled(true)
+        root!!.webview.settings.builtInZoomControls = true
+        root!!.webview.settings.saveFormData = true
         root!!.webview.addJavascriptInterface(this, "browser")
         root!!.webview.webViewClient = webViewClient
         root!!.webview.webChromeClient = webChromeClient

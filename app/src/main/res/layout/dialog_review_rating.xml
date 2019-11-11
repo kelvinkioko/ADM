@@ -34,6 +34,7 @@
                 app:srcCompat="@drawable/ic_settings_rate"/>
 
             <TextView
+                    android:id="@+id/drr_message"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
@@ -67,8 +68,6 @@
                     android:textStyle="bold"
                     android:background="@color/colorPrimaryDark"
                     android:layout_weight="1"/>
-
-
 
             <View android:id="@+id/main_bottomview" android:alpha="0.6"
                   android:layout_width="match_parent" android:layout_height="4dp"

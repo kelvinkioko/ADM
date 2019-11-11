@@ -30,6 +30,7 @@
     <string name="browser_step_four">On the browser page tap the download button next to the search bar</string>
 
     <string name="review_message">If you are enjoying Android Download Manager please leave us a <u><b>positive rating &amp; review</b></u> on the <u><b>Play store</b></u>. That helps us a lot!</string>
+    <string name="first_message">Welcome to Android Download Manager.\n<b>Features</b>\nWhatsapp status download\nInstagram Images, Videos, Statuses &amp; IGTV download\nVideo downloader from all websites\n\nPlease leave us a <u><b>positive rating &amp; review</b></u> on the <u><b>Play store</b></u>. That helps us a lot!</string>
 
     <string name="share_message">5X Accelerated videos, Images and music downloader from Whatsapp, Instagram and Websites online</string>
 </resources>

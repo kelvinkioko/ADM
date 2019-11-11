@@ -1,5 +1,6 @@
 package com.download.manager.video.whatsapp.ui.navigation
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
@@ -9,6 +10,7 @@ import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
 import android.support.v4.app.Fragment
 import android.support.v4.content.FileProvider
@@ -27,6 +29,7 @@ import com.download.manager.video.whatsapp.database.adapter.DownloadsAdapter
 import com.download.manager.video.whatsapp.database.entity.DownloadsEntity
 import com.download.manager.video.whatsapp.database.viewmodel.DownloadsViewModel
 import com.download.manager.video.whatsapp.engine.AdPreferrenceHandler
+import com.download.manager.video.whatsapp.engine.Constants
 import com.download.manager.video.whatsapp.engine.PermissionListener
 import com.download.manager.video.whatsapp.ui.MainActivity
 import com.google.android.gms.ads.AdListener
@@ -36,7 +39,9 @@ import com.google.android.gms.ads.MobileAds
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.android.synthetic.main.main_downloads.*
 import kotlinx.android.synthetic.main.main_downloads.view.*
+import kotlinx.coroutines.runBlocking
 import java.io.File
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -149,6 +154,7 @@ class Downloader : Fragment(), DownloadsAdapter.OnItemClickListener {
     }
 
     fun populateDownloads(){
+        runBlocking { if (downloadsViewModel.countDownloads() == 0) { getDownloadData() } }
         if (downloadsEntity.size < downloadsViewModel.countDownloads()) {
             downloadsViewModel.getDownloads().observe(this, Observer<List<DownloadsEntity>> { downloadsEntities ->
                 if (downloadsEntities != null) {
@@ -177,6 +183,28 @@ class Downloader : Fragment(), DownloadsAdapter.OnItemClickListener {
                     }
                 }
             })
+        }
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    private fun getDownloadData() {
+        val savedFiles = File(Environment.getExternalStorageDirectory().absolutePath + Constants().PARENT_FOLDER).listFiles()
+
+        if (savedFiles != null) {
+            for (s in savedFiles.indices) {
+                val download = DownloadsEntity(
+                    0,
+                    savedFiles[s].name,
+                    savedFiles[s].absolutePath,
+                    savedFiles[s].absolutePath,
+                    savedFiles[s].length().toString(),
+                    savedFiles[s].length().toString(),
+                    SimpleDateFormat("dd-MM-yyyy").format(Date(savedFiles[s].lastModified()))
+                )
+                if (downloadsViewModel.countWhatsListByName(Uri.fromFile(savedFiles[s]).toString()) == 0) {
+                    downloadsViewModel.insertDownloads(download)
+                }
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 package com.download.manager.video.whatsapp.ui.navigation
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
@@ -12,6 +13,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.AsyncTask
+import android.os.Environment
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.DefaultItemAnimator
 import android.view.*
@@ -33,6 +35,7 @@ import android.widget.TextView
 import com.download.manager.video.whatsapp.BuildConfig
 import com.download.manager.video.whatsapp.R
 import com.download.manager.video.whatsapp.engine.AdPreferrenceHandler
+import com.download.manager.video.whatsapp.engine.Constants
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.InterstitialAd
@@ -40,7 +43,9 @@ import com.google.android.gms.ads.MobileAds
 import kotlinx.android.synthetic.main.dialog_how_to_instagram.*
 import kotlinx.android.synthetic.main.main_gram.*
 import kotlinx.android.synthetic.main.main_gram.view.*
+import kotlinx.coroutines.runBlocking
 import java.io.File
+import java.text.SimpleDateFormat
 
 
 class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
@@ -153,6 +158,7 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
     }
 
     private fun populateDownloads(){
+        runBlocking { if (downloadsViewModel.countInstaList() == 0) { getDownloadData() } }
         downloadsViewModel.getInsta().observe(this, Observer<List<InstaEntity>>{ instaEntities ->
             if (instaEntities != null){
                 if (instaEntities.isNotEmpty()){
@@ -175,6 +181,23 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
         })
     }
 
+    @SuppressLint("SimpleDateFormat")
+    private fun getDownloadData() {
+        val savedFiles = File(Environment.getExternalStorageDirectory().absolutePath + Constants().INSTAGRAM_FOLDER).listFiles()
+
+        if (savedFiles != null) {
+            for (s in savedFiles.indices) {
+                val type = if (Uri.fromFile(savedFiles[s]).toString().endsWith(".mp4")) { "Video" } else { "Image" }
+                val insta = InstaEntity(0, savedFiles[s].name, "adm", savedFiles[s].absolutePath, savedFiles[s].absolutePath, savedFiles[s].absolutePath, type, savedFiles[s].length().toString(), savedFiles[s].length().toString(), SimpleDateFormat("dd-MM-yyyy").format(Date(savedFiles[s].lastModified())))
+
+                if (downloadsViewModel.countWhatsListByName(Uri.fromFile(savedFiles[s]).toString()) == 0) {
+                    this.instaEntity.add(insta)
+                    downloadsViewModel.insertInsta(insta)
+                }
+            }
+        }
+    }
+
     override fun parentClick(localUrl: String, type: String) {
         adCountHandler()
         val videoFile = File(localUrl)
@@ -186,6 +209,7 @@ class Instagram : Fragment(), InstaAdapter.OnItemClickListener  {
         }else{
             intent.setDataAndType(fileUri, "video/*")
         }
+        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)//DO NOT FORGET THIS EVER
         startActivity(intent)
     }

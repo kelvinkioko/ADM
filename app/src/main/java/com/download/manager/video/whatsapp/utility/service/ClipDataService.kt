@@ -117,9 +117,9 @@ class ClipDataService : JobService(){
             super.onPostExecute(s)
             val parentInsta = DatabaseApp().getInstaDao(applicationContext).getInstaByParent(parentUrl)
             if (isVideo) {
-                DatabaseApp().getInstaDao(applicationContext).updateInstaDetails(name, postedBy, video, "Video", parentInsta.id); downloadFile(video)
+                DatabaseApp().getInstaDao(applicationContext).updateInstaDetails(name, postedBy, video, "Video", parentInsta.id); downloadFile(video); notifyLinkReceived()
             } else {
-                DatabaseApp().getInstaDao(applicationContext).updateInstaDetails(name, postedBy, image, "Image", parentInsta.id); downloadFile(image)
+                DatabaseApp().getInstaDao(applicationContext).updateInstaDetails(name, postedBy, image, "Image", parentInsta.id); downloadFile(image); notifyLinkReceived()
             }
         }
     }
@@ -168,6 +168,36 @@ class ClipDataService : JobService(){
             override fun onCancel() {}
         }).build()
         downloader.download()
+    }
+
+    private fun notifyLinkReceived(){
+        val intent = Intent(applicationContext, MainActivity::class.java)
+        intent.putExtra("status", "1")
+        val title = "ADM"
+        val text = "Your IG link has been received. Download will start immediately"
+
+        val google_play_url = "https://play.google.com/store/apps/details?id="
+
+        val msg = resources.getString(R.string.share_message) + " "
+        val shareIntent = Intent()
+        shareIntent.action = Intent.ACTION_SEND
+        shareIntent.putExtra(Intent.EXTRA_TEXT, msg + google_play_url + packageName)
+        shareIntent.type = "text/plain"
+
+        val rateIntent = Intent(ACTION_VIEW, Uri.parse("market://details?id=$packageName"))
+        val ratePendingIntent = PendingIntent.getActivity(this, 0, rateIntent, 0)
+
+        val builder = NotificationCompat.Builder(applicationContext, "DownloadManager1292")
+            .setDefaults(Notification.DEFAULT_ALL)
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentTitle(title)
+            .setContentText(text)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(PendingIntent.getActivity(applicationContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT))
+            .setAutoCancel(true)
+            .addAction(R.drawable.ic_settings_rate, "Rate", ratePendingIntent)
+            .addAction(R.drawable.ic_settings_rate, "Share", PendingIntent.getActivity(applicationContext, 0, Intent.createChooser(shareIntent, "Share..."), PendingIntent.FLAG_UPDATE_CURRENT))
+        notify(builder.build())
     }
 
     private fun notifyDownloadComplete(){

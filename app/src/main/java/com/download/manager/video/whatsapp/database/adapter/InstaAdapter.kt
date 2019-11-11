@@ -146,6 +146,7 @@ class InstaAdapter (private val context: Context, private var instaEntity: List<
         }
 
         holder.instaPause.setOnClickListener {
+            downloadFile(holder, item.liveUrl, item)
             if (downloader != null) {
                 downloader.pauseDownload()
             }
@@ -157,6 +158,7 @@ class InstaAdapter (private val context: Context, private var instaEntity: List<
         }
 
         holder.instaCancel.setOnClickListener {
+            downloadFile(holder, item.liveUrl, item)
             if (downloader != null) {
                 downloader.cancelDownload()
             }
