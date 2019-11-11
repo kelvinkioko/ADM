@@ -11,7 +11,7 @@ class RecyclerTouchListener(context: Context, recyclerView: RecyclerView, privat
     private val mGestureDetector: GestureDetector
 
     interface OnItemClickListener {
-        fun onItemClick(view: View, position: Int)
+        fun onItemClick(view: View?, position: Int)
 
         fun onItemLongClick(view: View?, position: Int)
     }
@@ -25,7 +25,7 @@ class RecyclerTouchListener(context: Context, recyclerView: RecyclerView, privat
             override fun onLongPress(e: MotionEvent) {
                 val childView = recyclerView.findChildViewUnder(e.x, e.y)
 
-                if (childView != null && mListener != null) {
+                if (childView != null && mListener != null && recyclerView.childCount > 0) {
                     mListener.onItemLongClick(childView, recyclerView.getChildAdapterPosition(childView))
                 }
             }
@@ -35,7 +35,7 @@ class RecyclerTouchListener(context: Context, recyclerView: RecyclerView, privat
     override fun onInterceptTouchEvent(view: RecyclerView, e: MotionEvent): Boolean {
         val childView = view.findChildViewUnder(e.x, e.y)
 
-        if (childView != null && mListener != null && mGestureDetector.onTouchEvent(e)) {
+        if (childView != null && mListener != null && view.childCount > 0 && mGestureDetector.onTouchEvent(e)) {
             mListener.onItemClick(childView, view.getChildAdapterPosition(childView))
         }
 

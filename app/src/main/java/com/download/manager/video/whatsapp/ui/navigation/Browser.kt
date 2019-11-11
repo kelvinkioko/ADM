@@ -13,12 +13,14 @@ import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.util.Patterns
 import android.view.*
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.inputmethod.EditorInfo
 import android.webkit.WebChromeClient
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.LinearLayout
@@ -82,10 +84,10 @@ class Browser : Fragment(){
         populateBookmarks()
 
         root!!.web_history.addOnItemTouchListener(RecyclerTouchListener(this.requireActivity(), root!!.web_history, object : RecyclerTouchListener.OnItemClickListener {
-            override fun onItemClick(viewClick: View, position: Int) {
-                val bookmarkIcon = viewClick.album_cover
-                val bookmarkName = viewClick.album_title
-                val bookmarkUrl = viewClick.album_url
+            override fun onItemClick(view: View?, position: Int) {
+                val bookmarkIcon = view!!.album_cover
+                val bookmarkName = view!!.album_title
+                val bookmarkUrl = view!!.album_url
 
                 root!!.web_history.visibility = View.GONE
                 root!!.webview.visibility = View.VISIBLE
@@ -101,6 +103,9 @@ class Browser : Fragment(){
         root!!.webview.settings.setAppCacheEnabled(true)
         root!!.webview.settings.builtInZoomControls = true
         root!!.webview.settings.saveFormData = true
+        root!!.webview.settings.allowUniversalAccessFromFileURLs = true
+        root!!.webview.settings.javaScriptCanOpenWindowsAutomatically = true
+        root!!.webview.settings.pluginState = WebSettings.PluginState.ON
         root!!.webview.addJavascriptInterface(this, "browser")
         root!!.webview.webViewClient = webViewClient
         root!!.webview.webChromeClient = webChromeClient
@@ -181,7 +186,7 @@ class Browser : Fragment(){
                         this.requireActivity(),
                         _links,
                         object : RecyclerTouchListener.OnItemClickListener {
-                            override fun onItemClick(viewClick: View, position: Int) {
+                            override fun onItemClick(view: View?, position: Int) {
                                 queueDownload(downloadsEntity[position])
                             }
 
@@ -299,10 +304,10 @@ class Browser : Fragment(){
             return super.shouldOverrideUrlLoading(view, url)
         }
 
-        override fun onLoadResource(view: WebView, url: String?) {
+        override fun onLoadResource(view: WebView?, url: String?) {
             super.onLoadResource(view, url)
-            val page = view.url
-            val title = view.title
+            val page = view!!.url
+            val title = view!!.title
             if ((!url.toString().startsWith("https://www.youtube.com/") || !url.toString().startsWith("https://m.youtube.com/")) && url!!.isNotEmpty()) {
                 object : VideoContentSearch(activity as MainActivity, url, page, title) {
                     override fun onStartInspectingURL() {

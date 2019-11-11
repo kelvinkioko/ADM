@@ -201,7 +201,9 @@ public abstract class VideoContentSearch extends Thread {
             String videoFound = "name:" + name + "\n" +
                     "link:" + link + "\n" +
                     "type:" + contentType + "\n" +
+                    "page:" + page + "\n" +
                     "size:" + size;
+            Log.e("Video Found", videoFound);
         } catch (IOException e) {
             Log.e("loremarTest", "Exception in adding video to " +
                     "list");

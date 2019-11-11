@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <!-- Scheme -->
+    <string name="app_scheme_http" translatable="false">
+        http
+    </string>
+    <string name="app_scheme_https" translatable="false">
+        https
+    </string>
+</resources>

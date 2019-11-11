@@ -1,15 +1,15 @@
 <resources>
     <string name="app_name">Android Download Manager</string>
 
-    <!--<string name="appd_name">ca-app-pub-3940256099942544~3347511713</string>-->
-    <!--<string name="banr_name">ca-app-pub-3940256099942544/9214589741</string>-->
-    <!--<string name="intr_name">ca-app-pub-3940256099942544/1033173712</string>-->
+    <string name="appd_name">ca-app-pub-3940256099942544~3347511713</string>
+    <string name="banr_name">ca-app-pub-3940256099942544/9214589741</string>
+    <string name="intr_name">ca-app-pub-3940256099942544/1033173712</string>
     <!--<string name="natv_name">ca-app-pub-9298459920756022/6262120471</string>-->
 
-    <string name="appd_name">ca-app-pub-9298459920756022~5801233275</string>
-    <string name="banr_name">ca-app-pub-9298459920756022/7601400103</string>
-    <string name="intr_name">ca-app-pub-9298459920756022/1056813685</string>
-    <string name="natv_name">ca-app-pub-9298459920756022/6262120471</string>
+    <!--<string name="appd_name">ca-app-pub-9298459920756022~5801233275</string>-->
+    <!--<string name="banr_name">ca-app-pub-9298459920756022/7601400103</string>-->
+    <!--<string name="intr_name">ca-app-pub-9298459920756022/1056813685</string>-->
+    <!--<string name="natv_name">ca-app-pub-9298459920756022/6262120471</string>-->
 
     <string name="browser">Browser</string>
     <string name="whatsapp">WA</string>
