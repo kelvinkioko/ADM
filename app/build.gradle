@@ -13,8 +13,8 @@ android {
         applicationId "com.download.manager.whatsapp.instagram.videodownloader"
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 11
-        versionName "1.10.11.2019"
+        versionCode 13
+        versionName "1.13.11.2019"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 
