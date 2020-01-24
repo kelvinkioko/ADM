@@ -1,9 +1,8 @@
 package com.download.manager.video.whatsapp.database.dao
 
-import android.arch.lifecycle.LiveData
-import android.arch.persistence.room.*
+import androidx.lifecycle.LiveData
+import androidx.room.*
 import com.download.manager.video.whatsapp.database.entity.BookmarkEntity
-import com.download.manager.video.whatsapp.database.entity.DownloadsEntity
 
 @Dao
 interface BookmarkDao {

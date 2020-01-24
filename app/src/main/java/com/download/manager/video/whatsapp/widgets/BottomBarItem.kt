@@ -1,7 +1,7 @@
 package com.download.manager.video.whatsapp.widgets
 
 import android.graphics.drawable.Drawable
-import android.support.annotation.ColorInt
+import androidx.annotation.ColorInt
 import com.download.manager.video.whatsapp.widgets.ReadableBottomBar.ItemType
 
 data class BottomBarItem(

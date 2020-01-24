@@ -123,16 +123,13 @@ class Downloader private constructor(downloadTask: DownloadTask) : IDownload {
         }
 
         fun build(): Downloader {
-            mUrl =
-                if (mUrl.isEmpty()) throw MalformedURLException("The entered URL is not valid")
+            mUrl = if (mUrl.isEmpty()) throw MalformedURLException("The entered URL is not valid")
                 else mUrl
 
-            mDownloadDir =
-                if (mDownloadDir == null || mDownloadDir!!.isEmpty()) mContext.getExternalFilesDir(null)?.toString()
+            mDownloadDir = if (mDownloadDir == null || mDownloadDir!!.isEmpty()) mContext.getExternalFilesDir(null)?.toString()
                 else mDownloadDir
 
-            mTimeOut =
-                if (mTimeOut == 0) ConnectionHelper.TIME_OUT_CONNECTION
+            mTimeOut = if (mTimeOut == 0) ConnectionHelper.TIME_OUT_CONNECTION
                 else mTimeOut
 
             val downloadTask = DownloadTask(

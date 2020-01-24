@@ -58,8 +58,7 @@ internal class DownloaderDao private constructor(context: Context) {
 
     fun getDownload(url: String): FileModel? {
         var model: FileModel? = null
-        val query =
-            "select * from " + DownloaderDatabase.TABLE_NAME + " where " + ColumnModel.URL + " = \"" + url + "\""
+        val query = "select * from " + DownloaderDatabase.TABLE_NAME + " where " + ColumnModel.URL + " = \"" + url + "\""
         val cursor = database.readableDatabase.rawQuery(query, null)
         while (cursor.moveToNext()) {
             val itemId = cursor.getInt(cursor.getColumnIndex(ColumnModel.ID))

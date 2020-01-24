@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import com.download.manager.video.whatsapp.R;
 
-
 /**
  * Created by Akexorcist on 9/14/15 AD.
  */

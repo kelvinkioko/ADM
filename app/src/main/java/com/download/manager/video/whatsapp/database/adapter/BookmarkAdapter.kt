@@ -1,19 +1,17 @@
 package com.download.manager.video.whatsapp.database.adapter
 
 import android.content.Context
-import android.support.v4.content.ContextCompat
-import android.support.v7.widget.RecyclerView
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.download.manager.video.whatsapp.R
 import com.download.manager.video.whatsapp.database.entity.BookmarkEntity
 import kotlinx.android.synthetic.main.item_album.view.*
-import kotlinx.android.synthetic.main.item_bookmark.view.*
 import java.text.DecimalFormat
 
-class BookmarkAdapter (private val context: Context, private var bookmarkEntity: List<BookmarkEntity>) :
-    RecyclerView.Adapter<BookmarkAdapter.ModuleHolder>() {
+class BookmarkAdapter (private val context: Context, private var bookmarkEntity: List<BookmarkEntity>) : RecyclerView.Adapter<BookmarkAdapter.ModuleHolder>() {
 
     private var originalModel: List<BookmarkEntity> = bookmarkEntity
     lateinit var clickListener: OnItemClickListener

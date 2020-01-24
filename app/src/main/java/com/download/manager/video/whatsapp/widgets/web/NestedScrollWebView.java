@@ -1,8 +1,8 @@
 package com.download.manager.video.whatsapp.widgets.web;
 
 import android.content.Context;
-import android.support.v4.view.*;
-import android.support.v4.widget.ScrollerCompat;
+import androidx.core.view.*;
+import androidx.core.widget.ScrollerCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;

@@ -2,8 +2,8 @@ package com.download.manager.video.whatsapp.widgets
 
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.support.v7.widget.AppCompatImageView
-import android.support.v7.widget.AppCompatTextView
+import androidx.appcompat.widget.AppCompatImageView
+import androidx.appcompat.widget.AppCompatTextView
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +14,6 @@ import android.widget.FrameLayout
 import com.download.manager.video.whatsapp.R
 import com.download.manager.video.whatsapp.widgets.ReadableBottomBar.Companion.ANIMATION_DURATION
 import com.download.manager.video.whatsapp.widgets.ReadableBottomBar.ItemType
-
 
 class BottomBarItemView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : FrameLayout(context, attrs, defStyleAttr) {
 

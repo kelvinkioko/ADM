@@ -1,8 +1,8 @@
 package com.download.manager.video.whatsapp.database.repository
 
 import android.app.Application
-import android.arch.lifecycle.LiveData
-import android.support.annotation.WorkerThread
+import androidx.lifecycle.LiveData
+import androidx.annotation.WorkerThread
 import com.download.manager.video.whatsapp.database.DownloadDatabase
 import com.download.manager.video.whatsapp.database.dao.BookmarkDao
 import com.download.manager.video.whatsapp.database.dao.DownloadsDao
@@ -26,6 +26,10 @@ class DownloadsRepository(application: Application) {
 
     fun updateDownloads(downloaded: String, size: String, id: Int){
         downloadsDao.updateDownloads(downloaded, size, id)
+    }
+
+    fun countDownloadsByUrl(local_url: String): Int{
+        return downloadsDao.countDownloadsByUrl(local_url)
     }
 
     fun countDownloads(): Int{

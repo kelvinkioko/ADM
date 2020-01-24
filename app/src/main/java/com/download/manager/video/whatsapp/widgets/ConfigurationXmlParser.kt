@@ -3,8 +3,8 @@ package com.download.manager.video.whatsapp.widgets
 import android.content.Context
 import android.content.res.XmlResourceParser
 import android.graphics.drawable.Drawable
-import android.support.graphics.drawable.VectorDrawableCompat
-import android.support.v4.content.ContextCompat
+import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
+import androidx.core.content.ContextCompat
 import org.xmlpull.v1.XmlPullParserException
 
 class ConfigurationXmlParser(private val context: Context, xmlRes: Int) {

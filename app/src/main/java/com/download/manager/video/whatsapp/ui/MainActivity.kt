@@ -2,21 +2,15 @@ package com.download.manager.video.whatsapp.ui
 
 import android.app.Dialog
 import android.os.Build
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentTransaction
-import android.support.v7.app.AppCompatDelegate
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
+import androidx.appcompat.app.AppCompatDelegate
 import com.download.manager.video.whatsapp.R
 import com.download.manager.video.whatsapp.engine.PermissionListener
 import com.download.manager.video.whatsapp.ui.navigation.Browser
-import com.download.manager.video.whatsapp.ui.navigation.Instagram
-import com.download.manager.video.whatsapp.ui.navigation.Whatsapp
 import com.download.manager.video.whatsapp.widgets.ReadableBottomBar
-import android.app.job.JobInfo
-import android.content.ComponentName
-import android.app.job.JobScheduler
-import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -28,14 +22,13 @@ import android.widget.Toast
 import com.download.manager.video.whatsapp.engine.AdPreferrenceHandler
 import com.download.manager.video.whatsapp.engine.Legion
 import com.download.manager.video.whatsapp.ui.navigation.Downloader
-import com.download.manager.video.whatsapp.utility.service.ClipDataService
-import com.download.manager.video.whatsapp.utility.service.EngagementService
-import com.download.manager.video.whatsapp.utility.service.InstaService
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.InterstitialAd
 import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.iid.FirebaseInstanceId
 import java.util.*
 
 class MainActivity : AppCompatActivity()  {
@@ -70,6 +63,13 @@ class MainActivity : AppCompatActivity()  {
         bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "App opened")
         mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.APP_OPEN, bundle)
 
+        FirebaseInstanceId.getInstance().instanceId
+            .addOnCompleteListener(OnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    return@OnCompleteListener
+                }
+            })
+
         // Initialize the Mobile Ads SDK with an AdMob App ID.
         MobileAds.initialize(this, resources.getString(R.string.appd_name))
 
@@ -97,46 +97,16 @@ class MainActivity : AppCompatActivity()  {
 
         reviewRequestHandler()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            val jobScheduler = applicationContext.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
-            val componentName = ComponentName(this, ClipDataService::class.java)
-            val jobInfo = JobInfo.Builder(1, componentName)
-                .setRequiresCharging(false)
-                .setRequiresDeviceIdle(false)
-                .setPeriodic(1000)
-                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                .setPersisted(true).build()
-            jobScheduler.schedule(jobInfo)
-
-            val engageScheduler = applicationContext.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
-            val engageName = ComponentName(this, EngagementService::class.java)
-            val engageInfo = JobInfo.Builder(2, engageName)
-                .setRequiresCharging(false)
-                .setRequiresDeviceIdle(true)
-                .setPeriodic(7200000)
-                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                .setPersisted(true).build()
-            engageScheduler.schedule(engageInfo)
-        }else {
-            startService(Intent(this, InstaService::class.java).setAction(InstaService().ACTION_START))
-        }
-
         // Get the text fragment instance
         val browserFragment = Browser()
-        val whatsappFragment = Whatsapp()
-        val instagramFragment = Instagram()
         val downloaderFragment = Downloader()
 
         // Get the support fragment manager instance
         mFragmentManager = supportFragmentManager
         // Begin the fragment transition using support fragment manager
         mFragmentTransaction = mFragmentManager.beginTransaction()
-        mFragmentTransaction.add(R.id.download_container, whatsappFragment)
-            .add(R.id.download_container, instagramFragment)
-            .add(R.id.download_container, browserFragment)
+        mFragmentTransaction.add(R.id.download_container, browserFragment)
             .add(R.id.download_container, downloaderFragment)
-            .hide(instagramFragment)
-            .hide(browserFragment)
             .hide(downloaderFragment)
             .commit()
 
@@ -150,52 +120,11 @@ class MainActivity : AppCompatActivity()  {
 
                         // Begin the fragment transition using support fragment manager
                         mFragmentTransaction = mFragmentManager.beginTransaction()
-                        mFragmentTransaction.show(whatsappFragment).hide(instagramFragment).hide(browserFragment).hide(downloaderFragment).commit()
+                        mFragmentTransaction.show(browserFragment).hide(downloaderFragment).commit()
 
                         /* ************************** *\
                             Ad Management
                         \* ************************** */
-                        whatsappFragment.whatsBannerAdLoader()
-                        whatsappFragment.resumeBannerAdLoader()
-
-                        instagramFragment.pauseInstaBannerAdLoader()
-                        downloaderFragment.pauseDownloadBannerAdLoader()
-
-                        val whatsBundle = Bundle()
-                        whatsBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Whatsapp tab opened")
-                        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Param.LOCATION, whatsBundle)
-                    }
-                    1 -> {
-                        adCountHandler()
-
-                        // Begin the fragment transition using support fragment manager
-                        mFragmentTransaction = mFragmentManager.beginTransaction()
-                        mFragmentTransaction.hide(whatsappFragment).show(instagramFragment).hide(browserFragment).hide(downloaderFragment).commit()
-
-                        /* ************************** *\
-                            Ad Management
-                        \* ************************** */
-                        whatsappFragment.pauseBannerAdLoader()
-                        instagramFragment.instaBannerAdLoader()
-                        instagramFragment.resumeInstaBannerAdLoader()
-                        downloaderFragment.pauseDownloadBannerAdLoader()
-
-                        val instaBundle = Bundle()
-                        instaBundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Insta tab opened")
-                        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Param.LOCATION, instaBundle)
-                    }
-                    2 -> {
-                        adCountHandler()
-
-                        // Begin the fragment transition using support fragment manager
-                        mFragmentTransaction = mFragmentManager.beginTransaction()
-                        mFragmentTransaction.hide(whatsappFragment).hide(instagramFragment).show(browserFragment).hide(downloaderFragment).commit()
-
-                        /* ************************** *\
-                            Ad Management
-                        \* ************************** */
-                        whatsappFragment.pauseBannerAdLoader()
-                        instagramFragment.pauseInstaBannerAdLoader()
                         downloaderFragment.pauseDownloadBannerAdLoader()
 
                         val browserBundle = Bundle()
@@ -207,15 +136,12 @@ class MainActivity : AppCompatActivity()  {
 
                         // Begin the fragment transition using support fragment manager
                         mFragmentTransaction = mFragmentManager.beginTransaction()
-                        mFragmentTransaction.hide(whatsappFragment).hide(instagramFragment).hide(browserFragment).show(downloaderFragment).commit()
+                        mFragmentTransaction.hide(browserFragment).show(downloaderFragment).commit()
                         downloaderFragment.populateDownloads()
 
                         /* ************************** *\
                             Ad Management
                         \* ************************** */
-                        whatsappFragment.resumeBannerAdLoader()
-                        instagramFragment.pauseInstaBannerAdLoader()
-
                         downloaderFragment.downloadBannerAdLoader()
                         downloaderFragment.resumeDownloadBannerAdLoader()
 

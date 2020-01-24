@@ -2,8 +2,8 @@ package com.download.manager.video.whatsapp.ui.navigation
 
 import android.annotation.SuppressLint
 import android.app.Dialog
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -12,12 +12,12 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
-import android.support.v4.app.Fragment
-import android.support.v4.content.FileProvider
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.app.AppCompatDelegate
-import android.support.v7.widget.DefaultItemAnimator
-import android.support.v7.widget.LinearLayoutManager
+import androidx.fragment.app.Fragment
+import androidx.core.content.FileProvider
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.LinearLayoutManager
 import android.util.Log
 import android.view.*
 import android.widget.LinearLayout
@@ -45,7 +45,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-class Downloader : Fragment(), DownloadsAdapter.OnItemClickListener {
+class Downloader : androidx.fragment.app.Fragment(), DownloadsAdapter.OnItemClickListener {
 
     /**
      * Ad related variables
@@ -126,9 +126,13 @@ class Downloader : Fragment(), DownloadsAdapter.OnItemClickListener {
          */
         downloadsAdapter = DownloadsAdapter(activity as MainActivity, downloadsEntity)
         downloadsAdapter.setOnItemClickListener(this)
-        val whatsManager = LinearLayoutManager(activity as MainActivity, LinearLayoutManager.VERTICAL, false)
+        val whatsManager = androidx.recyclerview.widget.LinearLayoutManager(
+            activity as MainActivity,
+            androidx.recyclerview.widget.LinearLayoutManager.VERTICAL,
+            false
+        )
         root!!.download_history.layoutManager = whatsManager
-        root!!.download_history.itemAnimator = DefaultItemAnimator()
+        root!!.download_history.itemAnimator = androidx.recyclerview.widget.DefaultItemAnimator()
         root!!.download_history.adapter = downloadsAdapter
 
         if (adPreferrenceHandler.getViewSessionCount() == 2){ intrAdLoader() }
@@ -201,7 +205,7 @@ class Downloader : Fragment(), DownloadsAdapter.OnItemClickListener {
                     savedFiles[s].length().toString(),
                     SimpleDateFormat("dd-MM-yyyy").format(Date(savedFiles[s].lastModified()))
                 )
-                if (downloadsViewModel.countWhatsListByName(Uri.fromFile(savedFiles[s]).toString()) == 0) {
+                if (downloadsViewModel.countDownloadsByUrl(Uri.fromFile(savedFiles[s]).toString()) == 0) {
                     downloadsViewModel.insertDownloads(download)
                 }
             }

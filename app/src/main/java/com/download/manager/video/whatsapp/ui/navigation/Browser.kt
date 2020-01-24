@@ -1,18 +1,18 @@
 package com.download.manager.video.whatsapp.ui.navigation
 
 import android.app.Dialog
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.*
-import android.support.v4.app.Fragment
-import android.support.v7.app.AppCompatDelegate
-import android.support.v7.widget.DefaultItemAnimator
-import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.fragment.app.Fragment
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.util.Log
 import android.util.Patterns
 import android.view.*
@@ -52,7 +52,7 @@ import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLSocketFactory
 import kotlin.collections.ArrayList
 
-class Browser : Fragment(){
+class Browser : androidx.fragment.app.Fragment(){
 
     private lateinit var dialog: Dialog
     private lateinit var saveDialog: Dialog
@@ -76,9 +76,14 @@ class Browser : Fragment(){
         downloadsViewModel = ViewModelProviders.of(this).get(DownloadsViewModel::class.java)
 
         bookmarkAdapter = BookmarkAdapter(activity as MainActivity, bookmarkEntity)
-        val linksManager = GridLayoutManager(activity as MainActivity, 3, GridLayoutManager.VERTICAL, false)
+        val linksManager = androidx.recyclerview.widget.GridLayoutManager(
+            activity as MainActivity,
+            3,
+            androidx.recyclerview.widget.GridLayoutManager.VERTICAL,
+            false
+        )
         root!!.web_history.layoutManager = linksManager
-        root!!.web_history.itemAnimator = DefaultItemAnimator()
+        root!!.web_history.itemAnimator = androidx.recyclerview.widget.DefaultItemAnimator()
         root!!.web_history.adapter = bookmarkAdapter
 
         populateBookmarks()
@@ -102,10 +107,10 @@ class Browser : Fragment(){
         root!!.webview.settings.javaScriptEnabled = true
         root!!.webview.settings.setAppCacheEnabled(true)
         root!!.webview.settings.builtInZoomControls = true
-        root!!.webview.settings.saveFormData = true
+        root!!.webview.settings.domStorageEnabled = true
         root!!.webview.settings.allowUniversalAccessFromFileURLs = true
         root!!.webview.settings.javaScriptCanOpenWindowsAutomatically = true
-        root!!.webview.settings.pluginState = WebSettings.PluginState.ON
+        root!!.webview.settings.userAgentString = getDefaultUserAgentString()
         root!!.webview.addJavascriptInterface(this, "browser")
         root!!.webview.webViewClient = webViewClient
         root!!.webview.webChromeClient = webChromeClient
@@ -174,9 +179,13 @@ class Browser : Fragment(){
                 val _dismiss: TextView = dialog.dl_dismiss
 
                 val downloadsListAdapter = DownloadListAdapter(activity as MainActivity, downloadsEntity)
-                val linksManager = LinearLayoutManager(activity as MainActivity, LinearLayoutManager.VERTICAL, false)
+                val linksManager = LinearLayoutManager(
+                    activity as MainActivity,
+                    androidx.recyclerview.widget.LinearLayoutManager.VERTICAL,
+                    false
+                )
                 _links.layoutManager = linksManager
-                _links.itemAnimator = DefaultItemAnimator()
+                _links.itemAnimator = androidx.recyclerview.widget.DefaultItemAnimator()
                 _links.adapter = downloadsListAdapter
 
                 downloadsListAdapter.setList(downloadsEntity)
@@ -380,5 +389,14 @@ class Browser : Fragment(){
             }
         })
     }
+
+    fun getDefaultUserAgentString(): String {
+        val version = Build.VERSION.RELEASE
+        val id = Build.ID
+        val safariVersion = "537.36"
+        val chromeVersion = if (Build.VERSION.SDK_INT <= 24){ "58.0.3029.96" } else { "70.0.3538.77" }
+
+        return "Mozilla/5.0 (Linux; Android " + version + "; " + Build.MODEL + " Build/" + id + ") AppleWebKit/" + safariVersion + " (KHTML, like Gecko) Chrome/" + chromeVersion + " Mobile Safari/" + safariVersion
+}
 
 }

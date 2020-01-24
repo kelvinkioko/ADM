@@ -91,38 +91,26 @@ internal data class DownloadTask(
             connection?.connect()
 
             // get filename and file extension
-            when {
-                downloadType.equals("Insta:Video", true) -> {
-                    fileName = DatabaseApp().getInstaDao(context.get()!!.applicationContext).getInstaByUrl(url).name
-                    extension = "mp4"
-                }
-                downloadType.equals("Insta:Image", true) -> {
-                    fileName = DatabaseApp().getInstaDao(context.get()!!.applicationContext).getInstaByUrl(url).name
-                    extension = "jpeg"
-                }
-                else -> {
-                    val downds = DatabaseApp().getDownloadsDao(context.get()!!.applicationContext).getDownloadByUrl(url)
-                    fileName = downds.name
-                    extension = when {
-                        url.contains("webm") -> "webm"
-                        url.contains(".webm") -> "webm"
-                        url.contains(".avi") -> "avi"
-                        url.contains(".flv") -> "flv"
-                        url.contains(".mov") -> "mov"
-                        url.contains(".mkv") -> "mkv"
-                        url.contains(".mp4") -> "mp4"
-                        url.contains(".mp3") -> "mp3"
-                        url.contains(".pdf") -> "pdf"
-                        url.contains(".wav") -> "wav"
-                        url.contains(".xml") -> "xml"
-                        url.contains(".doc") -> "doc"
-                        url.contains(".ppt") -> "ppt"
-                        url.contains(".xls") -> "xls"
-                        url.contains(".zip") -> "zip"
-                        url.contains(".png") -> "png0"
-                        else -> "mp4"
-                    }
-                }
+            val downds = DatabaseApp().getDownloadsDao(context.get()!!.applicationContext).getDownloadByUrl(url)
+            fileName = downds.name
+            extension = when {
+                url.contains("webm") -> "webm"
+                url.contains(".webm") -> "webm"
+                url.contains(".avi") -> "avi"
+                url.contains(".flv") -> "flv"
+                url.contains(".mov") -> "mov"
+                url.contains(".mkv") -> "mkv"
+                url.contains(".mp4") -> "mp4"
+                url.contains(".mp3") -> "mp3"
+                url.contains(".pdf") -> "pdf"
+                url.contains(".wav") -> "wav"
+                url.contains(".xml") -> "xml"
+                url.contains(".doc") -> "doc"
+                url.contains(".ppt") -> "ppt"
+                url.contains(".xls") -> "xls"
+                url.contains(".zip") -> "zip"
+                url.contains(".png") -> "png0"
+                else -> "mp4"
             }
 
             // check file size

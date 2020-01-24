@@ -1,7 +1,7 @@
 package com.download.manager.video.whatsapp.database.dao
 
-import android.arch.lifecycle.LiveData
-import android.arch.persistence.room.*
+import androidx.lifecycle.LiveData
+import androidx.room.*
 import com.download.manager.video.whatsapp.database.entity.DownloadsEntity
 
 @Dao
@@ -27,6 +27,9 @@ interface DownloadsDao {
 
     @Query("SELECT COUNT(id) FROM downloadsEntity WHERE url =:url")
     fun countDownload(url: String): Int
+
+    @Query("SELECT COUNT(id) FROM downloadsEntity WHERE localurl =:local_url")
+    fun countDownloadsByUrl(local_url: String): Int
 
     @Query("SELECT COUNT(id) FROM downloadsEntity")
     fun countDownloads(): Int
